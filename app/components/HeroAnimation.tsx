@@ -20,13 +20,13 @@ type Booking = {
   leavingType?: "cancelled" | "rescheduled";
 };
 
-// Fixed pool of 5 guests that cycle through
+// Fixed pool of 5 guests that cycle through (Argentine actors / famous names)
 const guestPool = [
-  { platform: "Airbnb", guest: "Maria Garcia", guests: 2, dietary: "1 vegetarian" },
-  { platform: "GetYourGuide", guest: "James Wilson", guests: 4, dietary: null },
-  { platform: "Viator", guest: "Sophie Chen", guests: 2, dietary: "2 vegan" },
-  { platform: "Civitatis", guest: "Emma Roberts", guests: 3, dietary: null },
-  { platform: "TripAdvisor", guest: "Carlos Mendez", guests: 5, dietary: "1 gluten-free" },
+  { platform: "Airbnb", guest: "Natalia Oreiro", guests: 2, dietary: "1 vegetarian" },
+  { platform: "GetYourGuide", guest: "Ricardo Darín", guests: 4, dietary: null },
+  { platform: "Viator", guest: "Luisana Lopilato", guests: 2, dietary: "2 vegan" },
+  { platform: "Civitatis", guest: "Julieta Zylberberg", guests: 3, dietary: null },
+  { platform: "TripAdvisor", guest: "Guillermo Francella", guests: 5, dietary: "1 gluten-free" },
 ];
 
 export default function HeroAnimation() {
@@ -44,16 +44,16 @@ export default function HeroAnimation() {
   const futureFormatted = `${todayMonth} ${futureDay}`;
 
   const [emails, setEmails] = useState<Email[]>([
-    { id: 1, platform: "Airbnb", guest: "Maria Garcia", guests: 2, date: todayFormatted, type: "booking" },
-    { id: 2, platform: "GetYourGuide", guest: "James Wilson", guests: 4, date: todayFormatted, type: "booking" },
-    { id: 3, platform: "Viator", guest: "Sophie Chen", guests: 2, date: todayFormatted, type: "booking" },
+    { id: 1, platform: "Airbnb", guest: "Natalia Oreiro", guests: 2, date: todayFormatted, type: "booking" },
+    { id: 2, platform: "GetYourGuide", guest: "Ricardo Darín", guests: 4, date: todayFormatted, type: "booking" },
+    { id: 3, platform: "Viator", guest: "Luisana Lopilato", guests: 2, date: todayFormatted, type: "booking" },
   ]);
   
   // Max 3 visible bookings
   const [bookings, setBookings] = useState<Booking[]>([
-    { platform: "Airbnb", guest: "Maria Garcia", guests: 2, dietary: "1 vegetarian", status: "confirmed" },
-    { platform: "GetYourGuide", guest: "James Wilson", guests: 4, dietary: null, status: "confirmed" },
-    { platform: "Viator", guest: "Sophie Chen", guests: 2, dietary: "2 vegan", status: "confirmed" },
+    { platform: "Airbnb", guest: "Natalia Oreiro", guests: 2, dietary: "1 vegetarian", status: "confirmed" },
+    { platform: "GetYourGuide", guest: "Ricardo Darín", guests: 4, dietary: null, status: "confirmed" },
+    { platform: "Viator", guest: "Luisana Lopilato", guests: 2, dietary: "2 vegan", status: "confirmed" },
   ]);
   
   const [syncing, setSyncing] = useState(false);

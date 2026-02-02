@@ -383,7 +383,7 @@ export default function Home() {
                     <span className="rounded bg-[#FF5A5F]/10 px-2 py-0.5 text-xs font-medium text-[#FF5A5F]">Airbnb</span>
                   </div>
                   <div className="flex-1">
-                    <p className="font-medium text-[#1C1917]">Maria Garcia</p>
+                    <p className="font-medium text-[#1C1917]">Natalia Oreiro</p>
                     <p className="text-xs text-[#78716C]">2 guests · 3 nights</p>
                   </div>
                   <div className="flex flex-wrap gap-1.5">
@@ -396,7 +396,7 @@ export default function Home() {
                     <span className="rounded bg-[#FF5533]/10 px-2 py-0.5 text-xs font-medium text-[#FF5533]">GetYourGuide</span>
                   </div>
                   <div className="flex-1">
-                    <p className="font-medium text-[#1C1917]">James Wilson</p>
+                    <p className="font-medium text-[#1C1917]">Ricardo Darín</p>
                     <p className="text-xs text-[#78716C]">4 guests · Day tour</p>
                   </div>
                   <div className="flex flex-wrap gap-1.5">
@@ -408,7 +408,7 @@ export default function Home() {
                     <span className="rounded bg-[#00AA6C]/10 px-2 py-0.5 text-xs font-medium text-[#00AA6C]">Viator</span>
                   </div>
                   <div className="flex-1">
-                    <p className="font-medium text-[#1C1917]">Sophie Chen</p>
+                    <p className="font-medium text-[#1C1917]">Luisana Lopilato</p>
                     <p className="text-xs text-[#78716C]">2 guests · Food tour</p>
                   </div>
                   <div className="flex flex-wrap gap-1.5">
@@ -427,7 +427,7 @@ export default function Home() {
                 </div>
               </div>
               <div className="flex-1">
-                <p className="font-medium text-[#1C1917]">Carlos Mendez</p>
+                <p className="font-medium text-[#1C1917]">Guillermo Francella</p>
                 <p className="text-sm text-[#78716C]">6 guests · Civitatis · Wine tasting</p>
               </div>
               <div className="flex flex-wrap items-center gap-2">
@@ -445,7 +445,7 @@ export default function Home() {
                 </div>
               </div>
               <div className="flex-1">
-                <p className="font-medium text-[#1C1917]">Anna Kowalski</p>
+                <p className="font-medium text-[#1C1917]">Mercedes Morán</p>
                 <p className="text-sm text-[#78716C]">3 guests · TripAdvisor · City tour</p>
               </div>
               <div className="flex flex-wrap items-center gap-2">
