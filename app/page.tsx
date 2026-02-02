@@ -1,4 +1,5 @@
 import Link from "next/link";
+import HeroAnimation from "./components/HeroAnimation";
 
 export default function Home() {
   return (
@@ -80,139 +81,8 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Hero Visual - Multiple Emails to Calendar */}
-          <div className="relative">
-            <div className="rounded-2xl border border-[#E7E5E4] bg-white p-6 shadow-xl shadow-[#EA580C]/5">
-              {/* Multiple Email Cards */}
-              <div className="mb-4 space-y-2">
-                <div className="rounded-xl border border-[#E7E5E4] bg-[#FDF6EC] p-3">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#EA580C]/10">
-                      <svg
-                        className="h-4 w-4 text-[#EA580C]"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        strokeWidth={2}
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                        />
-                      </svg>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-[#1C1917]">Airbnb</p>
-                      <p className="text-xs text-[#78716C] truncate">Maria Garcia (2 guests) · Feb 15</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="rounded-xl border border-[#E7E5E4] bg-[#FDF6EC] p-3">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#EA580C]/10">
-                      <svg
-                        className="h-4 w-4 text-[#EA580C]"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        strokeWidth={2}
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                        />
-                      </svg>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-[#1C1917]">GetYourGuide</p>
-                      <p className="text-xs text-[#78716C] truncate">James Wilson (4 guests) · Feb 15</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="rounded-xl border border-[#E7E5E4] bg-[#FDF6EC] p-3">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#EA580C]/10">
-                      <svg
-                        className="h-4 w-4 text-[#EA580C]"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        strokeWidth={2}
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                        />
-                      </svg>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-[#1C1917]">Viator</p>
-                      <p className="text-xs text-[#78716C] truncate">Sophie Chen (2 guests) · Feb 15</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Arrow */}
-              <div className="my-4 flex justify-center">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#EA580C]">
-                  <svg
-                    className="h-5 w-5 text-white"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M19 14l-7 7m0 0l-7-7m7 7V3"
-                    />
-                  </svg>
-                </div>
-              </div>
-
-              {/* Calendar Card - One day with multiple bookings */}
-              <div className="rounded-xl border border-[#E7E5E4] bg-white p-4">
-                <div className="mb-3 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="text-center">
-                      <p className="text-xs text-[#78716C]">Feb</p>
-                      <p className="text-2xl font-semibold text-[#EA580C]">15</p>
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-[#1C1917]">Saturday</p>
-                      <p className="text-xs text-[#78716C]">3 bookings · 8 guests</p>
-                    </div>
-                  </div>
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-green-50 px-2.5 py-1 text-xs font-medium text-green-700">
-                    <span className="h-1.5 w-1.5 rounded-full bg-green-500"></span>
-                    Synced
-                  </span>
-                </div>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 rounded-lg bg-[#EA580C]/5 px-3 py-2">
-                    <span className="text-xs font-medium text-[#78716C] w-20">Airbnb</span>
-                    <span className="text-sm text-[#1C1917]">Maria Garcia</span>
-                    <span className="ml-auto text-xs text-[#78716C]">2 guests</span>
-                  </div>
-                  <div className="flex items-center gap-2 rounded-lg bg-[#EA580C]/5 px-3 py-2">
-                    <span className="text-xs font-medium text-[#78716C] w-20">GetYourGuide</span>
-                    <span className="text-sm text-[#1C1917]">James Wilson</span>
-                    <span className="ml-auto text-xs text-[#78716C]">4 guests</span>
-                  </div>
-                  <div className="flex items-center gap-2 rounded-lg bg-[#EA580C]/5 px-3 py-2">
-                    <span className="text-xs font-medium text-[#78716C] w-20">Viator</span>
-                    <span className="text-sm text-[#1C1917]">Sophie Chen</span>
-                    <span className="ml-auto text-xs text-[#78716C]">2 guests</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+{/* Hero Visual - Animated Emails to Calendar */}
+          <HeroAnimation />
         </div>
       </section>
 
