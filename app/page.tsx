@@ -254,7 +254,7 @@ export default function Home() {
               {
                 title: "Reschedule Tracking",
                 description:
-                  "Date changes sync automatically — no manual updates needed.",
+                  "Date changes sync automatically, no manual updates needed.",
                 icon: (
                   <svg
                     className="h-6 w-6"
@@ -294,7 +294,7 @@ export default function Home() {
               {
                 title: "Special Requests",
                 description:
-                  "Guest notes and requirements all in one place — nothing slips through.",
+                  "Guest notes and requirements all in one place, nothing slips through.",
                 icon: (
                   <svg
                     className="h-6 w-6"
