@@ -597,30 +597,47 @@ export default function Home() {
           </div>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-6">
             {[
-              "The Mate Experience",
-              "Betty and Marcelo",
-              "ARTour",
-              "SeeBA",
-              "Football Fans BA",
+              { name: "The Mate Experience", href: "https://www.getyourguide.com/buenos-aires-l1/buenos-aires-argentine-mate-break-in-45-minutes-t1057199/?ranking_uuid=63d35cda-5228-4e32-b3fd-eb37a1c6be22" },
+              { name: "Betty and Marcelo", href: "https://www.bettyandmarcelo.com" },
+              { name: "ARTour" },
+              { name: "SeeBA" },
+              { name: "Football Fans BA", href: "https://www.getyourguide.com/buenos-aires-l1/buenos-aires-soccer-match-experience-with-tickets-t1092814/?ranking_uuid=af590b33-3eac-4723-a0e8-b3c1cce390b2" },
               { name: "+you", comingSoon: true },
             ].map((partner) => {
-              const isComingSoon = typeof partner === "object";
-              const displayName = isComingSoon ? partner.name : partner;
-              return (
-                <div
-                  key={displayName}
-                  className={`flex flex-col items-center justify-center rounded-xl border px-6 py-8 text-center transition-all ${
-                    isComingSoon
-                      ? "border-dashed border-[#EA580C]/40 bg-[#EA580C]/5 hover:border-[#EA580C]/60"
-                      : "border-[#E7E5E4] bg-white hover:border-[#EA580C]/20 hover:shadow-lg hover:shadow-[#EA580C]/5"
-                  }`}
-                >
+              const isComingSoon = partner.comingSoon === true;
+              const displayName = partner.name;
+              const href = "href" in partner ? partner.href : undefined;
+              const baseClasses = `flex flex-col items-center justify-center rounded-xl border px-6 py-8 text-center transition-all ${
+                isComingSoon
+                  ? "border-dashed border-[#EA580C]/40 bg-[#EA580C]/5 hover:border-[#EA580C]/60"
+                  : "border-[#E7E5E4] bg-white hover:border-[#EA580C]/20 hover:shadow-lg hover:shadow-[#EA580C]/5"
+              }`;
+              const content = (
+                <>
                   <span className={`text-lg font-medium ${isComingSoon ? "text-[#EA580C]" : "text-[#1C1917]"}`}>
                     {displayName}
                   </span>
                   {isComingSoon && (
                     <span className="mt-1 text-xs font-medium text-[#78716C]">coming soon</span>
                   )}
+                </>
+              );
+              if (href) {
+                return (
+                  <a
+                    key={displayName}
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={baseClasses}
+                  >
+                    {content}
+                  </a>
+                );
+              }
+              return (
+                <div key={displayName} className={baseClasses}>
+                  {content}
                 </div>
               );
             })}
