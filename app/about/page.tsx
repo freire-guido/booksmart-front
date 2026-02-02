@@ -58,7 +58,7 @@ export default function About() {
         {/* Founder Section */}
         <div className="mb-20 grid gap-12 lg:grid-cols-5 lg:gap-16">
           {/* Founder Image */}
-          <div className="lg:col-span-2">
+          <div className="mx-auto max-w-[280px] lg:col-span-2 lg:mx-0 lg:max-w-none">
             <div className="aspect-[4/5] overflow-hidden rounded-2xl border border-[#E7E5E4]">
               <Image
                 src="/guido.png"
@@ -74,7 +74,7 @@ export default function About() {
           {/* Story */}
           <div className="lg:col-span-3">
             <div className="space-y-6">
-              <div>
+              <div className="text-center lg:text-left">
                 <h2 className="mb-1 text-2xl font-semibold text-[#1C1917]">
                   Guido Freire
                 </h2>
@@ -107,9 +107,9 @@ export default function About() {
           <h2 className="mb-12 text-center text-2xl font-semibold text-[#1C1917]">
             The Journey
           </h2>
-          <div className="relative">
-            {/* Timeline line */}
-            <div className="absolute left-1/2 top-0 hidden h-full w-px -translate-x-1/2 bg-[#E7E5E4] lg:block" />
+          <div className="relative pl-4 lg:pl-0">
+            {/* Timeline line - left on mobile, center on desktop */}
+            <div className="absolute left-0 top-0 h-full w-px bg-[#E7E5E4] lg:left-1/2 lg:-translate-x-1/2" />
 
             <div className="space-y-12 lg:space-y-0">
               {[
@@ -171,7 +171,7 @@ export default function About() {
                 >
                   {/* Content */}
                   <div
-                    className={`lg:w-1/2 ${
+                    className={`pl-8 lg:pl-0 lg:w-1/2 ${
                       item.side === "right" ? "lg:pl-16" : "lg:pr-16 lg:text-right"
                     }`}
                   >
@@ -190,8 +190,8 @@ export default function About() {
                     </div>
                   </div>
 
-                  {/* Timeline dot */}
-                  <div className="absolute left-1/2 top-6 hidden h-4 w-4 -translate-x-1/2 rounded-full border-4 border-[#FAF8F5] bg-[#EA580C] lg:block" />
+                  {/* Timeline dot - left on mobile, center on desktop */}
+                  <div className="absolute left-0 top-6 h-4 w-4 -translate-x-1/2 rounded-full border-4 border-[#FAF8F5] bg-[#EA580C] lg:left-1/2" />
 
                   {/* Empty space for the other side */}
                   <div className="hidden lg:block lg:w-1/2" />
