@@ -3,7 +3,7 @@ import HeroAnimation from "./components/HeroAnimation";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-[#FAF8F5]">
+    <div className="min-h-screen bg-[#FAF8F5] overflow-x-hidden">
       {/* Navigation */}
       <nav className="sticky top-0 z-50 border-b border-[#E7E5E4] bg-[#FAF8F5]/95 backdrop-blur-sm">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
@@ -364,54 +364,54 @@ export default function Home() {
           {/* Booking Cards - Now showing same date with multiple platforms */}
           <div className="space-y-4">
             {/* Feb 15 - Multiple bookings on same day */}
-            <div className="rounded-xl border border-[#EA580C]/20 bg-[#EA580C]/5 p-4">
+            <div className="rounded-xl border border-[#EA580C]/20 bg-[#EA580C]/5 p-4 overflow-hidden">
               <div className="mb-3 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="text-center">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="text-center shrink-0">
                     <p className="text-xs uppercase text-[#78716C]">Feb</p>
                     <p className="text-2xl font-semibold text-[#EA580C]">15</p>
                   </div>
-                  <div>
+                  <div className="min-w-0">
                     <p className="font-medium text-[#1C1917]">Saturday</p>
                     <p className="text-sm text-[#78716C]">3 bookings · 8 guests total</p>
                   </div>
                 </div>
               </div>
-              <div className="space-y-2 pl-12">
-                <div className="flex flex-col gap-2 rounded-lg bg-white p-3 sm:flex-row sm:items-center">
-                  <div className="flex items-center gap-2 sm:w-32">
+              <div className="space-y-2 pl-0 sm:pl-12 overflow-hidden">
+                <div className="flex flex-col gap-2 rounded-lg bg-white p-3 sm:flex-row sm:items-center overflow-hidden">
+                  <div className="flex items-center gap-2 sm:w-32 shrink-0">
                     <span className="rounded bg-[#FF5A5F]/10 px-2 py-0.5 text-xs font-medium text-[#FF5A5F]">Airbnb</span>
                   </div>
-                  <div className="flex-1">
-                    <p className="font-medium text-[#1C1917]">Natalia Oreiro</p>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-[#1C1917] truncate">Natalia Oreiro</p>
                     <p className="text-xs text-[#78716C]">2 guests · 3 nights</p>
                   </div>
-                  <div className="flex flex-wrap gap-1.5">
+                  <div className="flex flex-wrap gap-1.5 shrink-0">
                     <span className="rounded-full bg-orange-100 px-2.5 py-0.5 text-xs font-medium text-[#EA580C]">Vegetarian</span>
                     <span className="rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-700">Early check-in</span>
                   </div>
                 </div>
-                <div className="flex flex-col gap-2 rounded-lg bg-white p-3 sm:flex-row sm:items-center">
-                  <div className="flex items-center gap-2 sm:w-32">
+                <div className="flex flex-col gap-2 rounded-lg bg-white p-3 sm:flex-row sm:items-center overflow-hidden">
+                  <div className="flex items-center gap-2 sm:w-32 shrink-0">
                     <span className="rounded bg-[#FF5533]/10 px-2 py-0.5 text-xs font-medium text-[#FF5533]">GetYourGuide</span>
                   </div>
-                  <div className="flex-1">
-                    <p className="font-medium text-[#1C1917]">Ricardo Darín</p>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-[#1C1917] truncate">Ricardo Darín</p>
                     <p className="text-xs text-[#78716C]">4 guests · Day tour</p>
                   </div>
-                  <div className="flex flex-wrap gap-1.5">
+                  <div className="flex flex-wrap gap-1.5 shrink-0">
                     <span className="rounded-full bg-orange-100 px-2.5 py-0.5 text-xs font-medium text-[#EA580C]">Gluten-free</span>
                   </div>
                 </div>
-                <div className="flex flex-col gap-2 rounded-lg bg-white p-3 sm:flex-row sm:items-center">
-                  <div className="flex items-center gap-2 sm:w-32">
+                <div className="flex flex-col gap-2 rounded-lg bg-white p-3 sm:flex-row sm:items-center overflow-hidden">
+                  <div className="flex items-center gap-2 sm:w-32 shrink-0">
                     <span className="rounded bg-[#00AA6C]/10 px-2 py-0.5 text-xs font-medium text-[#00AA6C]">Viator</span>
                   </div>
-                  <div className="flex-1">
-                    <p className="font-medium text-[#1C1917]">Luisana Lopilato</p>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-[#1C1917] truncate">Luisana Lopilato</p>
                     <p className="text-xs text-[#78716C]">2 guests · Food tour</p>
                   </div>
-                  <div className="flex flex-wrap gap-1.5">
+                  <div className="flex flex-wrap gap-1.5 shrink-0">
                     <span className="rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-700">Wheelchair accessible</span>
                   </div>
                 </div>
@@ -419,36 +419,36 @@ export default function Home() {
             </div>
 
             {/* Feb 16 */}
-            <div className="flex flex-col gap-4 rounded-xl border border-[#E7E5E4] bg-[#FAF8F5] p-4 sm:flex-row sm:items-center">
-              <div className="flex items-center gap-4 sm:w-24">
+            <div className="flex flex-col gap-4 rounded-xl border border-[#E7E5E4] bg-[#FAF8F5] p-4 sm:flex-row sm:items-center overflow-hidden">
+              <div className="flex items-center gap-4 sm:w-24 shrink-0">
                 <div className="text-center">
                   <p className="text-xs uppercase text-[#78716C]">Feb</p>
                   <p className="text-2xl font-semibold text-[#EA580C]">16</p>
                 </div>
               </div>
-              <div className="flex-1">
-                <p className="font-medium text-[#1C1917]">Guillermo Francella</p>
-                <p className="text-sm text-[#78716C]">6 guests · Civitatis · Wine tasting</p>
+              <div className="flex-1 min-w-0">
+                <p className="font-medium text-[#1C1917] truncate">Guillermo Francella</p>
+                <p className="text-sm text-[#78716C] truncate">6 guests · Civitatis · Wine tasting</p>
               </div>
-              <div className="flex flex-wrap items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2 shrink-0">
                 <span className="rounded-full bg-orange-100 px-3 py-1 text-xs font-medium text-[#EA580C]">Vegan (2)</span>
                 <span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700">Rescheduled</span>
               </div>
             </div>
 
             {/* Feb 17 */}
-            <div className="flex flex-col gap-4 rounded-xl border border-[#E7E5E4] bg-[#FAF8F5] p-4 sm:flex-row sm:items-center">
-              <div className="flex items-center gap-4 sm:w-24">
+            <div className="flex flex-col gap-4 rounded-xl border border-[#E7E5E4] bg-[#FAF8F5] p-4 sm:flex-row sm:items-center overflow-hidden">
+              <div className="flex items-center gap-4 sm:w-24 shrink-0">
                 <div className="text-center">
                   <p className="text-xs uppercase text-[#78716C]">Feb</p>
                   <p className="text-2xl font-semibold text-[#EA580C]">17</p>
                 </div>
               </div>
-              <div className="flex-1">
-                <p className="font-medium text-[#1C1917]">Mercedes Morán</p>
-                <p className="text-sm text-[#78716C]">3 guests · TripAdvisor · City tour</p>
+              <div className="flex-1 min-w-0">
+                <p className="font-medium text-[#1C1917] truncate">Mercedes Morán</p>
+                <p className="text-sm text-[#78716C] truncate">3 guests · TripAdvisor · City tour</p>
               </div>
-              <div className="flex flex-wrap items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2 shrink-0">
                 <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700">Private guide requested</span>
               </div>
             </div>
@@ -582,9 +582,9 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-[#E7E5E4] py-12">
+      <footer className="border-t border-[#E7E5E4] py-12 overflow-hidden">
         <div className="mx-auto max-w-6xl px-6">
-          <div className="flex flex-col items-center justify-between gap-6 sm:flex-row">
+          <div className="flex flex-col items-center justify-between gap-6 sm:flex-row flex-wrap">
             <Link href="/" className="flex items-center gap-2">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#EA580C]">
                 <svg

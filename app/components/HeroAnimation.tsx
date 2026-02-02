@@ -175,8 +175,8 @@ export default function HeroAnimation() {
   const activeBookings = visibleBookings.filter((b) => b.status === "confirmed").length;
 
   return (
-    <div className="relative">
-      <div className="rounded-2xl border border-[#E7E5E4] bg-white p-6 shadow-xl shadow-[#EA580C]/5">
+    <div className="relative overflow-hidden">
+      <div className="rounded-2xl border border-[#E7E5E4] bg-white p-4 sm:p-6 shadow-xl shadow-[#EA580C]/5 overflow-hidden">
         {/* Email Cards */}
         <div className="mb-4 space-y-2">
           {emails.map((email, index) => (
@@ -217,14 +217,14 @@ export default function HeroAnimation() {
                     </svg>
                   )}
                 </div>
-                <div className="flex-1 min-w-0">
+                <div className="flex-1 min-w-0 overflow-hidden">
                   <div className="flex items-center gap-2">
-                    <p className="text-sm font-medium text-[#1C1917]">{email.platform}</p>
+                    <p className="text-sm font-medium text-[#1C1917] truncate">{email.platform}</p>
                     {email.type === "cancellation" && (
-                      <span className="text-xs font-medium text-red-500">CANCELLED</span>
+                      <span className="text-xs font-medium text-red-500 shrink-0">CANCELLED</span>
                     )}
                     {email.type === "reschedule" && (
-                      <span className="text-xs font-medium text-amber-500">→ {email.date}</span>
+                      <span className="text-xs font-medium text-amber-500 shrink-0">→ {email.date}</span>
                     )}
                   </div>
                   <p className="text-xs text-[#78716C] truncate">
@@ -255,7 +255,7 @@ export default function HeroAnimation() {
         </div>
 
         {/* Calendar Card */}
-        <div className="rounded-xl border border-[#E7E5E4] bg-white p-4">
+        <div className="rounded-xl border border-[#E7E5E4] bg-white p-3 sm:p-4 overflow-hidden">
           <div className="mb-3 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="text-center">
@@ -299,7 +299,7 @@ export default function HeroAnimation() {
             {visibleBookings.map((booking) => (
               <div
                 key={`${booking.guest}-${booking.platform}`}
-                className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all duration-500 ${
+                className={`flex items-center gap-2 rounded-lg px-2 sm:px-3 py-2 text-sm transition-all duration-500 overflow-hidden ${
                   booking.status === "leaving" && booking.leavingType === "cancelled"
                     ? "bg-red-50 opacity-50"
                     : booking.status === "leaving" && booking.leavingType === "rescheduled"
@@ -307,20 +307,20 @@ export default function HeroAnimation() {
                     : "bg-[#EA580C]/5"
                 }`}
               >
-                <span className="text-xs font-medium text-[#78716C] w-20 truncate">{booking.platform}</span>
-                <span className={`flex-1 ${booking.status === "leaving" ? "line-through text-[#78716C]" : "text-[#1C1917]"}`}>
+                <span className="text-xs font-medium text-[#78716C] w-16 sm:w-20 truncate shrink-0">{booking.platform}</span>
+                <span className={`flex-1 min-w-0 truncate ${booking.status === "leaving" ? "line-through text-[#78716C]" : "text-[#1C1917]"}`}>
                   {booking.guest}
                 </span>
                 {booking.dietary && booking.status === "confirmed" && (
-                  <span className="text-xs text-[#EA580C]">({booking.dietary})</span>
+                  <span className="text-xs text-[#EA580C] shrink-0 hidden sm:inline">({booking.dietary})</span>
                 )}
                 {booking.status === "leaving" && booking.leavingType === "cancelled" && (
-                  <span className="text-xs font-medium text-red-500">✕</span>
+                  <span className="text-xs font-medium text-red-500 shrink-0">✕</span>
                 )}
                 {booking.status === "leaving" && booking.leavingType === "rescheduled" && (
-                  <span className="text-xs font-medium text-amber-500">→</span>
+                  <span className="text-xs font-medium text-amber-500 shrink-0">→</span>
                 )}
-                <span className="text-xs text-[#78716C] w-6 text-right">{booking.guests}g</span>
+                <span className="text-xs text-[#78716C] w-6 text-right shrink-0">{booking.guests}g</span>
               </div>
             ))}
           </div>
