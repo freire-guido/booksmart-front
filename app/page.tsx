@@ -60,7 +60,7 @@ export default function Home() {
             </h1>
             <p className="text-lg leading-relaxed text-[#78716C] lg:text-xl">
               BookSmart reads your Gmail confirmations from Airbnb, GetYourGuide,
-              Viator and more — keeping your schedule live and accurate,
+              Viator and more, keeping your schedule live and accurate,
               automatically.
             </p>
             <div className="flex flex-col gap-4 sm:flex-row">
