@@ -15,31 +15,45 @@ type Booking = {
   platform: string;
   guest: string;
   guests: number;
+  dietary: string | null;
   status: "confirmed" | "leaving";
   leavingType?: "cancelled" | "rescheduled";
 };
 
 // Fixed pool of 5 guests that cycle through
 const guestPool = [
-  { platform: "Airbnb", guest: "Maria Garcia", guests: 2 },
-  { platform: "GetYourGuide", guest: "James Wilson", guests: 4 },
-  { platform: "Viator", guest: "Sophie Chen", guests: 2 },
-  { platform: "Civitatis", guest: "Emma Roberts", guests: 3 },
-  { platform: "TripAdvisor", guest: "Carlos Mendez", guests: 5 },
+  { platform: "Airbnb", guest: "Maria Garcia", guests: 2, dietary: "1 vegetarian" },
+  { platform: "GetYourGuide", guest: "James Wilson", guests: 4, dietary: null },
+  { platform: "Viator", guest: "Sophie Chen", guests: 2, dietary: "2 vegan" },
+  { platform: "Civitatis", guest: "Emma Roberts", guests: 3, dietary: null },
+  { platform: "TripAdvisor", guest: "Carlos Mendez", guests: 5, dietary: "1 gluten-free" },
 ];
 
 export default function HeroAnimation() {
+  // Get today's date
+  const today = new Date();
+  const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  const todayMonth = monthNames[today.getMonth()];
+  const todayDay = today.getDate();
+  const todayDayName = dayNames[today.getDay()];
+  const todayFormatted = `${todayMonth} ${todayDay}`;
+  
+  // Future date for reschedules
+  const futureDay = todayDay + 3;
+  const futureFormatted = `${todayMonth} ${futureDay}`;
+
   const [emails, setEmails] = useState<Email[]>([
-    { id: 1, platform: "Airbnb", guest: "Maria Garcia", guests: 2, date: "Feb 15", type: "booking" },
-    { id: 2, platform: "GetYourGuide", guest: "James Wilson", guests: 4, date: "Feb 15", type: "booking" },
-    { id: 3, platform: "Viator", guest: "Sophie Chen", guests: 2, date: "Feb 15", type: "booking" },
+    { id: 1, platform: "Airbnb", guest: "Maria Garcia", guests: 2, date: todayFormatted, type: "booking" },
+    { id: 2, platform: "GetYourGuide", guest: "James Wilson", guests: 4, date: todayFormatted, type: "booking" },
+    { id: 3, platform: "Viator", guest: "Sophie Chen", guests: 2, date: todayFormatted, type: "booking" },
   ]);
   
   // Max 3 visible bookings
   const [bookings, setBookings] = useState<Booking[]>([
-    { platform: "Airbnb", guest: "Maria Garcia", guests: 2, status: "confirmed" },
-    { platform: "GetYourGuide", guest: "James Wilson", guests: 4, status: "confirmed" },
-    { platform: "Viator", guest: "Sophie Chen", guests: 2, status: "confirmed" },
+    { platform: "Airbnb", guest: "Maria Garcia", guests: 2, dietary: "1 vegetarian", status: "confirmed" },
+    { platform: "GetYourGuide", guest: "James Wilson", guests: 4, dietary: null, status: "confirmed" },
+    { platform: "Viator", guest: "Sophie Chen", guests: 2, dietary: "2 vegan", status: "confirmed" },
   ]);
   
   const [syncing, setSyncing] = useState(false);
@@ -62,7 +76,7 @@ export default function HeroAnimation() {
           platform: newGuest.platform,
           guest: newGuest.guest,
           guests: newGuest.guests,
-          date: "Feb 15",
+          date: todayFormatted,
           type: "booking",
         };
         lastWasRemoval.current = false;
@@ -74,7 +88,7 @@ export default function HeroAnimation() {
           platform: toRemove.platform,
           guest: toRemove.guest,
           guests: toRemove.guests,
-          date: type === "reschedule" ? "Feb 18" : "Feb 15",
+          date: type === "reschedule" ? futureFormatted : todayFormatted,
           type,
         };
         lastWasRemoval.current = true;
@@ -85,7 +99,7 @@ export default function HeroAnimation() {
           platform: newGuest.platform,
           guest: newGuest.guest,
           guests: newGuest.guests,
-          date: "Feb 15",
+          date: todayFormatted,
           type: "booking",
         };
         lastWasRemoval.current = false;
@@ -115,10 +129,12 @@ export default function HeroAnimation() {
             // Add new booking (max 3)
             const confirmed = prev.filter(b => b.status === "confirmed");
             if (confirmed.length < 3) {
+              const guestInfo = guestPool.find(g => g.guest === template.guest);
               return [...prev.filter(b => b.status === "confirmed"), {
                 platform: template.platform,
                 guest: template.guest,
                 guests: template.guests,
+                dietary: guestInfo?.dietary || null,
                 status: "confirmed" as const,
               }];
             }
@@ -243,11 +259,11 @@ export default function HeroAnimation() {
           <div className="mb-3 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="text-center">
-                <p className="text-xs text-[#78716C]">Feb</p>
-                <p className="text-2xl font-semibold text-[#EA580C]">15</p>
+                <p className="text-xs text-[#78716C]">{todayMonth}</p>
+                <p className="text-2xl font-semibold text-[#EA580C]">{todayDay}</p>
               </div>
               <div>
-                <p className="text-sm font-medium text-[#1C1917]">Saturday</p>
+                <p className="text-sm font-medium text-[#1C1917]">{todayDayName}</p>
                 <p className="text-xs text-[#78716C]">
                   {activeBookings} booking{activeBookings !== 1 ? "s" : ""} · {totalGuests} guests
                 </p>
@@ -295,13 +311,16 @@ export default function HeroAnimation() {
                 <span className={`flex-1 ${booking.status === "leaving" ? "line-through text-[#78716C]" : "text-[#1C1917]"}`}>
                   {booking.guest}
                 </span>
-                <span className="text-xs text-[#78716C]">{booking.guests}g</span>
+                {booking.dietary && booking.status === "confirmed" && (
+                  <span className="text-xs text-[#EA580C]">({booking.dietary})</span>
+                )}
                 {booking.status === "leaving" && booking.leavingType === "cancelled" && (
                   <span className="text-xs font-medium text-red-500">✕</span>
                 )}
                 {booking.status === "leaving" && booking.leavingType === "rescheduled" && (
                   <span className="text-xs font-medium text-amber-500">→</span>
                 )}
+                <span className="text-xs text-[#78716C] w-6 text-right">{booking.guests}g</span>
               </div>
             ))}
           </div>
