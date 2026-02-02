@@ -35,7 +35,9 @@ export default function About() {
               About
             </Link>
             <a
-              href="mailto:freireguidoi@gmail.com?subject=BookSmart%20Access%20Request&body=I%20saw%20the%20BookSmart%20landing%20page%20and%20request%20access%20to%20BookSmart"
+              href="https://calendar.app.google/S5EC5XVDQoRn8BX4A"
+              target="_blank"
+              rel="noopener noreferrer"
               className="rounded-full bg-[#EA580C] px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#C2410C]"
             >
               Request Demo
@@ -229,7 +231,9 @@ export default function About() {
               Back to Home
             </Link>
             <a
-              href="mailto:freireguidoi@gmail.com?subject=BookSmart%20Access%20Request&body=I%20saw%20the%20BookSmart%20landing%20page%20and%20request%20access%20to%20BookSmart"
+              href="https://calendar.app.google/S5EC5XVDQoRn8BX4A"
+              target="_blank"
+              rel="noopener noreferrer"
               className="rounded-full bg-[#EA580C] px-8 py-3 font-medium text-white transition-colors hover:bg-[#C2410C]"
             >
               Request Demo
@@ -262,6 +266,12 @@ export default function About() {
                 BookSmart
               </span>
             </Link>
+            <a
+              href="mailto:freireguidoi@gmail.com?subject=BookSmart%20Inquiry&body=Hi%20BookSmart%20team%2C"
+              className="text-sm text-[#78716C] hover:text-[#1C1917]"
+            >
+              Contact Us
+            </a>
             <p className="text-sm text-[#78716C]">Built in Buenos Aires</p>
             <p className="text-sm text-[#78716C]">
               © 2026 BookSmart. All rights reserved.

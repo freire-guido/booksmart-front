@@ -35,7 +35,9 @@ export default function Home() {
               About
             </Link>
             <a
-              href="mailto:freireguidoi@gmail.com?subject=BookSmart%20Access%20Request&body=I%20saw%20the%20BookSmart%20landing%20page%20and%20request%20access%20to%20BookSmart"
+              href="https://calendar.app.google/S5EC5XVDQoRn8BX4A"
+              target="_blank"
+              rel="noopener noreferrer"
               className="rounded-full bg-[#EA580C] px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#C2410C]"
             >
               Request Demo
@@ -566,7 +568,9 @@ export default function Home() {
             experience.
           </p>
           <a
-            href="mailto:freireguidoi@gmail.com?subject=BookSmart%20Access%20Request&body=I%20saw%20the%20BookSmart%20landing%20page%20and%20request%20access%20to%20BookSmart"
+            href="https://calendar.app.google/S5EC5XVDQoRn8BX4A"
+            target="_blank"
+            rel="noopener noreferrer"
             className="inline-block rounded-full bg-white px-8 py-3.5 font-medium text-[#EA580C] transition-colors hover:bg-[#FDF6EC]"
           >
             Request Access
@@ -604,6 +608,12 @@ export default function Home() {
             <Link href="/about" className="text-sm text-[#78716C] hover:text-[#1C1917]">
               About Us
             </Link>
+            <a
+              href="mailto:freireguidoi@gmail.com?subject=BookSmart%20Inquiry&body=Hi%20BookSmart%20team%2C"
+              className="text-sm text-[#78716C] hover:text-[#1C1917]"
+            >
+              Contact Us
+            </a>
             <p className="text-sm text-[#78716C]">
               Built in Buenos Aires
             </p>
