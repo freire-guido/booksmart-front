@@ -38,6 +38,12 @@ export default function Navbar() {
           >
             About
           </Link>
+          <Link
+            href="/login"
+            className="text-sm font-medium text-[#78716C] transition-colors hover:text-[#1C1917]"
+          >
+            Log in
+          </Link>
           <a
             href="https://calendar.app.google/S5EC5XVDQoRn8BX4A"
             target="_blank"
@@ -78,6 +84,13 @@ export default function Navbar() {
               onClick={() => setOpen(false)}
             >
               About
+            </Link>
+            <Link
+              href="/login"
+              className="rounded-lg px-3 py-2.5 text-sm font-medium text-[#78716C] hover:bg-[#FDF6EC] hover:text-[#1C1917]"
+              onClick={() => setOpen(false)}
+            >
+              Log in
             </Link>
             <a
               href="https://calendar.app.google/S5EC5XVDQoRn8BX4A"
