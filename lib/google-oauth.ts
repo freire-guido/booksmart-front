@@ -23,8 +23,7 @@ export function getGoogleAuthUrl(): string {
   const oauth2Client = createOAuth2Client();
 
   const authUrl = oauth2Client.generateAuthUrl({
-    access_type: "offline", // Get refresh token
-    prompt: "consent", // Force consent to always get refresh token
+    access_type: "offline",
     scope: GMAIL_SCOPES,
   });
 
