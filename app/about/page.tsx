@@ -60,6 +60,18 @@ export default function About() {
                 <p className="leading-relaxed font-medium text-[#1C1917]">
                   Turns out I could. And now I&apos;m helping others do the same, and save 3+ hours every day like we did.
                 </p>
+                <p className="text-sm text-[#78716C]">
+                  BookSmart is backed by{" "}
+                  <a
+                    href="https://ultradynamic.capital/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[#78716C] underline decoration-[#E7E5E4] underline-offset-2 hover:text-[#1C1917] hover:decoration-[#EA580C]/40 transition-colors"
+                  >
+                    <span className="font-semibold">ULTRA</span>DYNAMIC
+                  </a>
+                  .
+                </p>
               </div>
             </div>
           </div>
@@ -234,6 +246,14 @@ export default function About() {
               Contact Us
             </a>
             <p className="text-sm text-[#78716C]">Built in Buenos Aires</p>
+            <a
+              href="https://ultradynamic.capital/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs text-[#A8A29E] hover:text-[#78716C] transition-colors"
+            >
+              Backed by <span className="font-semibold">ULTRA</span>DYNAMIC
+            </a>
             <p className="text-sm text-[#78716C]">
               © 2026 BookSmart. All rights reserved.
             </p>

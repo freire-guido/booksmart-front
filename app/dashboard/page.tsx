@@ -16,6 +16,11 @@ type Booking = {
   specialRequests?: string[];
   activityName?: string;
   duration?: string;
+  // Email metadata
+  emailSubject: string;
+  emailPreview: string;
+  emailDate: Date;
+  emailId: string;
 };
 
 // Platform brand colors
@@ -43,6 +48,10 @@ const mockBookings: Booking[] = [
     status: "confirmed",
     specialRequests: ["Early check-in (2 PM)", "Gluten-free"],
     duration: "3 nights",
+    emailSubject: "Reservation confirmed – Guillermo arrives Feb 14",
+    emailPreview: "Reservation confirmed. Guillermo F. and 4 guests will arrive on Feb 14 for 3 nights. Check-in: 2:00 PM. Notes: Gluten-free diet required.",
+    emailDate: new Date(2026, 1, 10, 14, 23),
+    emailId: "msg-001",
   },
   // Feb 15 (Sun) - 4 bookings (busy day)
   {
@@ -55,6 +64,10 @@ const mockBookings: Booking[] = [
     status: "confirmed",
     specialRequests: ["Vegetarian", "Early check-in"],
     duration: "3 nights",
+    emailSubject: "Reservation confirmed – Natalia arrives Feb 15",
+    emailPreview: "Reservation confirmed. Natalia O. and 1 guest will arrive on Feb 15 for 3 nights. Check-in: 3:00 PM. Notes: Vegetarian, early check-in requested.",
+    emailDate: new Date(2026, 1, 3, 18, 42),
+    emailId: "msg-002",
   },
   {
     id: "3",
@@ -66,6 +79,10 @@ const mockBookings: Booking[] = [
     status: "confirmed",
     specialRequests: ["Wheelchair access"],
     activityName: "Buenos Aires Food Tour",
+    emailSubject: "New Booking: Buenos Aires Food Tour – Luisana L.",
+    emailPreview: "You have a new booking! Guest: Luisana L., Party size: 2, Tour: Buenos Aires Food & Wine Experience, Date: Feb 15 at 2:00 PM. Special request: Wheelchair access needed.",
+    emailDate: new Date(2026, 1, 3, 16, 55),
+    emailId: "msg-003",
   },
   {
     id: "4",
@@ -77,6 +94,10 @@ const mockBookings: Booking[] = [
     status: "confirmed",
     specialRequests: ["Gluten-free (1 guest)"],
     activityName: "City Highlights Tour",
+    emailSubject: "Booking Confirmation: Ricardo D. – City Tour Feb 15",
+    emailPreview: "Great news! You have a new booking. Guest: Ricardo D., Guests: 4, Activity: Buenos Aires City Highlights Tour, Date: February 15, 2026. Dietary: Gluten-free (1 guest)",
+    emailDate: new Date(2026, 1, 3, 14, 30),
+    emailId: "msg-004",
   },
   {
     id: "5",
@@ -87,6 +108,10 @@ const mockBookings: Booking[] = [
     time: "6:00 PM",
     status: "confirmed",
     activityName: "Tango Night Experience",
+    emailSubject: "New Booking: Tango Night – Julieta Z.",
+    emailPreview: "You have a new booking! Guest: Julieta Z., Party size: 3, Tour: Authentic Tango Night Experience, Date: Feb 15 at 6:00 PM.",
+    emailDate: new Date(2026, 1, 2, 11, 15),
+    emailId: "msg-005",
   },
   // Feb 16 (Mon) - 2 bookings
   {
@@ -98,6 +123,10 @@ const mockBookings: Booking[] = [
     time: "9:00 AM",
     status: "confirmed",
     activityName: "Tigre Delta Day Trip",
+    emailSubject: "Booking Confirmation: Carlos M. – Tigre Delta",
+    emailPreview: "Great news! You have a new booking. Guest: Carlos M., Guests: 2, Activity: Tigre Delta Day Trip with Boat Ride, Date: February 16, 2026 at 9:00 AM.",
+    emailDate: new Date(2026, 1, 1, 9, 45),
+    emailId: "msg-006",
   },
   {
     id: "7",
@@ -107,6 +136,10 @@ const mockBookings: Booking[] = [
     date: new Date(2026, 1, 16),
     status: "confirmed",
     duration: "2 nights",
+    emailSubject: "Reservation confirmed – Sofia arrives Feb 16",
+    emailPreview: "Reservation confirmed. Sofia R. will arrive on Feb 16 for 2 nights. Solo traveler. Standard check-in at 3:00 PM.",
+    emailDate: new Date(2026, 0, 30, 20, 12),
+    emailId: "msg-007",
   },
   // Feb 17 (Tue) - 1 booking
   {
@@ -118,6 +151,10 @@ const mockBookings: Booking[] = [
     time: "11:00 AM",
     status: "cancelled",
     activityName: "Street Art Walking Tour",
+    emailSubject: "Booking Cancelled: Miguel A. (Feb 17)",
+    emailPreview: "A booking has been cancelled. Guest: Miguel A., Original date: February 17, 2026. Reason: Guest requested cancellation.",
+    emailDate: new Date(2026, 1, 2, 8, 30),
+    emailId: "msg-008",
   },
   // Feb 18 (Wed) - 2 bookings (including rescheduled)
   {
@@ -129,6 +166,10 @@ const mockBookings: Booking[] = [
     status: "rescheduled",
     specialRequests: ["Late checkout"],
     duration: "2 nights",
+    emailSubject: "Booking update: Ricardo M. – Dates changed",
+    emailPreview: "A guest has modified their reservation. Ricardo M. changed their booking from Feb 20-22 to Feb 18-20. Please confirm availability. Note: Late checkout requested.",
+    emailDate: new Date(2026, 1, 3, 9, 21),
+    emailId: "msg-009",
   },
   {
     id: "10",
@@ -140,6 +181,10 @@ const mockBookings: Booking[] = [
     status: "confirmed",
     specialRequests: ["Vegan (2 guests)"],
     activityName: "Wine Tasting Experience",
+    emailSubject: "Booking Confirmation: Elena P. – Wine Tasting",
+    emailPreview: "Great news! You have a new booking. Guest: Elena P., Guests: 4, Activity: Mendoza Wine Tasting Experience, Date: February 18, 2026. Dietary: Vegan options needed for 2 guests.",
+    emailDate: new Date(2026, 1, 1, 16, 8),
+    emailId: "msg-010",
   },
   // Feb 19 (Thu) - 2 bookings
   {
@@ -152,6 +197,10 @@ const mockBookings: Booking[] = [
     status: "confirmed",
     specialRequests: ["Spanish-speaking guide"],
     activityName: "Full Day Gaucho Ranch",
+    emailSubject: "New Booking: Gaucho Ranch – Fernando B.",
+    emailPreview: "You have a new booking! Guest: Fernando B., Party size: 6, Tour: Full Day Gaucho Ranch Experience, Date: Feb 19 at 10:00 AM. Special request: Spanish-speaking guide preferred.",
+    emailDate: new Date(2026, 0, 28, 13, 44),
+    emailId: "msg-011",
   },
   {
     id: "12",
@@ -161,6 +210,10 @@ const mockBookings: Booking[] = [
     date: new Date(2026, 1, 19),
     status: "confirmed",
     duration: "4 nights",
+    emailSubject: "Reservation confirmed – Ana arrives Feb 19",
+    emailPreview: "Reservation confirmed. Ana L. and 1 guest will arrive on Feb 19 for 4 nights. Check-in: 3:00 PM. No special requests.",
+    emailDate: new Date(2026, 0, 25, 10, 30),
+    emailId: "msg-012",
   },
   // Feb 20 (Fri) - 1 booking
   {
@@ -172,6 +225,10 @@ const mockBookings: Booking[] = [
     time: "7:00 PM",
     status: "confirmed",
     activityName: "Night Photography Tour",
+    emailSubject: "Booking Confirmation: Pablo N. – Night Photography",
+    emailPreview: "Great news! You have a new booking. Guest: Pablo N., Guests: 2, Activity: Buenos Aires Night Photography Tour, Date: February 20, 2026 at 7:00 PM.",
+    emailDate: new Date(2026, 1, 3, 19, 55),
+    emailId: "msg-013",
   },
 ];
 
@@ -214,19 +271,205 @@ function isToday(date: Date): boolean {
   return isSameDay(date, today);
 }
 
-// Booking Card Component
-function BookingCard({ booking }: { booking: Booking }) {
+function formatEmailDate(date: Date): string {
+  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const hours = date.getHours();
+  const minutes = date.getMinutes().toString().padStart(2, "0");
+  const ampm = hours >= 12 ? "PM" : "AM";
+  const hour12 = hours % 12 || 12;
+  return `${months[date.getMonth()]} ${date.getDate()}, ${hour12}:${minutes} ${ampm}`;
+}
+
+// Get latest emails sorted by date
+function getLatestEmails(bookings: Booking[], count: number): Booking[] {
+  return [...bookings]
+    .sort((a, b) => b.emailDate.getTime() - a.emailDate.getTime())
+    .slice(0, count);
+}
+
+// Email Stack Component
+function EmailStack({ bookings }: { bookings: Booking[] }) {
+  const latestEmails = getLatestEmails(bookings, 3);
+
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center justify-between">
+        <h3 className="text-sm font-medium text-[#1C1917]">Recent Emails</h3>
+        <span className="text-xs text-[#78716C]">Last synced</span>
+      </div>
+      <div className="space-y-1.5">
+        {latestEmails.map((booking, index) => (
+          <div
+            key={booking.id}
+            className={`rounded-lg border border-[#E7E5E4] p-3 transition-all ${
+              index === 0 ? "bg-[#FDF6EC]" : "bg-white"
+            }`}
+            style={{
+              opacity: index === 0 ? 1 : 0.8 - index * 0.15,
+            }}
+          >
+            <div className="flex items-start gap-2">
+              <div
+                className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full ${
+                  booking.status === "cancelled"
+                    ? "bg-red-100"
+                    : booking.status === "rescheduled"
+                    ? "bg-amber-100"
+                    : "bg-[#EA580C]/10"
+                }`}
+              >
+                {booking.status === "cancelled" ? (
+                  <svg className="h-3 w-3 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                ) : booking.status === "rescheduled" ? (
+                  <svg className="h-3 w-3 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                ) : (
+                  <svg className="h-3 w-3 text-[#EA580C]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                )}
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center justify-between gap-2">
+                  <p className="truncate text-xs font-medium text-[#1C1917]">
+                    {platformNames[booking.platform]}
+                  </p>
+                  <span className="shrink-0 text-xs text-[#78716C]">
+                    {formatEmailDate(booking.emailDate)}
+                  </span>
+                </div>
+                <p className="truncate text-xs text-[#78716C]">
+                  {booking.guestName} ({booking.guestCount} guest{booking.guestCount !== 1 ? "s" : ""})
+                </p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// Booking Detail Modal
+function BookingModal({
+  booking,
+  onClose,
+}: {
+  booking: Booking;
+  onClose: () => void;
+}) {
   const platformColor = platformColors[booking.platform];
   const platformName = platformNames[booking.platform];
 
   return (
-    <div
-      className={`rounded-lg border p-3 transition-all ${
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      {/* Backdrop */}
+      <div
+        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+        onClick={onClose}
+      />
+      
+      {/* Modal */}
+      <div className="relative w-full max-w-md rounded-2xl border border-[#E7E5E4] bg-white p-6 shadow-xl">
+        {/* Close button */}
+        <button
+          onClick={onClose}
+          className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full text-[#78716C] transition-colors hover:bg-[#FDF6EC] hover:text-[#1C1917]"
+        >
+          <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+
+        {/* Header */}
+        <div className="mb-4">
+          <div className="flex items-center gap-2">
+            <span
+              className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium text-white"
+              style={{ backgroundColor: platformColor }}
+            >
+              {platformName}
+            </span>
+            {booking.status === "cancelled" && (
+              <span className="text-xs font-medium text-red-500">Cancelled</span>
+            )}
+            {booking.status === "rescheduled" && (
+              <span className="text-xs font-medium text-amber-600">Rescheduled</span>
+            )}
+          </div>
+          <h3 className="mt-2 text-lg font-semibold text-[#1C1917]">
+            {booking.guestName}
+          </h3>
+          <p className="text-sm text-[#78716C]">
+            {booking.guestCount} guest{booking.guestCount !== 1 ? "s" : ""}
+            {booking.time && ` · ${booking.time}`}
+            {booking.activityName && ` · ${booking.activityName}`}
+            {booking.duration && ` · ${booking.duration}`}
+          </p>
+        </div>
+
+        {/* Special requests */}
+        {booking.specialRequests && booking.specialRequests.length > 0 && (
+          <div className="mb-4">
+            <p className="mb-1.5 text-xs font-medium text-[#78716C]">Special Requests</p>
+            <div className="flex flex-wrap gap-1.5">
+              {booking.specialRequests.map((request, index) => (
+                <span
+                  key={index}
+                  className="inline-flex items-center rounded-md bg-[#EA580C]/10 px-2 py-1 text-xs text-[#EA580C]"
+                >
+                  {request}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Email preview */}
+        <div className="rounded-xl border border-[#E7E5E4] bg-[#FAF8F5] p-4">
+          <div className="mb-2 flex items-center justify-between">
+            <p className="text-xs font-medium text-[#78716C]">Original Email</p>
+            <span className="text-xs text-[#78716C]">{formatEmailDate(booking.emailDate)}</span>
+          </div>
+          <p className="mb-2 text-sm font-medium text-[#1C1917]">{booking.emailSubject}</p>
+          <p className="text-xs leading-relaxed text-[#78716C]">{booking.emailPreview}</p>
+        </div>
+
+        {/* Open in email button */}
+        <button
+          onClick={() => {
+            // This would open the email client in a real implementation
+            alert(`Opening email: ${booking.emailId}\n\nThis would redirect to your email client in the full version.`);
+          }}
+          className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-[#EA580C] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#C2410C]"
+        >
+          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          </svg>
+          Open in Email
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// Booking Card Component
+function BookingCard({ booking, onClick }: { booking: Booking; onClick: () => void }) {
+  const platformColor = platformColors[booking.platform];
+  const platformName = platformNames[booking.platform];
+
+  return (
+    <button
+      onClick={onClick}
+      className={`w-full text-left rounded-lg border p-3 transition-all ${
         booking.status === "cancelled"
           ? "border-red-200 bg-red-50/50 opacity-60"
           : booking.status === "rescheduled"
-          ? "border-amber-200 bg-amber-50/50"
-          : "border-[#E7E5E4] bg-white hover:shadow-sm"
+          ? "border-amber-200 bg-amber-50/50 hover:border-amber-300"
+          : "border-[#E7E5E4] bg-white hover:border-[#EA580C]/30 hover:shadow-sm"
       }`}
     >
       {/* Platform badge and status */}
@@ -277,12 +520,20 @@ function BookingCard({ booking }: { booking: Booking }) {
           ))}
         </div>
       )}
-    </div>
+    </button>
   );
 }
 
 // Day Column Component
-function DayColumn({ date, bookings }: { date: Date; bookings: Booking[] }) {
+function DayColumn({
+  date,
+  bookings,
+  onBookingClick,
+}: {
+  date: Date;
+  bookings: Booking[];
+  onBookingClick: (booking: Booking) => void;
+}) {
   const confirmedBookings = bookings.filter((b) => b.status !== "cancelled");
   const totalGuests = confirmedBookings.reduce((sum, b) => sum + b.guestCount, 0);
   const today = isToday(date);
@@ -321,7 +572,13 @@ function DayColumn({ date, bookings }: { date: Date; bookings: Booking[] }) {
         {bookings.length === 0 ? (
           <p className="py-8 text-center text-xs text-[#78716C]">No bookings</p>
         ) : (
-          bookings.map((booking) => <BookingCard key={booking.id} booking={booking} />)
+          bookings.map((booking) => (
+            <BookingCard
+              key={booking.id}
+              booking={booking}
+              onClick={() => onBookingClick(booking)}
+            />
+          ))
         )}
       </div>
     </div>
@@ -331,6 +588,7 @@ function DayColumn({ date, bookings }: { date: Date; bookings: Booking[] }) {
 export default function DashboardPage() {
   // Start with the week containing Feb 15, 2026
   const [currentWeekStart, setCurrentWeekStart] = useState(new Date(2026, 1, 14));
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const weekDates = getWeekDates(currentWeekStart);
 
   const navigateWeek = (direction: "prev" | "next") => {
@@ -432,31 +690,38 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Week grid */}
-        <div className="flex gap-3 overflow-x-auto pb-4">
-          {weekDates.map((date) => (
-            <DayColumn
-              key={date.toISOString()}
-              date={date}
-              bookings={getBookingsForDate(date)}
-            />
-          ))}
-        </div>
-
-        {/* Platform legend */}
-        <div className="mt-6 flex flex-wrap items-center justify-center gap-4 rounded-xl border border-[#E7E5E4] bg-white p-4">
-          <span className="text-xs text-[#78716C]">Platforms:</span>
-          {(Object.keys(platformColors) as Platform[]).map((platform) => (
-            <div key={platform} className="flex items-center gap-1.5">
-              <span
-                className="h-3 w-3 rounded-full"
-                style={{ backgroundColor: platformColors[platform] }}
-              />
-              <span className="text-xs text-[#1C1917]">{platformNames[platform]}</span>
+        {/* Main content grid */}
+        <div className="flex flex-col gap-6 lg:flex-row">
+          {/* Week grid */}
+          <div className="flex-1 overflow-hidden">
+            <div className="flex gap-3 overflow-x-auto pb-4">
+              {weekDates.map((date) => (
+                <DayColumn
+                  key={date.toISOString()}
+                  date={date}
+                  bookings={getBookingsForDate(date)}
+                  onBookingClick={setSelectedBooking}
+                />
+              ))}
             </div>
-          ))}
+          </div>
+
+          {/* Email stack sidebar */}
+          <div className="w-full shrink-0 lg:w-72">
+            <div className="rounded-xl border border-[#E7E5E4] bg-white p-4">
+              <EmailStack bookings={mockBookings} />
+            </div>
+          </div>
         </div>
       </main>
+
+      {/* Booking detail modal */}
+      {selectedBooking && (
+        <BookingModal
+          booking={selectedBooking}
+          onClose={() => setSelectedBooking(null)}
+        />
+      )}
     </div>
   );
 }

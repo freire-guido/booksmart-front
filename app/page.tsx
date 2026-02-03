@@ -575,6 +575,14 @@ export default function Home() {
             <p className="text-sm text-[#78716C]">
               Built in Buenos Aires
             </p>
+            <a
+              href="https://ultradynamic.capital/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs text-[#A8A29E] hover:text-[#78716C] transition-colors"
+            >
+              Backed by <span className="font-semibold">ULTRA</span>DYNAMIC
+            </a>
             <p className="text-sm text-[#78716C]">
               © 2026 BookSmart. All rights reserved.
             </p>
