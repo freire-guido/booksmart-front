@@ -824,33 +824,30 @@ function MonthDayCell({
         {date.getDate()}
       </span>
 
-      {/* Booking info - only if has bookings */}
+      {/* Booking info - same format as weekly view: bookings · guests, no icon */}
       {hasBookings && inCurrentMonth && (
         <div className="mt-1 flex flex-col gap-1">
-          {/* Guests count */}
-          <div className="flex items-center gap-1">
-            <svg className="h-3 w-3 text-[#78716C]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-            </svg>
-            <span className="text-xs font-medium text-[#1C1917]">{totalGuests}</span>
-          </div>
+          <p className="text-xs text-[#78716C]">
+            {confirmedBookings.length} booking{confirmedBookings.length !== 1 ? "s" : ""} · {totalGuests} guest
+            {totalGuests !== 1 ? "s" : ""}
+          </p>
 
-          {/* Special requests emoticons with counts */}
+          {/* Dietary summary — same as weekly view */}
           {hasDietary && (
-            <div className="flex flex-wrap gap-1">
+            <div className="flex flex-wrap items-center gap-1">
               {dietary.vegetarian > 0 && (
-                <span className="inline-flex items-center gap-0.5 text-xs text-green-700" title={`${dietary.vegetarian} vegetarian`}>
-                  🥬 {dietary.vegetarian}
+                <span className="inline-flex items-center gap-1 rounded-md bg-green-100 px-1.5 py-0.5 text-xs text-green-700" title={`${dietary.vegetarian} vegetarian`}>
+                  <span>🥬</span> {dietary.vegetarian}
                 </span>
               )}
               {dietary.vegan > 0 && (
-                <span className="inline-flex items-center gap-0.5 text-xs text-emerald-700" title={`${dietary.vegan} vegan`}>
-                  🌱 {dietary.vegan}
+                <span className="inline-flex items-center gap-1 rounded-md bg-emerald-100 px-1.5 py-0.5 text-xs text-emerald-700" title={`${dietary.vegan} vegan`}>
+                  <span>🌱</span> {dietary.vegan}
                 </span>
               )}
               {dietary.glutenFree > 0 && (
-                <span className="inline-flex items-center gap-0.5 text-xs text-amber-700" title={`${dietary.glutenFree} gluten-free`}>
-                  🌾 {dietary.glutenFree}
+                <span className="inline-flex items-center gap-1 rounded-md bg-amber-100 px-1.5 py-0.5 text-xs text-amber-700" title={`${dietary.glutenFree} gluten-free`}>
+                  <span>🌾</span> {dietary.glutenFree}
                 </span>
               )}
             </div>
