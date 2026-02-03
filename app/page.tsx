@@ -1,50 +1,11 @@
 import Link from "next/link";
 import HeroAnimation from "./components/HeroAnimation";
+import Navbar from "./components/Navbar";
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-[#FAF8F5] overflow-x-hidden">
-      {/* Navigation */}
-      <nav className="sticky top-0 z-50 border-b border-[#E7E5E4] bg-[#FAF8F5]/95 backdrop-blur-sm">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#EA580C]">
-              <svg
-                className="h-5 w-5 text-white"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                />
-              </svg>
-            </div>
-            <span className="text-xl font-semibold text-[#1C1917]">
-              BookSmart
-            </span>
-          </Link>
-          <div className="flex items-center gap-6">
-            <Link
-              href="/about"
-              className="text-sm font-medium text-[#78716C] transition-colors hover:text-[#1C1917]"
-            >
-              About
-            </Link>
-            <a
-              href="https://calendar.app.google/S5EC5XVDQoRn8BX4A"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="rounded-full bg-[#EA580C] px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#C2410C]"
-            >
-              Request Demo
-            </a>
-          </div>
-        </div>
-      </nav>
+      <Navbar />
 
       {/* Hero Section */}
       <section className="mx-auto max-w-6xl px-6 py-20 lg:py-28">
@@ -410,9 +371,6 @@ export default function Home() {
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-[#1C1917] truncate">Luisana Lopilato</p>
                     <p className="text-xs text-[#78716C]">2 guests · Food tour</p>
-                  </div>
-                  <div className="flex flex-wrap gap-1.5 shrink-0">
-                    <span className="rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-700">Wheelchair accessible</span>
                   </div>
                 </div>
               </div>
