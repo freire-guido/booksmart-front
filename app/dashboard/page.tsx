@@ -658,10 +658,218 @@ function DayColumn({
   );
 }
 
+type ViewMode = "week" | "month";
+
+// Get all dates in a month, organized by weeks (including padding days from adjacent months)
+function getMonthDates(baseDate: Date): Date[][] {
+  const year = baseDate.getFullYear();
+  const month = baseDate.getMonth();
+  
+  // First day of the month
+  const firstDay = new Date(year, month, 1);
+  // Last day of the month
+  const lastDay = new Date(year, month + 1, 0);
+  
+  // Start from Sunday of the week containing the first day
+  const startDate = new Date(firstDay);
+  startDate.setDate(firstDay.getDate() - firstDay.getDay());
+  
+  // End on Saturday of the week containing the last day
+  const endDate = new Date(lastDay);
+  endDate.setDate(lastDay.getDate() + (6 - lastDay.getDay()));
+  
+  const weeks: Date[][] = [];
+  let currentDate = new Date(startDate);
+  
+  while (currentDate <= endDate) {
+    const week: Date[] = [];
+    for (let i = 0; i < 7; i++) {
+      week.push(new Date(currentDate));
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+    weeks.push(week);
+  }
+  
+  return weeks;
+}
+
+function getMonthName(date: Date): string {
+  const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  return months[date.getMonth()];
+}
+
+function isCurrentMonth(date: Date, baseDate: Date): boolean {
+  return date.getMonth() === baseDate.getMonth() && date.getFullYear() === baseDate.getFullYear();
+}
+
+// Month Day Cell Component
+function MonthDayCell({
+  date,
+  bookings,
+  isCurrentMonth: inCurrentMonth,
+  onClick,
+}: {
+  date: Date;
+  bookings: Booking[];
+  isCurrentMonth: boolean;
+  onClick: () => void;
+}) {
+  const confirmedBookings = bookings.filter((b) => b.status === "confirmed");
+  const totalGuests = confirmedBookings.reduce((sum, b) => sum + b.guestCount, 0);
+  const dietary = parseDietaryCounts(bookings);
+  const hasDietary = dietary.vegetarian > 0 || dietary.vegan > 0 || dietary.glutenFree > 0;
+  const today = isToday(date);
+  const hasBookings = confirmedBookings.length > 0;
+
+  return (
+    <button
+      onClick={onClick}
+      className={`relative flex min-h-[80px] flex-col items-start rounded-lg border p-2 text-left transition-all ${
+        today
+          ? "border-[#EA580C] bg-[#FDF6EC]"
+          : inCurrentMonth
+          ? hasBookings
+            ? "border-[#E7E5E4] bg-white hover:border-[#EA580C]/30 hover:shadow-sm"
+            : "border-[#E7E5E4] bg-white"
+          : "border-transparent bg-[#FAF8F5] opacity-40"
+      }`}
+    >
+      {/* Day number */}
+      <span
+        className={`text-sm font-medium ${
+          today
+            ? "text-[#EA580C]"
+            : inCurrentMonth
+            ? "text-[#1C1917]"
+            : "text-[#78716C]"
+        }`}
+      >
+        {date.getDate()}
+      </span>
+
+      {/* Booking info - only if has bookings */}
+      {hasBookings && inCurrentMonth && (
+        <div className="mt-1 flex flex-col gap-1">
+          {/* Guests count */}
+          <div className="flex items-center gap-1">
+            <svg className="h-3 w-3 text-[#78716C]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+            <span className="text-xs font-medium text-[#1C1917]">{totalGuests}</span>
+          </div>
+
+          {/* Special requests emoticons */}
+          {hasDietary && (
+            <div className="flex gap-0.5">
+              {dietary.vegetarian > 0 && <span className="text-xs" title={`${dietary.vegetarian} vegetarian`}>🥬</span>}
+              {dietary.vegan > 0 && <span className="text-xs" title={`${dietary.vegan} vegan`}>🌱</span>}
+              {dietary.glutenFree > 0 && <span className="text-xs" title={`${dietary.glutenFree} gluten-free`}>🌾</span>}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Today indicator */}
+      {today && (
+        <span className="absolute right-1 top-1 h-1.5 w-1.5 rounded-full bg-[#EA580C]" />
+      )}
+    </button>
+  );
+}
+
+// Month Grid Component
+function MonthGrid({
+  baseDate,
+  getBookingsForDate,
+  onDayClick,
+}: {
+  baseDate: Date;
+  getBookingsForDate: (date: Date) => Booking[];
+  onDayClick: (date: Date) => void;
+}) {
+  const weeks = getMonthDates(baseDate);
+  const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+  return (
+    <div className="flex flex-1 flex-col rounded-xl border border-[#E7E5E4] bg-white p-3">
+      {/* Day headers */}
+      <div className="mb-2 grid grid-cols-7 gap-1">
+        {dayNames.map((day) => (
+          <div
+            key={day}
+            className="py-1 text-center text-xs font-medium text-[#78716C]"
+          >
+            {day}
+          </div>
+        ))}
+      </div>
+
+      {/* Calendar grid */}
+      <div className="flex flex-1 flex-col gap-1">
+        {weeks.map((week, weekIndex) => (
+          <div key={weekIndex} className="grid flex-1 grid-cols-7 gap-1">
+            {week.map((date) => (
+              <MonthDayCell
+                key={date.toISOString()}
+                date={date}
+                bookings={getBookingsForDate(date)}
+                isCurrentMonth={isCurrentMonth(date, baseDate)}
+                onClick={() => onDayClick(date)}
+              />
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// View Toggle Component
+function ViewToggle({
+  viewMode,
+  onViewChange,
+}: {
+  viewMode: ViewMode;
+  onViewChange: (mode: ViewMode) => void;
+}) {
+  return (
+    <div className="flex rounded-lg border border-[#E7E5E4] bg-white p-0.5">
+      <button
+        onClick={() => onViewChange("week")}
+        className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+          viewMode === "week"
+            ? "bg-[#EA580C] text-white"
+            : "text-[#78716C] hover:text-[#1C1917]"
+        }`}
+      >
+        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+        </svg>
+        Week
+      </button>
+      <button
+        onClick={() => onViewChange("month")}
+        className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+          viewMode === "month"
+            ? "bg-[#EA580C] text-white"
+            : "text-[#78716C] hover:text-[#1C1917]"
+        }`}
+      >
+        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+        Month
+      </button>
+    </div>
+  );
+}
+
 export default function DashboardPage() {
   // Start with the week containing Feb 15, 2026
   const [currentWeekStart, setCurrentWeekStart] = useState(new Date(2026, 1, 14));
+  const [currentMonth, setCurrentMonth] = useState(new Date(2026, 1, 1));
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+  const [viewMode, setViewMode] = useState<ViewMode>("week");
   const weekDates = getWeekDates(currentWeekStart);
 
   const navigateWeek = (direction: "prev" | "next") => {
@@ -670,6 +878,20 @@ export default function DashboardPage() {
       newDate.setDate(prev.getDate() + (direction === "next" ? 7 : -7));
       return newDate;
     });
+  };
+
+  const navigateMonth = (direction: "prev" | "next") => {
+    setCurrentMonth((prev) => {
+      const newDate = new Date(prev);
+      newDate.setMonth(prev.getMonth() + (direction === "next" ? 1 : -1));
+      return newDate;
+    });
+  };
+
+  // When clicking a day in month view, switch to week view for that day
+  const handleMonthDayClick = (date: Date) => {
+    setCurrentWeekStart(date);
+    setViewMode("week");
   };
 
   // Get bookings for the current week
@@ -682,8 +904,18 @@ export default function DashboardPage() {
   const confirmedWeekBookings = weekBookings.filter((b) => b.status !== "cancelled");
   const totalWeekGuests = confirmedWeekBookings.reduce((sum, b) => sum + b.guestCount, 0);
 
-  // Count special requests
+  // Count special requests for week
   const specialRequestCount = confirmedWeekBookings.filter(
+    (b) => b.specialRequests && b.specialRequests.length > 0
+  ).length;
+
+  // Calculate month totals
+  const monthWeeks = getMonthDates(currentMonth);
+  const monthDates = monthWeeks.flat().filter((date) => isCurrentMonth(date, currentMonth));
+  const monthBookings = monthDates.flatMap(getBookingsForDate);
+  const confirmedMonthBookings = monthBookings.filter((b) => b.status !== "cancelled");
+  const totalMonthGuests = confirmedMonthBookings.reduce((sum, b) => sum + b.guestCount, 0);
+  const monthSpecialRequestCount = confirmedMonthBookings.filter(
     (b) => b.specialRequests && b.specialRequests.length > 0
   ).length;
 
@@ -713,51 +945,76 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Week navigation + Email stack row */}
+        {/* View toggle + Navigation row */}
         <div className="mb-3 flex shrink-0 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => navigateWeek("prev")}
-              className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#E7E5E4] bg-white text-[#78716C] transition-colors hover:bg-[#FDF6EC] hover:text-[#1C1917]"
-              aria-label="Previous week"
-            >
-              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-              </svg>
-            </button>
-            <div className="text-center">
-              <p className="text-sm font-medium text-[#1C1917]">
-                {formatDate(weekDates[0])} – {formatDate(weekDates[6])}
-              </p>
-              <p className="text-xs text-[#78716C]">
-                {weekDates[0].getFullYear()}
-              </p>
+          <div className="flex items-center gap-4">
+            {/* View Toggle */}
+            <ViewToggle viewMode={viewMode} onViewChange={setViewMode} />
+
+            {/* Navigation controls */}
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => viewMode === "week" ? navigateWeek("prev") : navigateMonth("prev")}
+                className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#E7E5E4] bg-white text-[#78716C] transition-colors hover:bg-[#FDF6EC] hover:text-[#1C1917]"
+                aria-label={viewMode === "week" ? "Previous week" : "Previous month"}
+              >
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              <div className="min-w-[140px] text-center">
+                {viewMode === "week" ? (
+                  <>
+                    <p className="text-sm font-medium text-[#1C1917]">
+                      {formatDate(weekDates[0])} – {formatDate(weekDates[6])}
+                    </p>
+                    <p className="text-xs text-[#78716C]">
+                      {weekDates[0].getFullYear()}
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-sm font-medium text-[#1C1917]">
+                      {getMonthName(currentMonth)}
+                    </p>
+                    <p className="text-xs text-[#78716C]">
+                      {currentMonth.getFullYear()}
+                    </p>
+                  </>
+                )}
+              </div>
+              <button
+                onClick={() => viewMode === "week" ? navigateWeek("next") : navigateMonth("next")}
+                className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#E7E5E4] bg-white text-[#78716C] transition-colors hover:bg-[#FDF6EC] hover:text-[#1C1917]"
+                aria-label={viewMode === "week" ? "Next week" : "Next month"}
+              >
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
             </div>
-            <button
-              onClick={() => navigateWeek("next")}
-              className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#E7E5E4] bg-white text-[#78716C] transition-colors hover:bg-[#FDF6EC] hover:text-[#1C1917]"
-              aria-label="Next week"
-            >
-              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
           </div>
 
-          {/* Week summary stats + Email stack */}
+          {/* Summary stats + Email stack */}
           <div className="flex flex-wrap items-center gap-2 text-sm">
             <div className="rounded-lg bg-white px-2.5 py-1.5 border border-[#E7E5E4]">
               <span className="text-[#78716C]">Bookings:</span>{" "}
-              <span className="font-medium text-[#1C1917]">{confirmedWeekBookings.length}</span>
+              <span className="font-medium text-[#1C1917]">
+                {viewMode === "week" ? confirmedWeekBookings.length : confirmedMonthBookings.length}
+              </span>
             </div>
             <div className="rounded-lg bg-white px-2.5 py-1.5 border border-[#E7E5E4]">
               <span className="text-[#78716C]">Guests:</span>{" "}
-              <span className="font-medium text-[#1C1917]">{totalWeekGuests}</span>
+              <span className="font-medium text-[#1C1917]">
+                {viewMode === "week" ? totalWeekGuests : totalMonthGuests}
+              </span>
             </div>
-            {specialRequestCount > 0 && (
+            {(viewMode === "week" ? specialRequestCount : monthSpecialRequestCount) > 0 && (
               <div className="rounded-lg bg-[#EA580C]/10 px-2.5 py-1.5 border border-[#EA580C]/20">
                 <span className="text-[#EA580C]">Requests:</span>{" "}
-                <span className="font-medium text-[#EA580C]">{specialRequestCount}</span>
+                <span className="font-medium text-[#EA580C]">
+                  {viewMode === "week" ? specialRequestCount : monthSpecialRequestCount}
+                </span>
               </div>
             )}
             <div className="rounded-lg border border-[#E7E5E4] bg-white px-3 py-1.5">
@@ -766,17 +1023,25 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Week grid - fills remaining height */}
-        <div className="flex min-h-0 flex-1 gap-2 overflow-x-auto sm:gap-3">
-          {weekDates.map((date) => (
-            <DayColumn
-              key={date.toISOString()}
-              date={date}
-              bookings={getBookingsForDate(date)}
-              onBookingClick={setSelectedBooking}
-            />
-          ))}
-        </div>
+        {/* Calendar view - fills remaining height */}
+        {viewMode === "week" ? (
+          <div className="flex min-h-0 flex-1 gap-2 overflow-x-auto sm:gap-3">
+            {weekDates.map((date) => (
+              <DayColumn
+                key={date.toISOString()}
+                date={date}
+                bookings={getBookingsForDate(date)}
+                onBookingClick={setSelectedBooking}
+              />
+            ))}
+          </div>
+        ) : (
+          <MonthGrid
+            baseDate={currentMonth}
+            getBookingsForDate={getBookingsForDate}
+            onDayClick={handleMonthDayClick}
+          />
+        )}
       </main>
 
       {/* Booking detail modal */}
