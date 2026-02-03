@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import Navbar from "../components/Navbar";
 
 type Platform = "airbnb" | "viator" | "getyourguide";
@@ -289,66 +289,92 @@ function getLatestEmails(bookings: Booking[], count: number): Booking[] {
 
 // Email Stack Component
 function EmailStack({ bookings }: { bookings: Booking[] }) {
+  const [expanded, setExpanded] = useState(false);
   const latestEmails = getLatestEmails(bookings, 3);
+  const mostRecent = latestEmails[0];
 
   return (
-    <div className="space-y-2">
-      <div className="flex items-center justify-between">
-        <h3 className="text-sm font-medium text-[#1C1917]">Recent Emails</h3>
-        <span className="text-xs text-[#78716C]">Last synced</span>
-      </div>
-      <div className="space-y-1.5">
-        {latestEmails.map((booking, index) => (
-          <div
-            key={booking.id}
-            className={`rounded-lg border border-[#E7E5E4] p-3 transition-all ${
-              index === 0 ? "bg-[#FDF6EC]" : "bg-white"
-            }`}
-            style={{
-              opacity: index === 0 ? 1 : 0.8 - index * 0.15,
-            }}
-          >
-            <div className="flex items-start gap-2">
+    <div className="relative">
+      {/* Header - always visible */}
+      <button
+        onClick={() => setExpanded(!expanded)}
+        className="flex items-center gap-2"
+      >
+        <svg className="h-4 w-4 text-[#EA580C]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+        </svg>
+        <span className="text-xs text-[#78716C]">
+          {mostRecent ? formatEmailDate(mostRecent.emailDate) : "—"}
+        </span>
+        <svg
+          className={`h-3.5 w-3.5 text-[#78716C] transition-transform ${expanded ? "rotate-180" : ""}`}
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={2}
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+
+      {/* Expanded dropdown */}
+      {expanded && (
+        <div className="absolute right-0 top-full z-20 mt-2 w-72 rounded-xl border border-[#E7E5E4] bg-white p-3 shadow-lg">
+          <p className="mb-2 text-xs font-medium text-[#78716C]">Recent Emails</p>
+          <div className="space-y-1.5">
+            {latestEmails.map((booking, index) => (
               <div
-                className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full ${
-                  booking.status === "cancelled"
-                    ? "bg-red-100"
-                    : booking.status === "rescheduled"
-                    ? "bg-amber-100"
-                    : "bg-[#EA580C]/10"
+                key={booking.id}
+                className={`rounded-lg border border-[#E7E5E4] p-2.5 transition-all ${
+                  index === 0 ? "bg-[#FDF6EC]" : "bg-white"
                 }`}
+                style={{
+                  opacity: index === 0 ? 1 : 0.8 - index * 0.15,
+                }}
               >
-                {booking.status === "cancelled" ? (
-                  <svg className="h-3 w-3 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                ) : booking.status === "rescheduled" ? (
-                  <svg className="h-3 w-3 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                  </svg>
-                ) : (
-                  <svg className="h-3 w-3 text-[#EA580C]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                  </svg>
-                )}
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center justify-between gap-2">
-                  <p className="truncate text-xs font-medium text-[#1C1917]">
-                    {platformNames[booking.platform]}
-                  </p>
-                  <span className="shrink-0 text-xs text-[#78716C]">
-                    {formatEmailDate(booking.emailDate)}
-                  </span>
+                <div className="flex items-start gap-2">
+                  <div
+                    className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full ${
+                      booking.status === "cancelled"
+                        ? "bg-red-100"
+                        : booking.status === "rescheduled"
+                        ? "bg-amber-100"
+                        : "bg-[#EA580C]/10"
+                    }`}
+                  >
+                    {booking.status === "cancelled" ? (
+                      <svg className="h-2.5 w-2.5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    ) : booking.status === "rescheduled" ? (
+                      <svg className="h-2.5 w-2.5 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                      </svg>
+                    ) : (
+                      <svg className="h-2.5 w-2.5 text-[#EA580C]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                      </svg>
+                    )}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="truncate text-xs font-medium text-[#1C1917]">
+                        {platformNames[booking.platform]}
+                      </p>
+                      <span className="shrink-0 text-xs text-[#78716C]">
+                        {formatEmailDate(booking.emailDate)}
+                      </span>
+                    </div>
+                    <p className="truncate text-xs text-[#78716C]">
+                      {booking.guestName} ({booking.guestCount} guest{booking.guestCount !== 1 ? "s" : ""})
+                    </p>
+                  </div>
                 </div>
-                <p className="truncate text-xs text-[#78716C]">
-                  {booking.guestName} ({booking.guestCount} guest{booking.guestCount !== 1 ? "s" : ""})
-                </p>
               </div>
-            </div>
+            ))}
           </div>
-        ))}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -537,15 +563,38 @@ function DayColumn({
   const confirmedBookings = bookings.filter((b) => b.status !== "cancelled");
   const totalGuests = confirmedBookings.reduce((sum, b) => sum + b.guestCount, 0);
   const today = isToday(date);
+  
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [showFade, setShowFade] = useState(false);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    const checkScroll = () => {
+      const hasMoreBelow = el.scrollHeight > el.clientHeight && 
+        el.scrollTop + el.clientHeight < el.scrollHeight - 4;
+      setShowFade(hasMoreBelow);
+    };
+
+    checkScroll();
+    el.addEventListener("scroll", checkScroll);
+    window.addEventListener("resize", checkScroll);
+    
+    return () => {
+      el.removeEventListener("scroll", checkScroll);
+      window.removeEventListener("resize", checkScroll);
+    };
+  }, [bookings]);
 
   return (
     <div
-      className={`flex min-w-[200px] flex-1 flex-col rounded-xl border ${
+      className={`flex min-w-[180px] flex-1 flex-col rounded-xl border ${
         today ? "border-[#EA580C] bg-[#FDF6EC]" : "border-[#E7E5E4] bg-white"
       }`}
     >
       {/* Day header */}
-      <div className={`border-b p-3 ${today ? "border-[#EA580C]/20" : "border-[#E7E5E4]"}`}>
+      <div className={`shrink-0 border-b p-3 ${today ? "border-[#EA580C]/20" : "border-[#E7E5E4]"}`}>
         <div className="flex items-center justify-between">
           <div>
             <p className={`text-xs font-medium ${today ? "text-[#EA580C]" : "text-[#78716C]"}`}>
@@ -567,18 +616,34 @@ function DayColumn({
         </p>
       </div>
 
-      {/* Bookings list */}
-      <div className="flex-1 space-y-2 overflow-y-auto p-2">
-        {bookings.length === 0 ? (
-          <p className="py-8 text-center text-xs text-[#78716C]">No bookings</p>
-        ) : (
-          bookings.map((booking) => (
-            <BookingCard
-              key={booking.id}
-              booking={booking}
-              onClick={() => onBookingClick(booking)}
-            />
-          ))
+      {/* Bookings list with scroll fade */}
+      <div className="relative min-h-0 flex-1">
+        <div
+          ref={scrollRef}
+          className="absolute inset-0 space-y-2 overflow-y-auto p-2"
+        >
+          {bookings.length === 0 ? (
+            <p className="py-8 text-center text-xs text-[#78716C]">No bookings</p>
+          ) : (
+            bookings.map((booking) => (
+              <BookingCard
+                key={booking.id}
+                booking={booking}
+                onClick={() => onBookingClick(booking)}
+              />
+            ))
+          )}
+        </div>
+        
+        {/* Fade indicator */}
+        {showFade && (
+          <div
+            className={`pointer-events-none absolute bottom-0 left-0 right-0 h-8 rounded-b-xl ${
+              today
+                ? "bg-gradient-to-t from-[#FDF6EC] to-transparent"
+                : "bg-gradient-to-t from-white to-transparent"
+            }`}
+          />
         )}
       </div>
     </div>
@@ -615,17 +680,17 @@ export default function DashboardPage() {
   ).length;
 
   return (
-    <div className="min-h-screen bg-[#FAF8F5]">
+    <div className="flex h-screen flex-col bg-[#FAF8F5]">
       <Navbar />
 
-      <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+      <main className="mx-auto flex min-h-0 w-full max-w-7xl flex-1 flex-col px-4 py-4 sm:px-6 sm:py-6">
         {/* Header */}
-        <div className="mb-6">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mb-4 shrink-0">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h1 className="text-2xl font-semibold text-[#1C1917] sm:text-3xl">Dashboard</h1>
-              <p className="mt-1 text-sm text-[#78716C]">
-                All your bookings from Airbnb, Viator, and GetYourGuide in one place
+              <h1 className="text-xl font-semibold text-[#1C1917] sm:text-2xl">Dashboard</h1>
+              <p className="mt-0.5 text-sm text-[#78716C]">
+                All your bookings in one place
               </p>
             </div>
 
@@ -640,15 +705,15 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Week navigation */}
-        <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        {/* Week navigation + Email stack row */}
+        <div className="mb-3 flex shrink-0 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">
             <button
               onClick={() => navigateWeek("prev")}
-              className="flex h-9 w-9 items-center justify-center rounded-lg border border-[#E7E5E4] bg-white text-[#78716C] transition-colors hover:bg-[#FDF6EC] hover:text-[#1C1917]"
+              className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#E7E5E4] bg-white text-[#78716C] transition-colors hover:bg-[#FDF6EC] hover:text-[#1C1917]"
               aria-label="Previous week"
             >
-              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
               </svg>
             </button>
@@ -662,56 +727,47 @@ export default function DashboardPage() {
             </div>
             <button
               onClick={() => navigateWeek("next")}
-              className="flex h-9 w-9 items-center justify-center rounded-lg border border-[#E7E5E4] bg-white text-[#78716C] transition-colors hover:bg-[#FDF6EC] hover:text-[#1C1917]"
+              className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#E7E5E4] bg-white text-[#78716C] transition-colors hover:bg-[#FDF6EC] hover:text-[#1C1917]"
               aria-label="Next week"
             >
-              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
               </svg>
             </button>
           </div>
 
-          {/* Week summary stats */}
-          <div className="flex flex-wrap gap-3 text-sm">
-            <div className="rounded-lg bg-white px-3 py-2 border border-[#E7E5E4]">
+          {/* Week summary stats + Email stack */}
+          <div className="flex flex-wrap items-center gap-2 text-sm">
+            <div className="rounded-lg bg-white px-2.5 py-1.5 border border-[#E7E5E4]">
               <span className="text-[#78716C]">Bookings:</span>{" "}
               <span className="font-medium text-[#1C1917]">{confirmedWeekBookings.length}</span>
             </div>
-            <div className="rounded-lg bg-white px-3 py-2 border border-[#E7E5E4]">
+            <div className="rounded-lg bg-white px-2.5 py-1.5 border border-[#E7E5E4]">
               <span className="text-[#78716C]">Guests:</span>{" "}
               <span className="font-medium text-[#1C1917]">{totalWeekGuests}</span>
             </div>
             {specialRequestCount > 0 && (
-              <div className="rounded-lg bg-[#EA580C]/10 px-3 py-2 border border-[#EA580C]/20">
-                <span className="text-[#EA580C]">Special requests:</span>{" "}
+              <div className="rounded-lg bg-[#EA580C]/10 px-2.5 py-1.5 border border-[#EA580C]/20">
+                <span className="text-[#EA580C]">Requests:</span>{" "}
                 <span className="font-medium text-[#EA580C]">{specialRequestCount}</span>
               </div>
             )}
-          </div>
-        </div>
-
-        {/* Main content grid */}
-        <div className="flex flex-col gap-6 lg:flex-row">
-          {/* Week grid */}
-          <div className="flex-1 overflow-hidden">
-            <div className="flex gap-3 overflow-x-auto pb-4">
-              {weekDates.map((date) => (
-                <DayColumn
-                  key={date.toISOString()}
-                  date={date}
-                  bookings={getBookingsForDate(date)}
-                  onBookingClick={setSelectedBooking}
-                />
-              ))}
-            </div>
-          </div>
-
-          {/* Email stack sidebar */}
-          <div className="w-full shrink-0 lg:w-72">
-            <div className="rounded-xl border border-[#E7E5E4] bg-white p-4">
+            <div className="rounded-lg border border-[#E7E5E4] bg-white px-3 py-1.5">
               <EmailStack bookings={mockBookings} />
             </div>
           </div>
+        </div>
+
+        {/* Week grid - fills remaining height */}
+        <div className="flex min-h-0 flex-1 gap-2 overflow-x-auto sm:gap-3">
+          {weekDates.map((date) => (
+            <DayColumn
+              key={date.toISOString()}
+              date={date}
+              bookings={getBookingsForDate(date)}
+              onBookingClick={setSelectedBooking}
+            />
+          ))}
         </div>
       </main>
 
