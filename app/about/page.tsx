@@ -8,18 +8,18 @@ export default function About() {
       <Navbar />
 
       {/* Hero */}
-      <section className="mx-auto max-w-4xl px-6 py-20 lg:py-28">
-        <div className="mb-16 text-center">
-          <p className="mb-4 text-sm font-medium uppercase tracking-wide text-[#EA580C]">
+      <section className="mx-auto max-w-4xl px-6 py-12 lg:py-16">
+        <div className="mb-10 text-center">
+          <p className="mb-2 text-sm font-medium uppercase tracking-wide text-[#EA580C]">
             Our Story
           </p>
-          <h1 className="mb-6 text-4xl font-semibold leading-tight tracking-tight text-[#1C1917] lg:text-5xl">
+          <h1 className="mb-4 text-4xl font-semibold leading-tight tracking-tight text-[#1C1917] lg:text-5xl">
             Built from the kitchen table
           </h1>
         </div>
 
         {/* Founder Section */}
-        <div className="mb-20 grid gap-12 lg:grid-cols-5 lg:gap-16">
+        <div className="mb-12 grid gap-8 lg:grid-cols-5 lg:gap-10">
           {/* Founder Image */}
           <div className="mx-auto max-w-[280px] lg:col-span-2 lg:mx-0 lg:max-w-none">
             <div className="aspect-[4/5] overflow-hidden rounded-2xl border border-[#E7E5E4]">
@@ -36,7 +36,7 @@ export default function About() {
 
           {/* Story */}
           <div className="lg:col-span-3">
-            <div className="space-y-6">
+            <div className="space-y-4">
               <div className="text-center lg:text-left">
                 <h2 className="mb-1 text-2xl font-semibold text-[#1C1917]">
                   Guido Freire
@@ -47,7 +47,7 @@ export default function About() {
                 </p>
               </div>
 
-              <div className="space-y-4 text-[#57534E]">
+              <div className="space-y-3 text-[#57534E]">
                 <p className="leading-relaxed">
                   My family has always been in hospitality. I got tired of watching them comb through emails for hours every morning. Airbnb, GetYourGuide, Viator, direct bookings.
                 </p>
@@ -66,15 +66,15 @@ export default function About() {
         </div>
 
         {/* Timeline */}
-        <div className="mb-20">
-          <h2 className="mb-12 text-center text-2xl font-semibold text-[#1C1917]">
+        <div className="mb-12">
+          <h2 className="mb-8 text-center text-2xl font-semibold text-[#1C1917]">
             The Journey
           </h2>
           <div className="relative pl-4 lg:pl-0">
             {/* Timeline line - left on mobile, center on desktop */}
             <div className="absolute left-0 top-0 h-full w-px bg-[#E7E5E4] lg:left-1/2 lg:-translate-x-1/2" />
 
-            <div className="space-y-12 lg:space-y-0">
+            <div className="space-y-8 lg:space-y-10">
               {[
                 {
                   year: "Growing Up",
@@ -116,7 +116,7 @@ export default function About() {
                 },
                 {
                   year: "2025",
-                  side: "left" as const,
+                  side: "right" as const,
                   cards: [
                     {
                       title: "First prototype",
@@ -127,7 +127,7 @@ export default function About() {
                 },
                 {
                   year: "2026",
-                  side: "right" as const,
+                  side: "left" as const,
                   cards: [
                     {
                       title: "Growing fast",
@@ -138,7 +138,7 @@ export default function About() {
                 },
                 {
                   year: "Today",
-                  side: "left" as const,
+                  side: "right" as const,
                   cards: [
                     {
                       title: "Just the beginning",
@@ -163,7 +163,7 @@ export default function About() {
                     }`}
                   >
                     <div
-                      className={`space-y-4 ${
+                      className={`space-y-3 ${
                         entry.side === "right" ? "" : "lg:ml-auto"
                       } lg:max-w-md`}
                     >
@@ -198,8 +198,8 @@ export default function About() {
         </div>
 
         {/* Mission */}
-        <div className="rounded-2xl bg-gradient-to-br from-[#EA580C] to-[#C2410C] p-8 text-center lg:p-12">
-          <h2 className="mb-4 text-2xl font-semibold text-white lg:text-3xl">
+        <div className="rounded-2xl bg-gradient-to-br from-[#EA580C] to-[#C2410C] p-6 text-center lg:p-8">
+          <h2 className="mb-3 text-2xl font-semibold text-white lg:text-3xl">
             Our Mission
           </h2>
           <p className="mx-auto max-w-2xl text-lg text-white/90">
@@ -209,12 +209,12 @@ export default function About() {
       </section>
 
       {/* CTA */}
-      <section className="border-t border-[#E7E5E4] bg-[#FDF6EC] py-16">
+      <section className="border-t border-[#E7E5E4] bg-[#FDF6EC] py-10">
         <div className="mx-auto max-w-4xl px-6 text-center">
-          <h2 className="mb-4 text-2xl font-semibold text-[#1C1917]">
+          <h2 className="mb-3 text-2xl font-semibold text-[#1C1917]">
             Ready to save hours every week?
           </h2>
-          <p className="mb-8 text-[#78716C]">
+          <p className="mb-6 text-[#78716C]">
             Join the agencies already using BookSmart to streamline their bookings.
           </p>
           <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
@@ -237,9 +237,9 @@ export default function About() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-[#E7E5E4] bg-[#FAF8F5] py-12">
+      <footer className="border-t border-[#E7E5E4] bg-[#FAF8F5] py-8">
         <div className="mx-auto max-w-6xl px-6">
-          <div className="flex flex-col items-center justify-between gap-6 sm:flex-row">
+          <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
             <Link href="/" className="flex items-center gap-2">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#EA580C]">
                 <svg
