@@ -1,10 +1,44 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { usePathname, useRouter } from "next/navigation";
+
+type User = {
+  email: string;
+  name: string | null;
+} | null;
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
+  const [user, setUser] = useState<User>(null);
+  const [loading, setLoading] = useState(true);
+  const pathname = usePathname();
+  const router = useRouter();
+
+  const isDashboard = pathname === "/dashboard";
+
+  useEffect(() => {
+    if (isDashboard) {
+      fetch("/api/auth/me")
+        .then((res) => res.json())
+        .then((data) => {
+          setUser(data.user);
+          setLoading(false);
+        })
+        .catch(() => setLoading(false));
+    } else {
+      setLoading(false);
+    }
+  }, [isDashboard]);
+
+  const handleLogout = async () => {
+    await fetch("/api/auth/logout", { method: "POST" });
+    setUser(null);
+    router.push("/");
+  };
+
+  const displayName = user?.name || user?.email?.split("@")[0] || "Account";
 
   return (
     <nav className="sticky top-0 z-50 border-b border-[#E7E5E4] bg-[#FAF8F5]/95 backdrop-blur-sm">
@@ -32,26 +66,47 @@ export default function Navbar() {
 
         {/* Desktop nav */}
         <div className="hidden items-center gap-6 md:flex">
-          <Link
-            href="/about"
-            className="text-sm font-medium text-[#78716C] transition-colors hover:text-[#1C1917]"
-          >
-            About
-          </Link>
-          <Link
-            href="/login"
-            className="text-sm font-medium text-[#78716C] transition-colors hover:text-[#1C1917]"
-          >
-            Log in
-          </Link>
-          <a
-            href="https://calendar.app.google/S5EC5XVDQoRn8BX4A"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="rounded-full bg-[#EA580C] px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#C2410C]"
-          >
-            Request Demo
-          </a>
+          {isDashboard ? (
+            loading ? (
+              <div className="h-5 w-20 animate-pulse rounded bg-[#E7E5E4]" />
+            ) : user ? (
+              <div className="flex items-center gap-4">
+                <span className="text-sm font-medium text-[#1C1917]">
+                  {displayName}
+                </span>
+                <button
+                  onClick={handleLogout}
+                  className="text-sm text-[#78716C] transition-colors hover:text-[#1C1917]"
+                >
+                  Log out
+                </button>
+              </div>
+            ) : (
+              <Link
+                href="/login"
+                className="text-sm font-medium text-[#78716C] transition-colors hover:text-[#1C1917]"
+              >
+                Log in
+              </Link>
+            )
+          ) : (
+            <>
+              <Link
+                href="/about"
+                className="text-sm font-medium text-[#78716C] transition-colors hover:text-[#1C1917]"
+              >
+                About
+              </Link>
+              <a
+                href="https://calendar.app.google/S5EC5XVDQoRn8BX4A"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded-full bg-[#EA580C] px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#C2410C]"
+              >
+                Request Demo
+              </a>
+            </>
+          )}
         </div>
 
         {/* Mobile: hamburger */}
@@ -78,29 +133,51 @@ export default function Navbar() {
       {open && (
         <div className="border-t border-[#E7E5E4] bg-[#FAF8F5] px-4 py-3 md:hidden">
           <div className="flex flex-col gap-1">
-            <Link
-              href="/about"
-              className="rounded-lg px-3 py-2.5 text-sm font-medium text-[#78716C] hover:bg-[#FDF6EC] hover:text-[#1C1917]"
-              onClick={() => setOpen(false)}
-            >
-              About
-            </Link>
-            <Link
-              href="/login"
-              className="rounded-lg px-3 py-2.5 text-sm font-medium text-[#78716C] hover:bg-[#FDF6EC] hover:text-[#1C1917]"
-              onClick={() => setOpen(false)}
-            >
-              Log in
-            </Link>
-            <a
-              href="https://calendar.app.google/S5EC5XVDQoRn8BX4A"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="rounded-lg bg-[#EA580C] px-3 py-2.5 text-center text-sm font-medium text-white hover:bg-[#C2410C]"
-              onClick={() => setOpen(false)}
-            >
-              Request Demo
-            </a>
+            {isDashboard ? (
+              user ? (
+                <>
+                  <span className="px-3 py-2.5 text-sm font-medium text-[#1C1917]">
+                    {displayName}
+                  </span>
+                  <button
+                    onClick={() => {
+                      setOpen(false);
+                      handleLogout();
+                    }}
+                    className="rounded-lg px-3 py-2.5 text-left text-sm font-medium text-[#78716C] hover:bg-[#FDF6EC] hover:text-[#1C1917]"
+                  >
+                    Log out
+                  </button>
+                </>
+              ) : (
+                <Link
+                  href="/login"
+                  className="rounded-lg px-3 py-2.5 text-sm font-medium text-[#78716C] hover:bg-[#FDF6EC] hover:text-[#1C1917]"
+                  onClick={() => setOpen(false)}
+                >
+                  Log in
+                </Link>
+              )
+            ) : (
+              <>
+                <Link
+                  href="/about"
+                  className="rounded-lg px-3 py-2.5 text-sm font-medium text-[#78716C] hover:bg-[#FDF6EC] hover:text-[#1C1917]"
+                  onClick={() => setOpen(false)}
+                >
+                  About
+                </Link>
+                <a
+                  href="https://calendar.app.google/S5EC5XVDQoRn8BX4A"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="rounded-lg bg-[#EA580C] px-3 py-2.5 text-center text-sm font-medium text-white hover:bg-[#C2410C]"
+                  onClick={() => setOpen(false)}
+                >
+                  Request Demo
+                </a>
+              </>
+            )}
           </div>
         </div>
       )}
