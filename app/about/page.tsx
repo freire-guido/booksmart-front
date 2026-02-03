@@ -49,7 +49,7 @@ export default function About() {
 
               <div className="space-y-4 text-[#57534E]">
                 <p className="leading-relaxed">
-                  My family has been in hospitality forever. I got tired of watching them comb through emails for hours every morning. Airbnb, GetYourGuide, Viator, direct bookings.
+                  My family has always been in hospitality. I got tired of watching them comb through emails for hours every morning. Airbnb, GetYourGuide, Viator, direct bookings.
                 </p>
                 <p className="leading-relaxed">
                   The thing that frustrated me most? Ask any of these businesses a simple question: <span className="font-medium text-[#1C1917]">&ldquo;How many guests did you serve last month?&rdquo;</span> and they couldn&apos;t tell you. Everything was scattered across inboxes and spreadsheets and sticky notes.
@@ -59,18 +59,6 @@ export default function About() {
                 </p>
                 <p className="leading-relaxed font-medium text-[#1C1917]">
                   Turns out I could. And now I&apos;m helping others do the same, and save 3+ hours every day like we did.
-                </p>
-                <p className="text-sm text-[#78716C]">
-                  BookSmart is backed by{" "}
-                  <a
-                    href="https://ultradynamic.capital/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-[#78716C] underline decoration-[#E7E5E4] underline-offset-2 hover:text-[#1C1917] hover:decoration-[#EA580C]/40 transition-colors"
-                  >
-                    <span className="font-semibold">ULTRA</span>DYNAMIC
-                  </a>
-                  .
                 </p>
               </div>
             </div>
@@ -90,83 +78,116 @@ export default function About() {
               {[
                 {
                   year: "Growing Up",
-                  title: "Family roots",
-                  description:
-                    "Raised in a family of cooks and dinner parties. Learned firsthand that great hospitality is about people, not paperwork.",
-                  side: "left",
+                  side: "left" as const,
+                  cards: [
+                    {
+                      title: "Family roots",
+                      description:
+                        "Raised in a family of cooks and dinner parties. Learned firsthand that great hospitality is about people, not paperwork.",
+                    },
+                  ],
                 },
                 {
                   year: "2023",
-                  title: "MSc in Data Science",
-                  description:
-                    "Completed my Master's in Data Science, diving deep into AI, and extracting meaning from messy, unstructured data.",
-                  side: "right",
+                  side: "right" as const,
+                  cards: [
+                    {
+                      title: "MSc in Data Science",
+                      description:
+                        "Completed my Master's in Data Science, diving deep into AI, and extracting meaning from messy, unstructured data.",
+                    },
+                  ],
                 },
                 {
                   year: "2024",
-                  title: "Pharma consulting",
-                  description:
-                    "Built clinical trial data infrastructure for large pharmaceutical companies. Learned how to design systems that handle complex, high-stakes information at scale.",
-                  side: "left",
-                },
-                {
-                  year: "2024",
-                  title: "The breaking point",
-                  description:
-                    "Watching my parents spend hours daily managing bookings across 12+ platforms. There had to be a better way.",
-                  side: "right",
+                  side: "left" as const,
+                  cards: [
+                    {
+                      title: "Pharma consulting",
+                      description:
+                        "Built clinical trial data infrastructure for large pharmaceutical companies. Learned how to design systems that handle complex, high-stakes information at scale.",
+                    },
+                    {
+                      title: "The breaking point",
+                      description:
+                        "Watching my parents spend hours daily managing bookings across 12+ platforms. There had to be a better way.",
+                    },
+                  ],
                 },
                 {
                   year: "2025",
-                  title: "First prototype",
-                  description:
-                    "Built the first version of BookSmart. Saved my parents 3+ hours every day.",
-                  side: "left",
+                  side: "left" as const,
+                  cards: [
+                    {
+                      title: "First prototype",
+                      description:
+                        "Built the first version of BookSmart. Saved my parents 3+ hours every day.",
+                    },
+                  ],
                 },
                 {
                   year: "2026",
-                  title: "Growing fast",
-                  description:
-                    "Early access launch. Now trusted by 5 agencies and serving 2,000+ travellers every month.",
-                  side: "right",
+                  side: "right" as const,
+                  cards: [
+                    {
+                      title: "Growing fast",
+                      description:
+                        "Early access launch. Now trusted by 5 agencies and serving 2,000+ travellers every month.",
+                    },
+                  ],
                 },
                 {
                   year: "Today",
-                  title: "Just the beginning",
-                  description:
-                    "Building the future of hospitality operations.",
-                  side: "left",
+                  side: "left" as const,
+                  cards: [
+                    {
+                      title: "Just the beginning",
+                      description:
+                        "Building the future of hospitality operations.",
+                    },
+                  ],
                 },
-              ].map((item, i) => (
+              ].map((entry, i) => (
                 <div
                   key={i}
                   className={`relative lg:flex lg:items-center ${
-                    item.side === "right" ? "lg:flex-row-reverse" : ""
+                    entry.side === "right" ? "lg:flex-row-reverse" : ""
                   }`}
                 >
                   {/* Content */}
                   <div
                     className={`pl-8 lg:pl-0 lg:w-1/2 ${
-                      item.side === "right" ? "lg:pl-16" : "lg:pr-16 lg:text-right"
+                      entry.side === "right"
+                        ? "lg:pl-16"
+                        : "lg:pr-16 lg:text-right"
                     }`}
                   >
                     <div
-                      className={`rounded-2xl border border-[#E7E5E4] bg-white p-6 ${
-                        item.side === "right" ? "" : "lg:ml-auto"
+                      className={`space-y-4 ${
+                        entry.side === "right" ? "" : "lg:ml-auto"
                       } lg:max-w-md`}
                     >
-                      <p className="mb-1 text-sm font-semibold text-[#EA580C]">
-                        {item.year}
-                      </p>
-                      <h3 className="mb-2 text-lg font-semibold text-[#1C1917]">
-                        {item.title}
-                      </h3>
-                      <p className="text-[#78716C]">{item.description}</p>
+                      {entry.cards.map((card, j) => (
+                        <div
+                          key={j}
+                          className="rounded-2xl border border-[#E7E5E4] bg-white p-6"
+                        >
+                          {j === 0 && (
+                            <p className="mb-1 text-sm font-semibold text-[#EA580C]">
+                              {entry.year}
+                            </p>
+                          )}
+                          <h3 className="mb-2 text-lg font-semibold text-[#1C1917]">
+                            {card.title}
+                          </h3>
+                          <p className="text-[#78716C]">{card.description}</p>
+                        </div>
+                      ))}
                     </div>
                   </div>
 
-                  {/* Timeline dot - left on mobile, center on desktop */}
-                  <div className="absolute left-0 top-6 h-4 w-4 -translate-x-1/2 rounded-full border-4 border-[#FAF8F5] bg-[#EA580C] lg:left-1/2" />
+                  {/* Timeline dot - aligned with line on mobile, center on desktop */}
+                  <div className="absolute -left-4 top-6 h-4 w-4 -translate-x-1/2 rounded-full border-4 border-[#FAF8F5] bg-[#EA580C] lg:left-1/2" />
 
                   {/* Empty space for the other side */}
                   <div className="hidden lg:block lg:w-1/2" />
