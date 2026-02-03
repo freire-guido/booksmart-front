@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 
@@ -216,7 +216,7 @@ const otherEmails: Email[] = [
 
 const emails = [...bookingEmails, ...otherEmails];
 
-export default function DemoPage() {
+function DemoContent() {
   const searchParams = useSearchParams();
   const highlightEmailId = searchParams.get("email");
   const rowRefs = useRef<Record<string, HTMLDivElement | null>>({});
@@ -620,5 +620,17 @@ export default function DemoPage() {
         </aside>
       </div>
     </div>
+  );
+}
+
+export default function DemoPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-[#f6f8fc] flex items-center justify-center" style={{ fontFamily: "'Google Sans', Roboto, Arial, sans-serif" }}>
+        <div className="text-[#5f6368]">Loading…</div>
+      </div>
+    }>
+      <DemoContent />
+    </Suspense>
   );
 }

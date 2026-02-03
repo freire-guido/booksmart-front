@@ -576,7 +576,7 @@ function DayColumn({
 
   return (
     <div
-      className={`flex min-w-[180px] flex-1 flex-col rounded-xl border ${
+      className={`flex min-w-[220px] flex-1 flex-col rounded-xl border ${
         today ? "border-[#EA580C] bg-[#FDF6EC]" : "border-[#E7E5E4] bg-white"
       }`}
     >
