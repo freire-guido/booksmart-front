@@ -691,7 +691,7 @@ function DayColumn({
 
 type ViewMode = "week" | "month";
 
-// Get all dates in a month, organized by weeks (including padding days from adjacent months)
+// Get all dates in a month, organized by weeks starting Monday (including padding days from adjacent months)
 function getMonthDates(baseDate: Date): Date[][] {
   const year = baseDate.getFullYear();
   const month = baseDate.getMonth();
@@ -701,13 +701,19 @@ function getMonthDates(baseDate: Date): Date[][] {
   // Last day of the month
   const lastDay = new Date(year, month + 1, 0);
   
-  // Start from Sunday of the week containing the first day
+  // Start from Monday of the week containing the first day
+  // getDay(): 0=Sun, 1=Mon, ..., 6=Sat
+  // For Monday start: if day is 0 (Sun), go back 6 days; otherwise go back (day - 1) days
   const startDate = new Date(firstDay);
-  startDate.setDate(firstDay.getDate() - firstDay.getDay());
+  const firstDayOfWeek = firstDay.getDay();
+  const startDiff = firstDayOfWeek === 0 ? -6 : 1 - firstDayOfWeek;
+  startDate.setDate(firstDay.getDate() + startDiff);
   
-  // End on Saturday of the week containing the last day
+  // End on Sunday of the week containing the last day
   const endDate = new Date(lastDay);
-  endDate.setDate(lastDay.getDate() + (6 - lastDay.getDay()));
+  const lastDayOfWeek = lastDay.getDay();
+  const endDiff = lastDayOfWeek === 0 ? 0 : 7 - lastDayOfWeek;
+  endDate.setDate(lastDay.getDate() + endDiff);
   
   const weeks: Date[][] = [];
   let currentDate = new Date(startDate);
@@ -819,7 +825,7 @@ function MonthGrid({
   onDayClick: (date: Date) => void;
 }) {
   const weeks = getMonthDates(baseDate);
-  const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const dayNames = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
   return (
     <div className="flex flex-1 flex-col rounded-xl border border-[#E7E5E4] bg-white p-3">
