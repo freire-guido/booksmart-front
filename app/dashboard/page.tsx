@@ -37,36 +37,66 @@ const platformNames: Record<Platform, string> = {
   getyourguide: "GetYourGuide",
 };
 
+// Get the Monday of the current week
+function getMondayOfCurrentWeek(): Date {
+  const today = new Date();
+  const day = today.getDay();
+  // If Sunday (0), go back 6 days; otherwise go back (day - 1) days
+  const diff = day === 0 ? -6 : 1 - day;
+  const monday = new Date(today);
+  monday.setDate(today.getDate() + diff);
+  monday.setHours(0, 0, 0, 0);
+  return monday;
+}
+
+// Helper to create a date relative to current week's Monday
+function getDateFromMonday(daysFromMonday: number): Date {
+  const monday = getMondayOfCurrentWeek();
+  const date = new Date(monday);
+  date.setDate(monday.getDate() + daysFromMonday);
+  return date;
+}
+
+// Helper to create an email date (days before current week's Monday)
+function getEmailDate(daysBefore: number, hours: number, minutes: number): Date {
+  const monday = getMondayOfCurrentWeek();
+  const date = new Date(monday);
+  date.setDate(monday.getDate() - daysBefore);
+  date.setHours(hours, minutes, 0, 0);
+  return date;
+}
+
 // Mock booking data - Asado Experience at 7pm
+// Dates are relative to current week's Monday (day 0 = Monday, day 6 = Sunday)
 const mockBookings: Booking[] = [
-  // Feb 14 (Sat)
+  // Monday (day 0)
   {
     id: "1",
     platform: "viator",
     guestName: "Guillermo F.",
     guestCount: 4,
-    date: new Date(2026, 1, 14),
+    date: getDateFromMonday(0),
     time: "7:00 PM",
     status: "confirmed",
     activityName: "Authentic Asado Experience",
     emailSubject: "New Booking: Asado Experience – Guillermo F.",
-    emailPreview: "You have a new booking! Guest: Guillermo F., Party size: 4, Experience: Authentic Argentine Asado, Date: Feb 14 at 7:00 PM.",
-    emailDate: new Date(2026, 1, 10, 14, 23),
+    emailPreview: "You have a new booking! Guest: Guillermo F., Party size: 4, Experience: Authentic Argentine Asado.",
+    emailDate: getEmailDate(4, 14, 23),
     emailId: "msg-001",
   },
-  // Feb 15 (Sun) - busier weekend day
+  // Tuesday (day 1) - busier day
   {
     id: "2",
     platform: "getyourguide",
     guestName: "Natalia O.",
     guestCount: 2,
-    date: new Date(2026, 1, 15),
+    date: getDateFromMonday(1),
     time: "7:00 PM",
     status: "confirmed",
     activityName: "Authentic Asado Experience",
-    emailSubject: "Booking Confirmation: Natalia O. – Asado Feb 15",
-    emailPreview: "Great news! You have a new booking. Guest: Natalia O., Guests: 2, Activity: Authentic Argentine Asado Experience, Date: February 15, 2026.",
-    emailDate: new Date(2026, 1, 3, 18, 42),
+    emailSubject: "Booking Confirmation: Natalia O. – Asado",
+    emailPreview: "Great news! You have a new booking. Guest: Natalia O., Guests: 2, Activity: Authentic Argentine Asado Experience.",
+    emailDate: getEmailDate(11, 18, 42),
     emailId: "msg-002",
   },
   {
@@ -74,60 +104,60 @@ const mockBookings: Booking[] = [
     platform: "airbnb",
     guestName: "Ricardo D.",
     guestCount: 6,
-    date: new Date(2026, 1, 15),
+    date: getDateFromMonday(1),
     time: "7:00 PM",
     status: "confirmed",
     specialRequests: ["1 vegetarian"],
     activityName: "Authentic Asado Experience",
     emailSubject: "Experience booked – Ricardo D. for Asado",
-    emailPreview: "New experience booking confirmed. Ricardo D. and 5 guests for Authentic Asado Experience on Feb 15 at 7:00 PM. Notes: 1 vegetarian.",
-    emailDate: new Date(2026, 1, 3, 14, 30),
+    emailPreview: "New experience booking confirmed. Ricardo D. and 5 guests for Authentic Asado Experience. Notes: 1 vegetarian.",
+    emailDate: getEmailDate(11, 14, 30),
     emailId: "msg-003",
   },
-  // Feb 16 (Mon)
+  // Wednesday (day 2)
   {
     id: "4",
     platform: "viator",
     guestName: "Carlos M.",
     guestCount: 2,
-    date: new Date(2026, 1, 16),
+    date: getDateFromMonday(2),
     time: "7:00 PM",
     status: "confirmed",
     activityName: "Authentic Asado Experience",
     emailSubject: "New Booking: Asado Experience – Carlos M.",
-    emailPreview: "You have a new booking! Guest: Carlos M., Party size: 2, Experience: Authentic Argentine Asado, Date: Feb 16 at 7:00 PM.",
-    emailDate: new Date(2026, 1, 1, 9, 45),
+    emailPreview: "You have a new booking! Guest: Carlos M., Party size: 2, Experience: Authentic Argentine Asado.",
+    emailDate: getEmailDate(13, 9, 45),
     emailId: "msg-004",
   },
-  // Feb 17 (Tue) - one cancelled
+  // Thursday (day 3) - one cancelled
   {
     id: "5",
     platform: "getyourguide",
     guestName: "Miguel A.",
     guestCount: 2,
-    date: new Date(2026, 1, 17),
+    date: getDateFromMonday(3),
     time: "7:00 PM",
     status: "cancelled",
     activityName: "Authentic Asado Experience",
-    emailSubject: "Booking Cancelled: Miguel A. (Feb 17)",
-    emailPreview: "A booking has been cancelled. Guest: Miguel A., Original date: February 17, 2026. Reason: Guest requested cancellation.",
-    emailDate: new Date(2026, 1, 2, 8, 30),
+    emailSubject: "Booking Cancelled: Miguel A.",
+    emailPreview: "A booking has been cancelled. Guest: Miguel A. Reason: Guest requested cancellation.",
+    emailDate: getEmailDate(12, 8, 30),
     emailId: "msg-005",
   },
-  // Feb 18 (Wed)
+  // Friday (day 4)
   {
     id: "6",
     platform: "airbnb",
     guestName: "Elena P.",
     guestCount: 4,
-    date: new Date(2026, 1, 18),
+    date: getDateFromMonday(4),
     time: "7:00 PM",
     status: "confirmed",
     specialRequests: ["1 vegan"],
     activityName: "Authentic Asado Experience",
     emailSubject: "Experience booked – Elena P. for Asado",
-    emailPreview: "New experience booking confirmed. Elena P. and 3 guests for Authentic Asado Experience on Feb 18 at 7:00 PM. Notes: 1 vegan.",
-    emailDate: new Date(2026, 1, 1, 16, 8),
+    emailPreview: "New experience booking confirmed. Elena P. and 3 guests for Authentic Asado Experience. Notes: 1 vegan.",
+    emailDate: getEmailDate(13, 16, 8),
     emailId: "msg-006",
   },
   {
@@ -135,44 +165,44 @@ const mockBookings: Booking[] = [
     platform: "viator",
     guestName: "Sofia R.",
     guestCount: 3,
-    date: new Date(2026, 1, 18),
+    date: getDateFromMonday(4),
     time: "7:00 PM",
     status: "rescheduled",
     activityName: "Authentic Asado Experience",
-    emailSubject: "Booking update: Sofia R. – Date changed to Feb 25",
-    emailPreview: "A guest has modified their reservation. Sofia R. changed their Asado Experience from Feb 18 to Feb 25 at 7:00 PM.",
-    emailDate: new Date(2026, 1, 3, 9, 21),
+    emailSubject: "Booking update: Sofia R. – Date changed",
+    emailPreview: "A guest has modified their reservation. Sofia R. changed their Asado Experience date.",
+    emailDate: getEmailDate(11, 9, 21),
     emailId: "msg-007",
   },
-  // Feb 19 (Thu)
+  // Saturday (day 5)
   {
     id: "8",
     platform: "getyourguide",
     guestName: "Ana L.",
     guestCount: 2,
-    date: new Date(2026, 1, 19),
+    date: getDateFromMonday(5),
     time: "7:00 PM",
     status: "confirmed",
     activityName: "Authentic Asado Experience",
-    emailSubject: "Booking Confirmation: Ana L. – Asado Feb 19",
-    emailPreview: "Great news! You have a new booking. Guest: Ana L., Guests: 2, Activity: Authentic Argentine Asado Experience, Date: February 19, 2026.",
-    emailDate: new Date(2026, 0, 28, 13, 44),
+    emailSubject: "Booking Confirmation: Ana L. – Asado",
+    emailPreview: "Great news! You have a new booking. Guest: Ana L., Guests: 2, Activity: Authentic Argentine Asado Experience.",
+    emailDate: getEmailDate(17, 13, 44),
     emailId: "msg-008",
   },
-  // Feb 20 (Fri)
+  // Sunday (day 6)
   {
     id: "9",
     platform: "airbnb",
     guestName: "Pablo N.",
     guestCount: 5,
-    date: new Date(2026, 1, 20),
+    date: getDateFromMonday(6),
     time: "7:00 PM",
     status: "confirmed",
     specialRequests: ["1 gluten-free"],
     activityName: "Authentic Asado Experience",
     emailSubject: "Experience booked – Pablo N. for Asado",
-    emailPreview: "New experience booking confirmed. Pablo N. and 4 guests for Authentic Asado Experience on Feb 20 at 7:00 PM. Notes: 1 gluten-free.",
-    emailDate: new Date(2026, 1, 3, 19, 55),
+    emailPreview: "New experience booking confirmed. Pablo N. and 4 guests for Authentic Asado Experience. Notes: 1 gluten-free.",
+    emailDate: getEmailDate(11, 19, 55),
     emailId: "msg-009",
   },
 ];
@@ -180,9 +210,10 @@ const mockBookings: Booking[] = [
 function getWeekDates(baseDate: Date): Date[] {
   const dates: Date[] = [];
   const startOfWeek = new Date(baseDate);
-  // Adjust to Saturday (day 6) as start of week for tourism context
+  // Adjust to Monday (day 1) as start of week
   const day = startOfWeek.getDay();
-  const diff = day === 6 ? 0 : day === 0 ? -1 : -(day + 1);
+  // If Sunday (0), go back 6 days; otherwise go back (day - 1) days
+  const diff = day === 0 ? -6 : 1 - day;
   startOfWeek.setDate(startOfWeek.getDate() + diff);
 
   for (let i = 0; i < 7; i++) {
@@ -865,9 +896,9 @@ function ViewToggle({
 }
 
 export default function DashboardPage() {
-  // Start with the week containing Feb 15, 2026
-  const [currentWeekStart, setCurrentWeekStart] = useState(new Date(2026, 1, 14));
-  const [currentMonth, setCurrentMonth] = useState(new Date(2026, 1, 1));
+  // Start with the current week/month
+  const [currentWeekStart, setCurrentWeekStart] = useState(() => new Date());
+  const [currentMonth, setCurrentMonth] = useState(() => new Date());
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>("week");
   const weekDates = getWeekDates(currentWeekStart);
