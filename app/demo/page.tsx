@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 
 interface Email {
   id: string;
@@ -17,20 +18,24 @@ interface Email {
   platform?: "airbnb" | "viator" | "getyourguide";
 }
 
-const emails: Email[] = [
-  {
-    id: "1",
-    from: "Airbnb",
-    fromEmail: "automated@airbnb.com",
-    subject: "Reservation confirmed – Natalia arrives Feb 15",
-    preview: "Reservation confirmed. Natalia O. and 1 guest will arrive on Feb 15 for 3 nights. Check-in: 3:00 PM. Notes: Vegetarian, early check-in requested.",
-    date: "6:42 PM",
-    read: false,
-    starred: false,
-    hasAttachment: false,
-    isBooking: true,
-    platform: "airbnb",
-  },
+// Booking emails matching dashboard emailIds (msg-001 … msg-013) so "Open in Email" lands here
+const bookingEmails: Email[] = [
+  { id: "msg-001", from: "Airbnb", fromEmail: "automated@airbnb.com", subject: "Reservation confirmed – Guillermo arrives Feb 14", preview: "Reservation confirmed. Guillermo F. and 4 guests will arrive on Feb 14 for 3 nights. Check-in: 2:00 PM. Notes: Gluten-free diet required.", date: "Feb 10, 2:23 PM", read: false, starred: false, hasAttachment: false, isBooking: true, platform: "airbnb" },
+  { id: "msg-002", from: "Airbnb", fromEmail: "automated@airbnb.com", subject: "Reservation confirmed – Natalia arrives Feb 15", preview: "Reservation confirmed. Natalia O. and 1 guest will arrive on Feb 15 for 3 nights. Check-in: 3:00 PM. Notes: Vegetarian, early check-in requested.", date: "6:42 PM", read: false, starred: false, hasAttachment: false, isBooking: true, platform: "airbnb" },
+  { id: "msg-003", from: "Viator", fromEmail: "booking@viator.com", subject: "New Booking: Buenos Aires Food Tour – Luisana L.", preview: "You have a new booking! Guest: Luisana L., Party size: 2, Tour: Buenos Aires Food & Wine Experience, Date: Feb 15 at 2:00 PM. Special request: Wheelchair access needed.", date: "4:55 PM", read: false, starred: true, hasAttachment: false, isBooking: true, platform: "viator" },
+  { id: "msg-004", from: "GetYourGuide", fromEmail: "booking@getyourguide.com", subject: "Booking Confirmation: Ricardo D. – City Tour Feb 15", preview: "Great news! You have a new booking. Guest: Ricardo D., Guests: 4, Activity: Buenos Aires City Highlights Tour, Date: February 15, 2026. Dietary: Gluten-free (1 guest)", date: "2:30 PM", read: false, starred: false, hasAttachment: false, isBooking: true, platform: "getyourguide" },
+  { id: "msg-005", from: "Viator", fromEmail: "booking@viator.com", subject: "New Booking: Tango Night – Julieta Z.", preview: "You have a new booking! Guest: Julieta Z., Party size: 3, Tour: Authentic Tango Night Experience, Date: Feb 15 at 6:00 PM.", date: "Feb 2, 11:15 AM", read: false, starred: false, hasAttachment: false, isBooking: true, platform: "viator" },
+  { id: "msg-006", from: "GetYourGuide", fromEmail: "booking@getyourguide.com", subject: "Booking Confirmation: Carlos M. – Tigre Delta", preview: "Great news! You have a new booking. Guest: Carlos M., Guests: 2, Activity: Tigre Delta Day Trip with Boat Ride, Date: February 16, 2026 at 9:00 AM.", date: "Feb 1, 9:45 AM", read: false, starred: false, hasAttachment: false, isBooking: true, platform: "getyourguide" },
+  { id: "msg-007", from: "Airbnb", fromEmail: "automated@airbnb.com", subject: "Reservation confirmed – Sofia arrives Feb 16", preview: "Reservation confirmed. Sofia R. will arrive on Feb 16 for 2 nights. Solo traveler. Standard check-in at 3:00 PM.", date: "Jan 30, 8:12 PM", read: false, starred: false, hasAttachment: false, isBooking: true, platform: "airbnb" },
+  { id: "msg-008", from: "Viator", fromEmail: "cancellations@viator.com", subject: "Booking Cancelled: Miguel A. (Feb 17)", preview: "A booking has been cancelled. Guest: Miguel A., Original date: February 17, 2026. Reason: Guest requested cancellation.", date: "Feb 2, 8:30 AM", read: true, starred: false, hasAttachment: false, isBooking: true, platform: "viator" },
+  { id: "msg-009", from: "Airbnb", fromEmail: "express@airbnb.com", subject: "Booking update: Ricardo M. – Dates changed", preview: "A guest has modified their reservation. Ricardo M. changed their booking from Feb 20-22 to Feb 18-20. Please confirm availability. Note: Late checkout requested.", date: "9:21 AM", read: false, starred: false, hasAttachment: false, isBooking: true, platform: "airbnb" },
+  { id: "msg-010", from: "GetYourGuide", fromEmail: "booking@getyourguide.com", subject: "Booking Confirmation: Elena P. – Wine Tasting", preview: "Great news! You have a new booking. Guest: Elena P., Guests: 4, Activity: Mendoza Wine Tasting Experience, Date: February 18, 2026. Dietary: Vegan options needed for 2 guests.", date: "Feb 1, 4:08 PM", read: false, starred: false, hasAttachment: false, isBooking: true, platform: "getyourguide" },
+  { id: "msg-011", from: "Viator", fromEmail: "booking@viator.com", subject: "New Booking: Gaucho Ranch – Fernando B.", preview: "You have a new booking! Guest: Fernando B., Party size: 6, Tour: Full Day Gaucho Ranch Experience, Date: Feb 19 at 10:00 AM. Special request: Spanish-speaking guide preferred.", date: "Jan 28, 1:44 PM", read: false, starred: false, hasAttachment: false, isBooking: true, platform: "viator" },
+  { id: "msg-012", from: "Airbnb", fromEmail: "automated@airbnb.com", subject: "Reservation confirmed – Ana arrives Feb 19", preview: "Reservation confirmed. Ana L. and 1 guest will arrive on Feb 19 for 4 nights. Check-in: 3:00 PM. No special requests.", date: "Jan 25, 10:30 AM", read: false, starred: false, hasAttachment: false, isBooking: true, platform: "airbnb" },
+  { id: "msg-013", from: "GetYourGuide", fromEmail: "booking@getyourguide.com", subject: "Booking Confirmation: Pablo N. – Night Photography", preview: "Great news! You have a new booking. Guest: Pablo N., Guests: 2, Activity: Buenos Aires Night Photography Tour, Date: February 20, 2026 at 7:00 PM.", date: "7:55 PM", read: false, starred: false, hasAttachment: false, isBooking: true, platform: "getyourguide" },
+];
+
+const otherEmails: Email[] = [
   {
     id: "2",
     from: "Calendly",
@@ -52,19 +57,6 @@ const emails: Email[] = [
     read: false,
     starred: false,
     hasAttachment: false,
-  },
-  {
-    id: "4",
-    from: "Viator",
-    fromEmail: "booking@viator.com",
-    subject: "New Booking: Buenos Aires Food Tour – Luisana L.",
-    preview: "You have a new booking! Guest: Luisana L., Party size: 2, Tour: Buenos Aires Food & Wine Experience, Date: Feb 15 at 2:00 PM. Special request: Wheelchair access needed.",
-    date: "4:55 PM",
-    read: false,
-    starred: true,
-    hasAttachment: false,
-    isBooking: true,
-    platform: "viator",
   },
   {
     id: "5",
@@ -111,19 +103,6 @@ const emails: Email[] = [
     hasAttachment: false,
   },
   {
-    id: "9",
-    from: "GetYourGuide",
-    fromEmail: "booking@getyourguide.com",
-    subject: "Booking Confirmation: Ricardo D. – City Tour Feb 15",
-    preview: "Great news! You have a new booking. Guest: Ricardo D., Guests: 4, Activity: Buenos Aires City Highlights Tour, Date: February 15, 2026. Dietary: Gluten-free (1 guest)",
-    date: "2:30 PM",
-    read: false,
-    starred: false,
-    hasAttachment: false,
-    isBooking: true,
-    platform: "getyourguide",
-  },
-  {
     id: "10",
     from: "Esteban Feuerstein",
     fromEmail: "efeuerst@dc.uba.ar",
@@ -155,19 +134,6 @@ const emails: Email[] = [
     read: true,
     starred: false,
     hasAttachment: false,
-  },
-  {
-    id: "13",
-    from: "Airbnb",
-    fromEmail: "express@airbnb.com",
-    subject: "Booking update: Ricardo M. – Dates changed",
-    preview: "A guest has modified their reservation. Ricardo M. changed their booking from Feb 20-22 to Feb 18-20. Please confirm availability.",
-    date: "9:21 AM",
-    read: false,
-    starred: false,
-    hasAttachment: false,
-    isBooking: true,
-    platform: "airbnb",
   },
   {
     id: "14",
@@ -225,19 +191,6 @@ const emails: Email[] = [
     hasAttachment: true,
   },
   {
-    id: "19",
-    from: "Viator",
-    fromEmail: "cancellations@viator.com",
-    subject: "Booking Cancelled: Miguel A.S. (Jan 30)",
-    preview: "A booking has been cancelled. Guest: Miguel A.S., Original date: January 30, 2026. Reason: Guest requested cancellation.",
-    date: "Jan 30",
-    read: true,
-    starred: false,
-    hasAttachment: false,
-    isBooking: true,
-    platform: "viator",
-  },
-  {
     id: "20",
     from: "Brubank",
     fromEmail: "noresponder@brubank.com.ar",
@@ -261,11 +214,26 @@ const emails: Email[] = [
   },
 ];
 
+const emails = [...bookingEmails, ...otherEmails];
+
 export default function DemoPage() {
+  const searchParams = useSearchParams();
+  const highlightEmailId = searchParams.get("email");
+  const rowRefs = useRef<Record<string, HTMLDivElement | null>>({});
+
   const [selectedEmails, setSelectedEmails] = useState<Set<string>>(new Set());
   const [starredEmails, setStarredEmails] = useState<Set<string>>(
     new Set(emails.filter((e) => e.starred).map((e) => e.id))
   );
+
+  // When opening from dashboard with ?email=msg-xxx, scroll to that row and highlight it
+  useEffect(() => {
+    if (!highlightEmailId) return;
+    const el = rowRefs.current[highlightEmailId];
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [highlightEmailId]);
 
   const toggleStar = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -524,9 +492,12 @@ export default function DemoPage() {
             {emails.map((email) => (
               <div
                 key={email.id}
+                ref={(el) => { rowRefs.current[email.id] = el; }}
                 className={`flex items-center border-b border-[#e8eaed] cursor-pointer transition-colors ${
                   !email.read ? "bg-[#f2f6fc]" : "bg-white hover:bg-[#f5f5f5]"
-                } ${selectedEmails.has(email.id) ? "!bg-[#c2dbff]" : ""} hover:shadow-[inset_1px_0_0_#dadce0,inset_-1px_0_0_#dadce0,0_1px_2px_0_rgba(60,64,67,.3),0_1px_3px_1px_rgba(60,64,67,.15)]`}
+                } ${selectedEmails.has(email.id) ? "!bg-[#c2dbff]" : ""} ${
+                  highlightEmailId === email.id ? "!bg-[#fef3e8] ring-2 ring-inset ring-[#EA580C]" : ""
+                } hover:shadow-[inset_1px_0_0_#dadce0,inset_-1px_0_0_#dadce0,0_1px_2px_0_rgba(60,64,67,.3),0_1px_3px_1px_rgba(60,64,67,.15)]`}
                 style={{ height: "40px" }}
               >
                 {/* Checkbox */}

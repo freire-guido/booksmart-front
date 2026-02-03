@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Navbar from "../components/Navbar";
 
 type Platform = "airbnb" | "viator" | "getyourguide";
@@ -36,199 +37,143 @@ const platformNames: Record<Platform, string> = {
   getyourguide: "GetYourGuide",
 };
 
-// Mock booking data - centered around Feb 15, 2026
+// Mock booking data - Asado Experience at 7pm
 const mockBookings: Booking[] = [
-  // Feb 14 (Sat) - 1 booking
+  // Feb 14 (Sat)
   {
     id: "1",
-    platform: "airbnb",
+    platform: "viator",
     guestName: "Guillermo F.",
-    guestCount: 5,
+    guestCount: 4,
     date: new Date(2026, 1, 14),
+    time: "7:00 PM",
     status: "confirmed",
-    specialRequests: ["Early check-in (2 PM)", "Gluten-free"],
-    duration: "3 nights",
-    emailSubject: "Reservation confirmed – Guillermo arrives Feb 14",
-    emailPreview: "Reservation confirmed. Guillermo F. and 4 guests will arrive on Feb 14 for 3 nights. Check-in: 2:00 PM. Notes: Gluten-free diet required.",
+    activityName: "Authentic Asado Experience",
+    emailSubject: "New Booking: Asado Experience – Guillermo F.",
+    emailPreview: "You have a new booking! Guest: Guillermo F., Party size: 4, Experience: Authentic Argentine Asado, Date: Feb 14 at 7:00 PM.",
     emailDate: new Date(2026, 1, 10, 14, 23),
     emailId: "msg-001",
   },
-  // Feb 15 (Sun) - 4 bookings (busy day)
+  // Feb 15 (Sun) - busier weekend day
   {
     id: "2",
-    platform: "airbnb",
+    platform: "getyourguide",
     guestName: "Natalia O.",
     guestCount: 2,
     date: new Date(2026, 1, 15),
-    time: "3:00 PM",
+    time: "7:00 PM",
     status: "confirmed",
-    specialRequests: ["Vegetarian", "Early check-in"],
-    duration: "3 nights",
-    emailSubject: "Reservation confirmed – Natalia arrives Feb 15",
-    emailPreview: "Reservation confirmed. Natalia O. and 1 guest will arrive on Feb 15 for 3 nights. Check-in: 3:00 PM. Notes: Vegetarian, early check-in requested.",
+    activityName: "Authentic Asado Experience",
+    emailSubject: "Booking Confirmation: Natalia O. – Asado Feb 15",
+    emailPreview: "Great news! You have a new booking. Guest: Natalia O., Guests: 2, Activity: Authentic Argentine Asado Experience, Date: February 15, 2026.",
     emailDate: new Date(2026, 1, 3, 18, 42),
     emailId: "msg-002",
   },
   {
     id: "3",
-    platform: "viator",
-    guestName: "Luisana L.",
-    guestCount: 2,
+    platform: "airbnb",
+    guestName: "Ricardo D.",
+    guestCount: 6,
     date: new Date(2026, 1, 15),
-    time: "2:00 PM",
+    time: "7:00 PM",
     status: "confirmed",
-    specialRequests: ["Wheelchair access"],
-    activityName: "Buenos Aires Food Tour",
-    emailSubject: "New Booking: Buenos Aires Food Tour – Luisana L.",
-    emailPreview: "You have a new booking! Guest: Luisana L., Party size: 2, Tour: Buenos Aires Food & Wine Experience, Date: Feb 15 at 2:00 PM. Special request: Wheelchair access needed.",
-    emailDate: new Date(2026, 1, 3, 16, 55),
+    specialRequests: ["1 vegetarian"],
+    activityName: "Authentic Asado Experience",
+    emailSubject: "Experience booked – Ricardo D. for Asado",
+    emailPreview: "New experience booking confirmed. Ricardo D. and 5 guests for Authentic Asado Experience on Feb 15 at 7:00 PM. Notes: 1 vegetarian.",
+    emailDate: new Date(2026, 1, 3, 14, 30),
     emailId: "msg-003",
   },
+  // Feb 16 (Mon)
   {
     id: "4",
-    platform: "getyourguide",
-    guestName: "Ricardo D.",
-    guestCount: 4,
-    date: new Date(2026, 1, 15),
-    time: "10:00 AM",
-    status: "confirmed",
-    specialRequests: ["Gluten-free (1 guest)"],
-    activityName: "City Highlights Tour",
-    emailSubject: "Booking Confirmation: Ricardo D. – City Tour Feb 15",
-    emailPreview: "Great news! You have a new booking. Guest: Ricardo D., Guests: 4, Activity: Buenos Aires City Highlights Tour, Date: February 15, 2026. Dietary: Gluten-free (1 guest)",
-    emailDate: new Date(2026, 1, 3, 14, 30),
-    emailId: "msg-004",
-  },
-  {
-    id: "5",
     platform: "viator",
-    guestName: "Julieta Z.",
-    guestCount: 3,
-    date: new Date(2026, 1, 15),
-    time: "6:00 PM",
-    status: "confirmed",
-    activityName: "Tango Night Experience",
-    emailSubject: "New Booking: Tango Night – Julieta Z.",
-    emailPreview: "You have a new booking! Guest: Julieta Z., Party size: 3, Tour: Authentic Tango Night Experience, Date: Feb 15 at 6:00 PM.",
-    emailDate: new Date(2026, 1, 2, 11, 15),
-    emailId: "msg-005",
-  },
-  // Feb 16 (Mon) - 2 bookings
-  {
-    id: "6",
-    platform: "getyourguide",
     guestName: "Carlos M.",
     guestCount: 2,
     date: new Date(2026, 1, 16),
-    time: "9:00 AM",
+    time: "7:00 PM",
     status: "confirmed",
-    activityName: "Tigre Delta Day Trip",
-    emailSubject: "Booking Confirmation: Carlos M. – Tigre Delta",
-    emailPreview: "Great news! You have a new booking. Guest: Carlos M., Guests: 2, Activity: Tigre Delta Day Trip with Boat Ride, Date: February 16, 2026 at 9:00 AM.",
+    activityName: "Authentic Asado Experience",
+    emailSubject: "New Booking: Asado Experience – Carlos M.",
+    emailPreview: "You have a new booking! Guest: Carlos M., Party size: 2, Experience: Authentic Argentine Asado, Date: Feb 16 at 7:00 PM.",
     emailDate: new Date(2026, 1, 1, 9, 45),
+    emailId: "msg-004",
+  },
+  // Feb 17 (Tue) - one cancelled
+  {
+    id: "5",
+    platform: "getyourguide",
+    guestName: "Miguel A.",
+    guestCount: 2,
+    date: new Date(2026, 1, 17),
+    time: "7:00 PM",
+    status: "cancelled",
+    activityName: "Authentic Asado Experience",
+    emailSubject: "Booking Cancelled: Miguel A. (Feb 17)",
+    emailPreview: "A booking has been cancelled. Guest: Miguel A., Original date: February 17, 2026. Reason: Guest requested cancellation.",
+    emailDate: new Date(2026, 1, 2, 8, 30),
+    emailId: "msg-005",
+  },
+  // Feb 18 (Wed)
+  {
+    id: "6",
+    platform: "airbnb",
+    guestName: "Elena P.",
+    guestCount: 4,
+    date: new Date(2026, 1, 18),
+    time: "7:00 PM",
+    status: "confirmed",
+    specialRequests: ["1 vegan"],
+    activityName: "Authentic Asado Experience",
+    emailSubject: "Experience booked – Elena P. for Asado",
+    emailPreview: "New experience booking confirmed. Elena P. and 3 guests for Authentic Asado Experience on Feb 18 at 7:00 PM. Notes: 1 vegan.",
+    emailDate: new Date(2026, 1, 1, 16, 8),
     emailId: "msg-006",
   },
   {
     id: "7",
-    platform: "airbnb",
-    guestName: "Sofia R.",
-    guestCount: 1,
-    date: new Date(2026, 1, 16),
-    status: "confirmed",
-    duration: "2 nights",
-    emailSubject: "Reservation confirmed – Sofia arrives Feb 16",
-    emailPreview: "Reservation confirmed. Sofia R. will arrive on Feb 16 for 2 nights. Solo traveler. Standard check-in at 3:00 PM.",
-    emailDate: new Date(2026, 0, 30, 20, 12),
-    emailId: "msg-007",
-  },
-  // Feb 17 (Tue) - 1 booking
-  {
-    id: "8",
     platform: "viator",
-    guestName: "Miguel A.",
-    guestCount: 2,
-    date: new Date(2026, 1, 17),
-    time: "11:00 AM",
-    status: "cancelled",
-    activityName: "Street Art Walking Tour",
-    emailSubject: "Booking Cancelled: Miguel A. (Feb 17)",
-    emailPreview: "A booking has been cancelled. Guest: Miguel A., Original date: February 17, 2026. Reason: Guest requested cancellation.",
-    emailDate: new Date(2026, 1, 2, 8, 30),
-    emailId: "msg-008",
-  },
-  // Feb 18 (Wed) - 2 bookings (including rescheduled)
-  {
-    id: "9",
-    platform: "airbnb",
-    guestName: "Ricardo M.",
+    guestName: "Sofia R.",
     guestCount: 3,
     date: new Date(2026, 1, 18),
+    time: "7:00 PM",
     status: "rescheduled",
-    specialRequests: ["Late checkout"],
-    duration: "2 nights",
-    emailSubject: "Booking update: Ricardo M. – Dates changed",
-    emailPreview: "A guest has modified their reservation. Ricardo M. changed their booking from Feb 20-22 to Feb 18-20. Please confirm availability. Note: Late checkout requested.",
+    activityName: "Authentic Asado Experience",
+    emailSubject: "Booking update: Sofia R. – Date changed to Feb 25",
+    emailPreview: "A guest has modified their reservation. Sofia R. changed their Asado Experience from Feb 18 to Feb 25 at 7:00 PM.",
     emailDate: new Date(2026, 1, 3, 9, 21),
-    emailId: "msg-009",
+    emailId: "msg-007",
   },
+  // Feb 19 (Thu)
   {
-    id: "10",
+    id: "8",
     platform: "getyourguide",
-    guestName: "Elena P.",
-    guestCount: 4,
-    date: new Date(2026, 1, 18),
-    time: "3:00 PM",
-    status: "confirmed",
-    specialRequests: ["Vegan (2 guests)"],
-    activityName: "Wine Tasting Experience",
-    emailSubject: "Booking Confirmation: Elena P. – Wine Tasting",
-    emailPreview: "Great news! You have a new booking. Guest: Elena P., Guests: 4, Activity: Mendoza Wine Tasting Experience, Date: February 18, 2026. Dietary: Vegan options needed for 2 guests.",
-    emailDate: new Date(2026, 1, 1, 16, 8),
-    emailId: "msg-010",
-  },
-  // Feb 19 (Thu) - 2 bookings
-  {
-    id: "11",
-    platform: "viator",
-    guestName: "Fernando B.",
-    guestCount: 6,
-    date: new Date(2026, 1, 19),
-    time: "10:00 AM",
-    status: "confirmed",
-    specialRequests: ["Spanish-speaking guide"],
-    activityName: "Full Day Gaucho Ranch",
-    emailSubject: "New Booking: Gaucho Ranch – Fernando B.",
-    emailPreview: "You have a new booking! Guest: Fernando B., Party size: 6, Tour: Full Day Gaucho Ranch Experience, Date: Feb 19 at 10:00 AM. Special request: Spanish-speaking guide preferred.",
-    emailDate: new Date(2026, 0, 28, 13, 44),
-    emailId: "msg-011",
-  },
-  {
-    id: "12",
-    platform: "airbnb",
     guestName: "Ana L.",
     guestCount: 2,
     date: new Date(2026, 1, 19),
+    time: "7:00 PM",
     status: "confirmed",
-    duration: "4 nights",
-    emailSubject: "Reservation confirmed – Ana arrives Feb 19",
-    emailPreview: "Reservation confirmed. Ana L. and 1 guest will arrive on Feb 19 for 4 nights. Check-in: 3:00 PM. No special requests.",
-    emailDate: new Date(2026, 0, 25, 10, 30),
-    emailId: "msg-012",
+    activityName: "Authentic Asado Experience",
+    emailSubject: "Booking Confirmation: Ana L. – Asado Feb 19",
+    emailPreview: "Great news! You have a new booking. Guest: Ana L., Guests: 2, Activity: Authentic Argentine Asado Experience, Date: February 19, 2026.",
+    emailDate: new Date(2026, 0, 28, 13, 44),
+    emailId: "msg-008",
   },
-  // Feb 20 (Fri) - 1 booking
+  // Feb 20 (Fri)
   {
-    id: "13",
-    platform: "getyourguide",
+    id: "9",
+    platform: "airbnb",
     guestName: "Pablo N.",
-    guestCount: 2,
+    guestCount: 5,
     date: new Date(2026, 1, 20),
     time: "7:00 PM",
     status: "confirmed",
-    activityName: "Night Photography Tour",
-    emailSubject: "Booking Confirmation: Pablo N. – Night Photography",
-    emailPreview: "Great news! You have a new booking. Guest: Pablo N., Guests: 2, Activity: Buenos Aires Night Photography Tour, Date: February 20, 2026 at 7:00 PM.",
+    specialRequests: ["1 gluten-free"],
+    activityName: "Authentic Asado Experience",
+    emailSubject: "Experience booked – Pablo N. for Asado",
+    emailPreview: "New experience booking confirmed. Pablo N. and 4 guests for Authentic Asado Experience on Feb 20 at 7:00 PM. Notes: 1 gluten-free.",
     emailDate: new Date(2026, 1, 3, 19, 55),
-    emailId: "msg-013",
+    emailId: "msg-009",
   },
 ];
 
@@ -379,6 +324,25 @@ function EmailStack({ bookings }: { bookings: Booking[] }) {
   );
 }
 
+// Button that redirects to /demo with this email selected
+function OpenInEmailButton({ emailId, onClose }: { emailId: string; onClose: () => void }) {
+  const router = useRouter();
+  return (
+    <button
+      onClick={() => {
+        onClose();
+        router.push(`/demo?email=${encodeURIComponent(emailId)}`);
+      }}
+      className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-[#EA580C] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#C2410C]"
+    >
+      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+      </svg>
+      Open in Email
+    </button>
+  );
+}
+
 // Booking Detail Modal
 function BookingModal({
   booking,
@@ -464,19 +428,8 @@ function BookingModal({
           <p className="text-xs leading-relaxed text-[#78716C]">{booking.emailPreview}</p>
         </div>
 
-        {/* Open in email button */}
-        <button
-          onClick={() => {
-            // This would open the email client in a real implementation
-            alert(`Opening email: ${booking.emailId}\n\nThis would redirect to your email client in the full version.`);
-          }}
-          className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-[#EA580C] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#C2410C]"
-        >
-          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-          </svg>
-          Open in Email
-        </button>
+        {/* Open in email - redirects to demo inbox with this email selected */}
+        <OpenInEmailButton emailId={booking.emailId} onClose={onClose} />
       </div>
     </div>
   );
@@ -515,7 +468,7 @@ function BookingCard({ booking, onClick }: { booking: Booking; onClick: () => vo
       </div>
 
       {/* Guest info */}
-      <div className={booking.status === "cancelled" ? "line-through" : ""}>
+      <div className={booking.status === "cancelled" || booking.status === "rescheduled" ? "line-through opacity-60" : ""}>
         <p className="text-sm font-medium text-[#1C1917]">{booking.guestName}</p>
         <p className="text-xs text-[#78716C]">
           {booking.guestCount} guest{booking.guestCount !== 1 ? "s" : ""}
@@ -525,16 +478,16 @@ function BookingCard({ booking, onClick }: { booking: Booking; onClick: () => vo
 
       {/* Activity or duration */}
       {booking.activityName && (
-        <p className="mt-1.5 text-xs text-[#78716C] truncate" title={booking.activityName}>
+        <p className={`mt-1.5 text-xs text-[#78716C] truncate ${booking.status === "cancelled" || booking.status === "rescheduled" ? "line-through opacity-60" : ""}`} title={booking.activityName}>
           {booking.activityName}
         </p>
       )}
       {booking.duration && (
-        <p className="mt-1.5 text-xs text-[#78716C]">{booking.duration}</p>
+        <p className={`mt-1.5 text-xs text-[#78716C] ${booking.status === "cancelled" || booking.status === "rescheduled" ? "line-through opacity-60" : ""}`}>{booking.duration}</p>
       )}
 
       {/* Special requests */}
-      {booking.specialRequests && booking.specialRequests.length > 0 && booking.status !== "cancelled" && (
+      {booking.specialRequests && booking.specialRequests.length > 0 && booking.status === "confirmed" && (
         <div className="mt-2 flex flex-wrap gap-1">
           {booking.specialRequests.map((request, index) => (
             <span
@@ -550,6 +503,38 @@ function BookingCard({ booking, onClick }: { booking: Booking; onClick: () => vo
   );
 }
 
+// Parse dietary counts from special requests
+function parseDietaryCounts(bookings: Booking[]): { vegetarian: number; vegan: number; glutenFree: number } {
+  let vegetarian = 0;
+  let vegan = 0;
+  let glutenFree = 0;
+
+  bookings.forEach((booking) => {
+    if (booking.status !== "confirmed" || !booking.specialRequests) return;
+    
+    booking.specialRequests.forEach((request) => {
+      const lower = request.toLowerCase();
+      // Parse "X vegetarian" or "vegetarian"
+      const vegMatch = lower.match(/(\d+)?\s*vegetarian/);
+      if (vegMatch) {
+        vegetarian += vegMatch[1] ? parseInt(vegMatch[1]) : 1;
+      }
+      // Parse "X vegan" or "vegan"
+      const veganMatch = lower.match(/(\d+)?\s*vegan/);
+      if (veganMatch) {
+        vegan += veganMatch[1] ? parseInt(veganMatch[1]) : 1;
+      }
+      // Parse "X gluten-free" or "gluten-free"
+      const gfMatch = lower.match(/(\d+)?\s*gluten[- ]?free/);
+      if (gfMatch) {
+        glutenFree += gfMatch[1] ? parseInt(gfMatch[1]) : 1;
+      }
+    });
+  });
+
+  return { vegetarian, vegan, glutenFree };
+}
+
 // Day Column Component
 function DayColumn({
   date,
@@ -560,8 +545,10 @@ function DayColumn({
   bookings: Booking[];
   onBookingClick: (booking: Booking) => void;
 }) {
-  const confirmedBookings = bookings.filter((b) => b.status !== "cancelled");
+  const confirmedBookings = bookings.filter((b) => b.status === "confirmed");
   const totalGuests = confirmedBookings.reduce((sum, b) => sum + b.guestCount, 0);
+  const dietary = parseDietaryCounts(bookings);
+  const hasDietary = dietary.vegetarian > 0 || dietary.vegan > 0 || dietary.glutenFree > 0;
   const today = isToday(date);
   
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -614,6 +601,27 @@ function DayColumn({
           {confirmedBookings.length} booking{confirmedBookings.length !== 1 ? "s" : ""} · {totalGuests} guest
           {totalGuests !== 1 ? "s" : ""}
         </p>
+        
+        {/* Dietary summary */}
+        {hasDietary && (
+          <div className="mt-2 flex flex-wrap gap-1">
+            {dietary.vegetarian > 0 && (
+              <span className="inline-flex items-center gap-1 rounded-md bg-green-100 px-1.5 py-0.5 text-xs text-green-700">
+                <span>🥬</span> {dietary.vegetarian}
+              </span>
+            )}
+            {dietary.vegan > 0 && (
+              <span className="inline-flex items-center gap-1 rounded-md bg-emerald-100 px-1.5 py-0.5 text-xs text-emerald-700">
+                <span>🌱</span> {dietary.vegan}
+              </span>
+            )}
+            {dietary.glutenFree > 0 && (
+              <span className="inline-flex items-center gap-1 rounded-md bg-amber-100 px-1.5 py-0.5 text-xs text-amber-700">
+                <span>🌾</span> {dietary.glutenFree}
+              </span>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Bookings list with scroll fade */}
