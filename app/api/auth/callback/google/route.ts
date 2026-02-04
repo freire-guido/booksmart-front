@@ -94,27 +94,45 @@ export async function GET(request: NextRequest) {
       ? new Date(parseInt(watchData.expiration)).toISOString()
       : null;
 
-    // Upsert Gmail account data
-    const { error: dbError } = await supabase.from("gmail_accounts").upsert(
-      {
-        email: userInfo.email,
-        name: userInfo.name,
-        picture: userInfo.picture,
-        google_access_token: tokens.access_token,
-        google_refresh_token: refreshToken,
-        google_token_expiry: tokens.expiry_date
-          ? new Date(tokens.expiry_date).toISOString()
-          : null,
-        gmail_history_id: watchData.historyId,
-        gmail_watch_expiry: watchExpiry,
-        updated_at: new Date().toISOString(),
-      },
-      { onConflict: "email" }
-    );
+    // Upsert Gmail account data. organization_id is set only for new users (null);
+    // you assign mail → org mappings manually in Supabase. Existing users keep their org.
+    const { data: existingAccount } = await supabase
+      .from("gmail_accounts")
+      .select("id")
+      .eq("email", userInfo.email)
+      .maybeSingle();
 
-    if (dbError) {
-      console.error("Supabase error:", dbError);
-      throw new Error("Failed to save user data");
+    const basePayload = {
+      email: userInfo.email,
+      name: userInfo.name,
+      picture: userInfo.picture,
+      google_access_token: tokens.access_token,
+      google_refresh_token: refreshToken,
+      google_token_expiry: tokens.expiry_date
+        ? new Date(tokens.expiry_date).toISOString()
+        : null,
+      gmail_history_id: watchData.historyId,
+      gmail_watch_expiry: watchExpiry,
+      updated_at: new Date().toISOString(),
+    };
+
+    if (existingAccount) {
+      const { error: updateError } = await supabase
+        .from("gmail_accounts")
+        .update(basePayload)
+        .eq("email", userInfo.email);
+      if (updateError) {
+        console.error("Supabase error updating user data:", updateError);
+        throw new Error("Failed to save user data");
+      }
+    } else {
+      const { error: insertError } = await supabase
+        .from("gmail_accounts")
+        .insert({ ...basePayload, organization_id: null });
+      if (insertError) {
+        console.error("Supabase error inserting user data:", insertError);
+        throw new Error("Failed to save user data");
+      }
     }
 
     // Step 5: Create a session token (simple approach - you may want to use JWT)
