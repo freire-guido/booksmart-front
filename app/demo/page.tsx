@@ -346,7 +346,7 @@ function EmailItem({
   isLowConfidence?: boolean;
   onClick?: () => void;
 }) {
-  const isClickable = isLowConfidence && onClick;
+  const isClickable = !!onClick;
   const Component = isClickable ? 'button' : 'div';
   
   return (
@@ -355,6 +355,10 @@ function EmailItem({
       className={`w-full text-left rounded-lg border p-2.5 transition-all ${
         isLowConfidence
           ? "border-orange-200 bg-orange-50 hover:border-orange-300 hover:bg-orange-100 cursor-pointer"
+          : isClickable
+          ? isFirst
+            ? "border-[#E7E5E4] bg-[#FDF6EC] hover:border-[#EA580C]/30 hover:shadow-sm cursor-pointer"
+            : "border-[#E7E5E4] bg-white hover:border-[#EA580C]/30 hover:shadow-sm cursor-pointer"
           : isFirst
           ? "border-[#E7E5E4] bg-[#FDF6EC]"
           : "border-[#E7E5E4] bg-white"
@@ -417,7 +421,15 @@ function EmailItem({
 }
 
 // Email Stack Component
-function EmailStack({ bookings, onBookingClick }: { bookings: Booking[]; onBookingClick?: (booking: Booking) => void }) {
+function EmailStack({ 
+  bookings, 
+  onBookingClick,
+  onNavigateToWeek
+}: { 
+  bookings: Booking[]; 
+  onBookingClick?: (booking: Booking) => void;
+  onNavigateToWeek?: (date: Date) => void;
+}) {
   const [expanded, setExpanded] = useState(false);
   const latestEmails = getLatestEmails(bookings, 3);
   const lowConfidenceEmails = getLowConfidenceEmails(bookings);
@@ -427,6 +439,11 @@ function EmailStack({ bookings, onBookingClick }: { bookings: Booking[]; onBooki
   const handleLowConfidenceClick = (booking: Booking) => {
     setExpanded(false);
     onBookingClick?.(booking);
+  };
+
+  const handleRecentEmailClick = (booking: Booking) => {
+    setExpanded(false);
+    onNavigateToWeek?.(booking.date);
   };
 
   return (
@@ -493,7 +510,12 @@ function EmailStack({ bookings, onBookingClick }: { bookings: Booking[]; onBooki
             <p className="mb-2 text-xs font-medium text-[#78716C]">Recent Emails</p>
             <div className="space-y-1.5">
               {latestEmails.map((booking, index) => (
-                <EmailItem key={booking.id} booking={booking} isFirst={index === 0} />
+                <EmailItem 
+                  key={booking.id} 
+                  booking={booking} 
+                  isFirst={index === 0}
+                  onClick={() => handleRecentEmailClick(booking)}
+                />
               ))}
             </div>
           </div>
@@ -1223,7 +1245,11 @@ export default function DemoPage() {
               </div>
             )}
             <div className="rounded-lg border border-[#E7E5E4] bg-white px-3 py-1.5">
-              <EmailStack bookings={bookings} onBookingClick={setSelectedBooking} />
+              <EmailStack 
+                bookings={bookings} 
+                onBookingClick={setSelectedBooking}
+                onNavigateToWeek={handleMonthDayClick}
+              />
             </div>
           </div>
         </div>
