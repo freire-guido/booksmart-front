@@ -777,6 +777,257 @@ function BookingModal({
   );
 }
 
+// Create Booking Modal
+function CreateBookingModal({
+  initialDate,
+  onClose,
+  onCreate,
+}: {
+  initialDate: Date;
+  onClose: () => void;
+  onCreate: (newBooking: Booking) => void;
+}) {
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  
+  // Form state
+  const [guestName, setGuestName] = useState("");
+  const [guestCount, setGuestCount] = useState(1);
+  const [date, setDate] = useState(formatDateForApi(initialDate));
+  const [time, setTime] = useState("");
+  const [platform, setPlatform] = useState<Platform>("other");
+  const [activityName, setActivityName] = useState("");
+  const [dietaryRestrictions, setDietaryRestrictions] = useState("");
+  const [specialRequests, setSpecialRequests] = useState("");
+  const [status, setStatus] = useState<"confirmed" | "cancelled" | "rescheduled">("confirmed");
+
+  const handleSave = async () => {
+    if (!guestName.trim()) {
+      setSaveError("Guest name is required");
+      return;
+    }
+
+    setIsSaving(true);
+    setSaveError(null);
+    
+    try {
+      // Parse dietary restrictions into array
+      const dietaryArray = dietaryRestrictions
+        .split(",")
+        .map(s => s.trim())
+        .filter(Boolean);
+      
+      const response = await fetch("/api/bookings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          guest_name: guestName,
+          guest_count: guestCount,
+          booking_date: date,
+          booking_time: parseTimeToApiFormat(time),
+          platform,
+          activity_name: activityName || null,
+          dietary_restrictions: dietaryArray.length > 0 ? dietaryArray : null,
+          special_requests: specialRequests || null,
+          status,
+        }),
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to create booking");
+      }
+      
+      const { booking: newBookingData } = await response.json();
+      
+      // Map back to UI format
+      const newBooking = mapSupabaseBooking(newBookingData);
+      onCreate(newBooking);
+      onClose();
+    } catch (err) {
+      console.error("Error creating booking:", err);
+      setSaveError(err instanceof Error ? err.message : "Failed to create booking");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      {/* Backdrop */}
+      <div
+        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+        onClick={onClose}
+      />
+      
+      {/* Modal */}
+      <div className="relative max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl border border-[#E7E5E4] bg-white p-6 shadow-xl">
+        {/* Header button */}
+        <div className="absolute right-4 top-4">
+          <button
+            onClick={onClose}
+            className="flex h-8 w-8 items-center justify-center rounded-full text-[#78716C] transition-colors hover:bg-[#FDF6EC] hover:text-[#1C1917]"
+          >
+            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold text-[#1C1917]">New Booking</h3>
+          
+          {saveError && (
+            <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+              {saveError}
+            </div>
+          )}
+          
+          {/* Guest Name */}
+          <div>
+            <label className="mb-1.5 block text-xs font-medium text-[#78716C]">Guest Name *</label>
+            <input
+              type="text"
+              value={guestName}
+              onChange={(e) => setGuestName(e.target.value)}
+              placeholder="Enter guest name"
+              className="w-full rounded-lg border border-[#E7E5E4] px-3 py-2 text-sm text-[#1C1917] focus:border-[#EA580C] focus:outline-none focus:ring-1 focus:ring-[#EA580C]"
+            />
+          </div>
+          
+          {/* Guest Count */}
+          <div>
+            <label className="mb-1.5 block text-xs font-medium text-[#78716C]">Number of Guests</label>
+            <input
+              type="number"
+              min="1"
+              value={guestCount}
+              onChange={(e) => setGuestCount(parseInt(e.target.value) || 1)}
+              className="w-full rounded-lg border border-[#E7E5E4] px-3 py-2 text-sm text-[#1C1917] focus:border-[#EA580C] focus:outline-none focus:ring-1 focus:ring-[#EA580C]"
+            />
+          </div>
+          
+          {/* Date and Time */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="mb-1.5 block text-xs font-medium text-[#78716C]">Date *</label>
+              <input
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                className="w-full rounded-lg border border-[#E7E5E4] px-3 py-2 text-sm text-[#1C1917] focus:border-[#EA580C] focus:outline-none focus:ring-1 focus:ring-[#EA580C]"
+              />
+            </div>
+            <div>
+              <label className="mb-1.5 block text-xs font-medium text-[#78716C]">Time</label>
+              <input
+                type="text"
+                placeholder="e.g. 7:00 PM"
+                value={time}
+                onChange={(e) => setTime(e.target.value)}
+                className="w-full rounded-lg border border-[#E7E5E4] px-3 py-2 text-sm text-[#1C1917] focus:border-[#EA580C] focus:outline-none focus:ring-1 focus:ring-[#EA580C]"
+              />
+            </div>
+          </div>
+          
+          {/* Platform */}
+          <div>
+            <label className="mb-1.5 block text-xs font-medium text-[#78716C]">Platform</label>
+            <select
+              value={platform}
+              onChange={(e) => setPlatform(e.target.value as Platform)}
+              className="w-full rounded-lg border border-[#E7E5E4] px-3 py-2 text-sm text-[#1C1917] focus:border-[#EA580C] focus:outline-none focus:ring-1 focus:ring-[#EA580C]"
+            >
+              {Object.entries(platformNames).map(([key, name]) => (
+                <option key={key} value={key}>{name}</option>
+              ))}
+            </select>
+          </div>
+          
+          {/* Activity Name */}
+          <div>
+            <label className="mb-1.5 block text-xs font-medium text-[#78716C]">Activity Name</label>
+            <input
+              type="text"
+              value={activityName}
+              onChange={(e) => setActivityName(e.target.value)}
+              placeholder="e.g. Sunset Wine Tour"
+              className="w-full rounded-lg border border-[#E7E5E4] px-3 py-2 text-sm text-[#1C1917] focus:border-[#EA580C] focus:outline-none focus:ring-1 focus:ring-[#EA580C]"
+            />
+          </div>
+          
+          {/* Dietary Restrictions */}
+          <div>
+            <label className="mb-1.5 block text-xs font-medium text-[#78716C]">Dietary Restrictions</label>
+            <input
+              type="text"
+              value={dietaryRestrictions}
+              onChange={(e) => setDietaryRestrictions(e.target.value)}
+              placeholder="e.g. 2 vegetarian, 1 gluten-free"
+              className="w-full rounded-lg border border-[#E7E5E4] px-3 py-2 text-sm text-[#1C1917] focus:border-[#EA580C] focus:outline-none focus:ring-1 focus:ring-[#EA580C]"
+            />
+            <p className="mt-1 text-xs text-[#A8A29E]">Comma-separated list</p>
+          </div>
+          
+          {/* Special Requests */}
+          <div>
+            <label className="mb-1.5 block text-xs font-medium text-[#78716C]">Special Requests</label>
+            <textarea
+              value={specialRequests}
+              onChange={(e) => setSpecialRequests(e.target.value)}
+              placeholder="Any other notes or requests..."
+              rows={2}
+              className="w-full rounded-lg border border-[#E7E5E4] px-3 py-2 text-sm text-[#1C1917] focus:border-[#EA580C] focus:outline-none focus:ring-1 focus:ring-[#EA580C]"
+            />
+          </div>
+          
+          {/* Status */}
+          <div>
+            <label className="mb-1.5 block text-xs font-medium text-[#78716C]">Status</label>
+            <select
+              value={status}
+              onChange={(e) => setStatus(e.target.value as "confirmed" | "cancelled" | "rescheduled")}
+              className="w-full rounded-lg border border-[#E7E5E4] px-3 py-2 text-sm text-[#1C1917] focus:border-[#EA580C] focus:outline-none focus:ring-1 focus:ring-[#EA580C]"
+            >
+              <option value="confirmed">Confirmed</option>
+              <option value="rescheduled">Rescheduled</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+          
+          {/* Save/Cancel buttons */}
+          <div className="flex gap-3 pt-2">
+            <button
+              onClick={onClose}
+              disabled={isSaving}
+              className="flex-1 rounded-full border border-[#E7E5E4] px-4 py-2.5 text-sm font-medium text-[#78716C] transition-colors hover:bg-[#FAF8F5] disabled:opacity-50"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSave}
+              disabled={isSaving}
+              className="flex flex-1 items-center justify-center gap-2 rounded-full bg-[#EA580C] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#C2410C] disabled:opacity-50"
+            >
+              {isSaving ? (
+                <>
+                  <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  </svg>
+                  Creating...
+                </>
+              ) : (
+                "Create Booking"
+              )}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // Booking Card Component
 function BookingCard({ booking, onClick }: { booking: Booking; onClick: () => void }) {
   const platformColor = platformColors[booking.platform];
@@ -882,10 +1133,12 @@ function DayColumn({
   date,
   bookings,
   onBookingClick,
+  onAddBooking,
 }: {
   date: Date;
   bookings: Booking[];
   onBookingClick: (booking: Booking) => void;
+  onAddBooking: (date: Date) => void;
 }) {
   const confirmedBookings = bookings.filter((b) => b.status === "confirmed");
   const totalGuests = confirmedBookings.reduce((sum, b) => sum + b.guestCount, 0);
@@ -975,15 +1228,35 @@ function DayColumn({
           className="absolute inset-0 space-y-2 overflow-y-auto p-2"
         >
           {bookings.length === 0 ? (
-            <p className="py-8 text-center text-xs text-[#78716C]">No bookings</p>
+            <button
+              onClick={() => onAddBooking(date)}
+              className="flex h-full w-full flex-col items-center justify-center gap-2 py-8 text-[#78716C] transition-colors hover:text-[#EA580C]"
+            >
+              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+              </svg>
+              <span className="text-xs">Add booking</span>
+            </button>
           ) : (
-            bookings.map((booking) => (
-              <BookingCard
-                key={booking.id}
-                booking={booking}
-                onClick={() => onBookingClick(booking)}
-              />
-            ))
+            <>
+              {bookings.map((booking) => (
+                <BookingCard
+                  key={booking.id}
+                  booking={booking}
+                  onClick={() => onBookingClick(booking)}
+                />
+              ))}
+              {/* Add booking button */}
+              <button
+                onClick={() => onAddBooking(date)}
+                className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-[#E7E5E4] py-2 text-xs text-[#78716C] transition-colors hover:border-[#EA580C] hover:text-[#EA580C]"
+              >
+                <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                </svg>
+                Add
+              </button>
+            </>
           )}
         </div>
         
@@ -1274,6 +1547,7 @@ export default function DashboardPage() {
   const [currentMonth, setCurrentMonth] = useState(() => new Date());
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>("week");
+  const [createBookingDate, setCreateBookingDate] = useState<Date | null>(null);
   
   const weekDates = getWeekDates(currentWeekStart);
 
@@ -1516,6 +1790,7 @@ export default function DashboardPage() {
                 date={date}
                 bookings={getBookingsForDate(date)}
                 onBookingClick={setSelectedBooking}
+                onAddBooking={setCreateBookingDate}
               />
             ))}
           </div>
@@ -1538,6 +1813,17 @@ export default function DashboardPage() {
               prev.map((b) => (b.id === updatedBooking.id ? updatedBooking : b))
             );
             setSelectedBooking(updatedBooking);
+          }}
+        />
+      )}
+
+      {/* Create booking modal */}
+      {createBookingDate && (
+        <CreateBookingModal
+          initialDate={createBookingDate}
+          onClose={() => setCreateBookingDate(null)}
+          onCreate={(newBooking) => {
+            setBookings((prev) => [...prev, newBooking]);
           }}
         />
       )}

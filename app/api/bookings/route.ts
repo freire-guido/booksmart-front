@@ -55,6 +55,104 @@ export async function GET(request: NextRequest) {
   return NextResponse.json({ bookings: bookings || [] });
 }
 
+export async function POST(request: NextRequest) {
+  const session = request.cookies.get("booksmart_session")?.value;
+
+  if (!session) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const supabase = createServerClient();
+
+  // Get user ID from gmail_accounts
+  const { data: user, error: userError } = await supabase
+    .from("gmail_accounts")
+    .select("id")
+    .eq("email", session)
+    .single();
+
+  if (userError || !user) {
+    return NextResponse.json({ error: "User not found" }, { status: 404 });
+  }
+
+  try {
+    const body = await request.json();
+    const { 
+      guest_name, 
+      guest_count, 
+      booking_date, 
+      booking_time, 
+      platform, 
+      dietary_restrictions, 
+      special_requests, 
+      activity_name, 
+      status 
+    } = body;
+
+    // Validate required fields
+    if (!guest_name || !booking_date) {
+      return NextResponse.json(
+        { error: "Guest name and booking date are required" }, 
+        { status: 400 }
+      );
+    }
+
+    // Generate a unique email_id for manual bookings
+    const manualEmailId = `manual_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+    // Create the booking
+    const { data: newBooking, error: createError } = await supabase
+      .from("bookings")
+      .insert({
+        user_id: user.id,
+        guest_name,
+        guest_count: guest_count || 1,
+        booking_date,
+        booking_time: booking_time || null,
+        platform: platform || 'other',
+        dietary_restrictions: dietary_restrictions || null,
+        special_requests: special_requests || null,
+        activity_name: activity_name || null,
+        status: status || 'confirmed',
+        email_id: manualEmailId,
+        email_subject: 'Manual booking',
+        email_preview: 'This booking was created manually',
+        email_received_at: new Date().toISOString(),
+        extraction_confidence: 1.0,
+        manually_reviewed: true,
+      })
+      .select(`
+        id,
+        platform,
+        guest_name,
+        guest_count,
+        booking_date,
+        booking_time,
+        status,
+        activity_name,
+        dietary_restrictions,
+        special_requests,
+        email_id,
+        email_subject,
+        email_preview,
+        email_received_at,
+        extraction_confidence,
+        manually_reviewed
+      `)
+      .single();
+
+    if (createError) {
+      console.error("Error creating booking:", createError);
+      return NextResponse.json({ error: "Failed to create booking" }, { status: 500 });
+    }
+
+    return NextResponse.json({ booking: newBooking }, { status: 201 });
+  } catch (err) {
+    console.error("Error parsing request:", err);
+    return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
+  }
+}
+
 export async function PATCH(request: NextRequest) {
   const session = request.cookies.get("booksmart_session")?.value;
 
