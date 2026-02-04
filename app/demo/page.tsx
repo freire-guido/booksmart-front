@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import DemoNavbar from "../components/DemoNavbar";
 
-type Platform = "airbnb" | "viator" | "getyourguide";
+type Platform = "airbnb" | "viator" | "getyourguide" | "civitatis" | "tripadvisor" | "booking_com" | "expedia" | "meitre" | "other";
 
 type Booking = {
   id: string;
@@ -28,12 +28,24 @@ const platformColors: Record<Platform, string> = {
   airbnb: "#FF5A5F",
   viator: "#00AA6C",
   getyourguide: "#FF5533",
+  civitatis: "#FF6B35",
+  tripadvisor: "#34E0A1",
+  booking_com: "#003580",
+  expedia: "#FFCC00",
+  meitre: "#6366F1",
+  other: "#78716C",
 };
 
 const platformNames: Record<Platform, string> = {
   airbnb: "Airbnb",
   viator: "Viator",
   getyourguide: "GetYourGuide",
+  civitatis: "Civitatis",
+  tripadvisor: "TripAdvisor",
+  booking_com: "Booking.com",
+  expedia: "Expedia",
+  meitre: "Meitre",
+  other: "Other",
 };
 
 // Get the Monday of the current week
@@ -476,6 +488,19 @@ function BookingModal({
           <p className="mb-2 text-sm font-medium text-[#1C1917]">{booking.emailSubject}</p>
           <p className="text-xs leading-relaxed text-[#78716C]">{booking.emailPreview}</p>
         </div>
+
+        {/* Open in Gmail */}
+        <a
+          href={`https://mail.google.com/mail/u/0/#inbox/${booking.emailId}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-[#EA580C] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#C2410C]"
+        >
+          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          </svg>
+          Open in Gmail
+        </a>
       </div>
     </div>
   );

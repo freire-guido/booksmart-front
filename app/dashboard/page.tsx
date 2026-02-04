@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "../components/Navbar";
 
-type Platform = "airbnb" | "viator" | "getyourguide";
+type Platform = 'airbnb' | 'viator' | 'getyourguide' | 'civitatis' | 'tripadvisor' | 'booking_com' | 'expedia' | 'meitre' | 'other';
 
 type Booking = {
   id: string;
@@ -24,226 +24,85 @@ type Booking = {
   emailId: string;
 };
 
+// Supabase booking row type
+type SupabaseBooking = {
+  id: string;
+  platform: Platform;
+  guest_name: string;
+  guest_count: number | null;
+  booking_date: string;
+  booking_time: string | null;
+  status: "confirmed" | "cancelled" | "rescheduled";
+  activity_name: string | null;
+  dietary_restrictions: string[] | null;
+  special_requests: string | null;
+  email_id: string;
+  email_subject: string | null;
+  email_preview: string | null;
+  email_received_at: string | null;
+};
+
 // Platform brand colors
 const platformColors: Record<Platform, string> = {
   airbnb: "#FF5A5F",
   viator: "#00AA6C",
   getyourguide: "#FF5533",
+  civitatis: "#FF6B35",
+  tripadvisor: "#34E0A1",
+  booking_com: "#003580",
+  expedia: "#FFCC00",
+  meitre: "#6366F1",
+  other: "#78716C",
 };
 
 const platformNames: Record<Platform, string> = {
   airbnb: "Airbnb",
   viator: "Viator",
   getyourguide: "GetYourGuide",
+  civitatis: "Civitatis",
+  tripadvisor: "TripAdvisor",
+  booking_com: "Booking.com",
+  expedia: "Expedia",
+  meitre: "Meitre",
+  other: "Other",
 };
 
-// Get the Monday of the current week
-function getMondayOfCurrentWeek(): Date {
-  const today = new Date();
-  const day = today.getDay();
-  // If Sunday (0), go back 6 days; otherwise go back (day - 1) days
-  const diff = day === 0 ? -6 : 1 - day;
-  const monday = new Date(today);
-  monday.setDate(today.getDate() + diff);
-  monday.setHours(0, 0, 0, 0);
-  return monday;
+// Format time from HH:MM:SS to "7:00 PM"
+function formatTimeString(timeStr: string | null): string | undefined {
+  if (!timeStr) return undefined;
+  const [hours, minutes] = timeStr.split(":").map(Number);
+  const ampm = hours >= 12 ? "PM" : "AM";
+  const hour12 = hours % 12 || 12;
+  return `${hour12}:${minutes.toString().padStart(2, "0")} ${ampm}`;
 }
 
-// Helper to create a date relative to current week's Monday
-function getDateFromMonday(daysFromMonday: number): Date {
-  const monday = getMondayOfCurrentWeek();
-  const date = new Date(monday);
-  date.setDate(monday.getDate() + daysFromMonday);
-  return date;
-}
+// Map Supabase booking to UI Booking type
+function mapSupabaseBooking(row: SupabaseBooking): Booking {
+  // Combine dietary_restrictions and special_requests into specialRequests array
+  const specialRequests: string[] = [];
+  if (row.dietary_restrictions && row.dietary_restrictions.length > 0) {
+    specialRequests.push(...row.dietary_restrictions);
+  }
+  if (row.special_requests) {
+    specialRequests.push(row.special_requests);
+  }
 
-// Helper to create an email date (days before current week's Monday)
-function getEmailDate(daysBefore: number, hours: number, minutes: number): Date {
-  const monday = getMondayOfCurrentWeek();
-  const date = new Date(monday);
-  date.setDate(monday.getDate() - daysBefore);
-  date.setHours(hours, minutes, 0, 0);
-  return date;
+  return {
+    id: row.id,
+    platform: row.platform,
+    guestName: row.guest_name,
+    guestCount: row.guest_count ?? 1,
+    date: new Date(row.booking_date + "T00:00:00"),
+    time: formatTimeString(row.booking_time),
+    status: row.status,
+    specialRequests: specialRequests.length > 0 ? specialRequests : undefined,
+    activityName: row.activity_name ?? undefined,
+    emailSubject: row.email_subject ?? "",
+    emailPreview: row.email_preview ?? "",
+    emailDate: row.email_received_at ? new Date(row.email_received_at) : new Date(),
+    emailId: row.email_id,
+  };
 }
-
-// Helper to create a date in February (current year)
-function getFebDate(dayOfMonth: number): Date {
-  const year = new Date().getFullYear();
-  const date = new Date(year, 1, dayOfMonth); // month 1 = February
-  return date;
-}
-
-// Mock booking data - Asado Experience at 7pm
-// Dates are relative to current week's Monday (day 0 = Monday, day 6 = Sunday)
-const mockBookings: Booking[] = [
-  // Monday (day 0)
-  {
-    id: "1",
-    platform: "viator",
-    guestName: "Guillermo F.",
-    guestCount: 4,
-    date: getDateFromMonday(0),
-    time: "7:00 PM",
-    status: "confirmed",
-    activityName: "Authentic Asado Experience",
-    emailSubject: "New Booking: Asado Experience – Guillermo F.",
-    emailPreview: "You have a new booking! Guest: Guillermo F., Party size: 4, Experience: Authentic Argentine Asado.",
-    emailDate: getEmailDate(4, 14, 23),
-    emailId: "msg-001",
-  },
-  // Tuesday (day 1) - busier day
-  {
-    id: "2",
-    platform: "getyourguide",
-    guestName: "Natalia O.",
-    guestCount: 2,
-    date: getDateFromMonday(1),
-    time: "7:00 PM",
-    status: "confirmed",
-    activityName: "Authentic Asado Experience",
-    emailSubject: "Booking Confirmation: Natalia O. – Asado",
-    emailPreview: "Great news! You have a new booking. Guest: Natalia O., Guests: 2, Activity: Authentic Argentine Asado Experience.",
-    emailDate: getEmailDate(11, 18, 42),
-    emailId: "msg-002",
-  },
-  {
-    id: "3",
-    platform: "airbnb",
-    guestName: "Ricardo D.",
-    guestCount: 6,
-    date: getDateFromMonday(1),
-    time: "7:00 PM",
-    status: "confirmed",
-    specialRequests: ["2 vegetarian"],
-    activityName: "Authentic Asado Experience",
-    emailSubject: "Experience booked – Ricardo D. for Asado",
-    emailPreview: "New experience booking confirmed. Ricardo D. and 5 guests for Authentic Asado Experience. Notes: 2 vegetarian.",
-    emailDate: getEmailDate(11, 14, 30),
-    emailId: "msg-003",
-  },
-  // Wednesday (day 2)
-  {
-    id: "4",
-    platform: "viator",
-    guestName: "Carlos M.",
-    guestCount: 2,
-    date: getDateFromMonday(2),
-    time: "7:00 PM",
-    status: "confirmed",
-    activityName: "Authentic Asado Experience",
-    emailSubject: "New Booking: Asado Experience – Carlos M.",
-    emailPreview: "You have a new booking! Guest: Carlos M., Party size: 2, Experience: Authentic Argentine Asado.",
-    emailDate: getEmailDate(13, 9, 45),
-    emailId: "msg-004",
-  },
-  // Thursday (day 3) - one cancelled
-  {
-    id: "5",
-    platform: "getyourguide",
-    guestName: "Miguel A.",
-    guestCount: 2,
-    date: getDateFromMonday(3),
-    time: "7:00 PM",
-    status: "cancelled",
-    activityName: "Authentic Asado Experience",
-    emailSubject: "Booking Cancelled: Miguel A.",
-    emailPreview: "A booking has been cancelled. Guest: Miguel A. Reason: Guest requested cancellation.",
-    emailDate: getEmailDate(12, 8, 30),
-    emailId: "msg-005",
-  },
-  // Friday (day 4)
-  {
-    id: "6",
-    platform: "airbnb",
-    guestName: "Elena P.",
-    guestCount: 4,
-    date: getDateFromMonday(4),
-    time: "7:00 PM",
-    status: "confirmed",
-    specialRequests: ["1 vegan"],
-    activityName: "Authentic Asado Experience",
-    emailSubject: "Experience booked – Elena P. for Asado",
-    emailPreview: "New experience booking confirmed. Elena P. and 3 guests for Authentic Asado Experience. Notes: 1 vegan.",
-    emailDate: getEmailDate(13, 16, 8),
-    emailId: "msg-006",
-  },
-  {
-    id: "7",
-    platform: "viator",
-    guestName: "Sofia R.",
-    guestCount: 3,
-    date: getDateFromMonday(4),
-    time: "7:00 PM",
-    status: "rescheduled",
-    activityName: "Authentic Asado Experience",
-    emailSubject: "Booking update: Sofia R. – Date changed",
-    emailPreview: "A guest has modified their reservation. Sofia R. changed their Asado Experience date.",
-    emailDate: getEmailDate(11, 9, 21),
-    emailId: "msg-007",
-  },
-  // Saturday (day 5)
-  {
-    id: "8",
-    platform: "getyourguide",
-    guestName: "Ana L.",
-    guestCount: 2,
-    date: getDateFromMonday(5),
-    time: "7:00 PM",
-    status: "confirmed",
-    activityName: "Authentic Asado Experience",
-    emailSubject: "Booking Confirmation: Ana L. – Asado",
-    emailPreview: "Great news! You have a new booking. Guest: Ana L., Guests: 2, Activity: Authentic Argentine Asado Experience.",
-    emailDate: getEmailDate(17, 13, 44),
-    emailId: "msg-008",
-  },
-  // Sunday (day 6)
-  {
-    id: "9",
-    platform: "airbnb",
-    guestName: "Pablo N.",
-    guestCount: 5,
-    date: getDateFromMonday(6),
-    time: "7:00 PM",
-    status: "confirmed",
-    specialRequests: ["1 gluten-free"],
-    activityName: "Authentic Asado Experience",
-    emailSubject: "Experience booked – Pablo N. for Asado",
-    emailPreview: "New experience booking confirmed. Pablo N. and 4 guests for Authentic Asado Experience. Notes: 1 gluten-free.",
-    emailDate: getEmailDate(11, 19, 55),
-    emailId: "msg-009",
-  },
-  // Rest of February
-  { id: "10", platform: "viator", guestName: "Martín G.", guestCount: 3, date: getFebDate(4), time: "7:00 PM", status: "confirmed", activityName: "Authentic Asado Experience", emailSubject: "New Booking: Asado – Martín G.", emailPreview: "You have a new booking! Guest: Martín G., Party size: 3.", emailDate: getEmailDate(2, 10, 15), emailId: "msg-010" },
-  { id: "11", platform: "getyourguide", guestName: "Lucía H.", guestCount: 2, date: getFebDate(5), time: "7:00 PM", status: "confirmed", activityName: "Authentic Asado Experience", emailSubject: "Booking Confirmation: Lucía H. – Asado", emailPreview: "Great news! New booking. Guest: Lucía H., Guests: 2.", emailDate: getEmailDate(3, 14, 22), emailId: "msg-011" },
-  { id: "12", platform: "airbnb", guestName: "Diego S.", guestCount: 6, date: getFebDate(5), time: "7:00 PM", status: "confirmed", specialRequests: ["2 vegetarian", "1 gluten-free"], activityName: "Authentic Asado Experience", emailSubject: "Experience booked – Diego S. for Asado", emailPreview: "New booking. Diego S. and 5 guests. Notes: 2 vegetarian, 1 gluten-free.", emailDate: getEmailDate(4, 9, 5), emailId: "msg-012" },
-  { id: "13", platform: "viator", guestName: "Valentina M.", guestCount: 4, date: getFebDate(6), time: "7:00 PM", status: "confirmed", activityName: "Authentic Asado Experience", emailSubject: "New Booking: Asado – Valentina M.", emailPreview: "You have a new booking! Guest: Valentina M., Party size: 4.", emailDate: getEmailDate(5, 11, 33), emailId: "msg-013" },
-  { id: "14", platform: "getyourguide", guestName: "Andrés C.", guestCount: 2, date: getFebDate(7), time: "7:00 PM", status: "confirmed", activityName: "Authentic Asado Experience", emailSubject: "Booking Confirmation: Andrés C. – Asado", emailPreview: "New booking. Guest: Andrés C., Guests: 2.", emailDate: getEmailDate(6, 16, 48), emailId: "msg-014" },
-  { id: "15", platform: "airbnb", guestName: "Camila R.", guestCount: 5, date: getFebDate(8), time: "7:00 PM", status: "confirmed", specialRequests: ["1 vegan"], activityName: "Authentic Asado Experience", emailSubject: "Experience booked – Camila R. for Asado", emailPreview: "New booking. Camila R. and 4 guests. Notes: 1 vegan.", emailDate: getEmailDate(7, 8, 12), emailId: "msg-015" },
-  { id: "16", platform: "viator", guestName: "Felipe L.", guestCount: 3, date: getFebDate(9), time: "7:00 PM", status: "confirmed", activityName: "Authentic Asado Experience", emailSubject: "New Booking: Asado – Felipe L.", emailPreview: "You have a new booking! Guest: Felipe L., Party size: 3.", emailDate: getEmailDate(8, 13, 27), emailId: "msg-016" },
-  { id: "17", platform: "getyourguide", guestName: "Isabella T.", guestCount: 2, date: getFebDate(10), time: "7:00 PM", status: "confirmed", activityName: "Authentic Asado Experience", emailSubject: "Booking Confirmation: Isabella T. – Asado", emailPreview: "New booking. Guest: Isabella T., Guests: 2.", emailDate: getEmailDate(9, 17, 55), emailId: "msg-017" },
-  { id: "18", platform: "airbnb", guestName: "Joaquín V.", guestCount: 4, date: getFebDate(11), time: "7:00 PM", status: "confirmed", activityName: "Authentic Asado Experience", emailSubject: "Experience booked – Joaquín V. for Asado", emailPreview: "New booking. Joaquín V. and 3 guests.", emailDate: getEmailDate(10, 10, 8), emailId: "msg-018" },
-  { id: "19", platform: "viator", guestName: "Mariana B.", guestCount: 6, date: getFebDate(11), time: "7:00 PM", status: "confirmed", specialRequests: ["3 vegetarian"], activityName: "Authentic Asado Experience", emailSubject: "New Booking: Asado – Mariana B.", emailPreview: "You have a new booking! Guest: Mariana B., Party size: 6. Notes: 3 vegetarian.", emailDate: getEmailDate(11, 14, 41), emailId: "msg-019" },
-  { id: "20", platform: "getyourguide", guestName: "Tomás P.", guestCount: 2, date: getFebDate(12), time: "7:00 PM", status: "confirmed", activityName: "Authentic Asado Experience", emailSubject: "Booking Confirmation: Tomás P. – Asado", emailPreview: "New booking. Guest: Tomás P., Guests: 2.", emailDate: getEmailDate(12, 9, 19), emailId: "msg-020" },
-  { id: "21", platform: "airbnb", guestName: "Agustina F.", guestCount: 3, date: getFebDate(13), time: "7:00 PM", status: "confirmed", activityName: "Authentic Asado Experience", emailSubject: "Experience booked – Agustina F. for Asado", emailPreview: "New booking. Agustina F. and 2 guests.", emailDate: getEmailDate(13, 15, 36), emailId: "msg-021" },
-  { id: "22", platform: "viator", guestName: "Lucas D.", guestCount: 5, date: getFebDate(14), time: "7:00 PM", status: "confirmed", activityName: "Authentic Asado Experience", emailSubject: "New Booking: Asado – Lucas D.", emailPreview: "You have a new booking! Guest: Lucas D., Party size: 5.", emailDate: getEmailDate(14, 11, 22), emailId: "msg-022" },
-  { id: "23", platform: "getyourguide", guestName: "Florencia N.", guestCount: 2, date: getFebDate(14), time: "7:00 PM", status: "confirmed", specialRequests: ["1 gluten-free"], activityName: "Authentic Asado Experience", emailSubject: "Booking Confirmation: Florencia N. – Asado", emailPreview: "New booking. Guest: Florencia N. Notes: 1 gluten-free.", emailDate: getEmailDate(14, 18, 7), emailId: "msg-023" },
-  { id: "24", platform: "airbnb", guestName: "Mateo K.", guestCount: 4, date: getFebDate(15), time: "7:00 PM", status: "confirmed", activityName: "Authentic Asado Experience", emailSubject: "Experience booked – Mateo K. for Asado", emailPreview: "New booking. Mateo K. and 3 guests.", emailDate: getEmailDate(15, 12, 44), emailId: "msg-024" },
-  { id: "25", platform: "viator", guestName: "Renata J.", guestCount: 2, date: getFebDate(16), time: "7:00 PM", status: "confirmed", activityName: "Authentic Asado Experience", emailSubject: "New Booking: Asado – Renata J.", emailPreview: "You have a new booking! Guest: Renata J., Party size: 2.", emailDate: getEmailDate(16, 10, 51), emailId: "msg-025" },
-  { id: "26", platform: "getyourguide", guestName: "Santiago W.", guestCount: 7, date: getFebDate(17), time: "7:00 PM", status: "confirmed", specialRequests: ["2 vegan"], activityName: "Authentic Asado Experience", emailSubject: "Booking Confirmation: Santiago W. – Asado", emailPreview: "New booking. Santiago W. and 6 guests. Notes: 2 vegan.", emailDate: getEmailDate(17, 14, 18), emailId: "msg-026" },
-  { id: "27", platform: "airbnb", guestName: "Victoria Z.", guestCount: 3, date: getFebDate(18), time: "7:00 PM", status: "confirmed", activityName: "Authentic Asado Experience", emailSubject: "Experience booked – Victoria Z. for Asado", emailPreview: "New booking. Victoria Z. and 2 guests.", emailDate: getEmailDate(18, 16, 29), emailId: "msg-027" },
-  { id: "28", platform: "viator", guestName: "Bruno A.", guestCount: 4, date: getFebDate(19), time: "7:00 PM", status: "confirmed", activityName: "Authentic Asado Experience", emailSubject: "New Booking: Asado – Bruno A.", emailPreview: "You have a new booking! Guest: Bruno A., Party size: 4.", emailDate: getEmailDate(19, 9, 33), emailId: "msg-028" },
-  { id: "29", platform: "getyourguide", guestName: "Emilia Q.", guestCount: 2, date: getFebDate(20), time: "7:00 PM", status: "confirmed", activityName: "Authentic Asado Experience", emailSubject: "Booking Confirmation: Emilia Q. – Asado", emailPreview: "New booking. Guest: Emilia Q., Guests: 2.", emailDate: getEmailDate(20, 13, 5), emailId: "msg-029" },
-  { id: "30", platform: "airbnb", guestName: "Gonzalo E.", guestCount: 5, date: getFebDate(20), time: "7:00 PM", status: "cancelled", activityName: "Authentic Asado Experience", emailSubject: "Booking Cancelled: Gonzalo E.", emailPreview: "A booking has been cancelled. Guest: Gonzalo E.", emailDate: getEmailDate(20, 8, 12), emailId: "msg-030" },
-  { id: "31", platform: "viator", guestName: "Luciana I.", guestCount: 3, date: getFebDate(21), time: "7:00 PM", status: "confirmed", activityName: "Authentic Asado Experience", emailSubject: "New Booking: Asado – Luciana I.", emailPreview: "You have a new booking! Guest: Luciana I., Party size: 3.", emailDate: getEmailDate(21, 17, 41), emailId: "msg-031" },
-  { id: "32", platform: "getyourguide", guestName: "Nicolás U.", guestCount: 6, date: getFebDate(22), time: "7:00 PM", status: "confirmed", specialRequests: ["1 vegetarian", "1 gluten-free"], activityName: "Authentic Asado Experience", emailSubject: "Booking Confirmation: Nicolás U. – Asado", emailPreview: "New booking. Nicolás U. and 5 guests. Notes: 1 vegetarian, 1 gluten-free.", emailDate: getEmailDate(22, 11, 28), emailId: "msg-032" },
-  { id: "33", platform: "airbnb", guestName: "Paula O.", guestCount: 2, date: getFebDate(23), time: "7:00 PM", status: "confirmed", activityName: "Authentic Asado Experience", emailSubject: "Experience booked – Paula O. for Asado", emailPreview: "New booking. Paula O. and 1 guest.", emailDate: getEmailDate(23, 15, 52), emailId: "msg-033" },
-  { id: "34", platform: "viator", guestName: "Rafael Y.", guestCount: 4, date: getFebDate(24), time: "7:00 PM", status: "confirmed", activityName: "Authentic Asado Experience", emailSubject: "New Booking: Asado – Rafael Y.", emailPreview: "You have a new booking! Guest: Rafael Y., Party size: 4.", emailDate: getEmailDate(24, 10, 17), emailId: "msg-034" },
-  { id: "35", platform: "getyourguide", guestName: "Silvia X.", guestCount: 3, date: getFebDate(25), time: "7:00 PM", status: "confirmed", activityName: "Authentic Asado Experience", emailSubject: "Booking Confirmation: Silvia X. – Asado", emailPreview: "New booking. Guest: Silvia X., Guests: 3.", emailDate: getEmailDate(25, 14, 39), emailId: "msg-035" },
-  { id: "36", platform: "airbnb", guestName: "Héctor G.", guestCount: 5, date: getFebDate(26), time: "7:00 PM", status: "confirmed", specialRequests: ["2 vegetarian"], activityName: "Authentic Asado Experience", emailSubject: "Experience booked – Héctor G. for Asado", emailPreview: "New booking. Héctor G. and 4 guests. Notes: 2 vegetarian.", emailDate: getEmailDate(26, 9, 6), emailId: "msg-036" },
-  { id: "37", platform: "viator", guestName: "Claudia M.", guestCount: 2, date: getFebDate(27), time: "7:00 PM", status: "confirmed", activityName: "Authentic Asado Experience", emailSubject: "New Booking: Asado – Claudia M.", emailPreview: "You have a new booking! Guest: Claudia M., Party size: 2.", emailDate: getEmailDate(27, 18, 23), emailId: "msg-037" },
-  { id: "38", platform: "getyourguide", guestName: "Oscar R.", guestCount: 4, date: getFebDate(28), time: "7:00 PM", status: "confirmed", activityName: "Authentic Asado Experience", emailSubject: "Booking Confirmation: Oscar R. – Asado", emailPreview: "New booking. Guest: Oscar R., Guests: 4.", emailDate: getEmailDate(28, 12, 47), emailId: "msg-038" },
-  { id: "39", platform: "airbnb", guestName: "Patricia S.", guestCount: 6, date: getFebDate(28), time: "7:00 PM", status: "confirmed", specialRequests: ["1 vegan", "1 gluten-free"], activityName: "Authentic Asado Experience", emailSubject: "Experience booked – Patricia S. for Asado", emailPreview: "New booking. Patricia S. and 5 guests. Notes: 1 vegan, 1 gluten-free.", emailDate: getEmailDate(28, 16, 11), emailId: "msg-039" },
-];
 
 function getWeekDates(baseDate: Date): Date[] {
   const dates: Date[] = [];
@@ -306,6 +165,12 @@ function EmailStack({ bookings }: { bookings: Booking[] }) {
   const [expanded, setExpanded] = useState(false);
   const latestEmails = getLatestEmails(bookings, 3);
   const mostRecent = latestEmails[0];
+
+  if (bookings.length === 0) {
+    return (
+      <span className="text-xs text-[#78716C]">No emails yet</span>
+    );
+  }
 
   return (
     <div className="relative">
@@ -393,25 +258,6 @@ function EmailStack({ bookings }: { bookings: Booking[] }) {
   );
 }
 
-// Button that redirects to /demo with this email selected
-function OpenInEmailButton({ emailId, onClose }: { emailId: string; onClose: () => void }) {
-  const router = useRouter();
-  return (
-    <button
-      onClick={() => {
-        onClose();
-        router.push(`/demo?email=${encodeURIComponent(emailId)}`);
-      }}
-      className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-[#EA580C] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#C2410C]"
-    >
-      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-      </svg>
-      Open in Email
-    </button>
-  );
-}
-
 // Booking Detail Modal
 function BookingModal({
   booking,
@@ -488,17 +334,29 @@ function BookingModal({
         )}
 
         {/* Email preview */}
-        <div className="rounded-xl border border-[#E7E5E4] bg-[#FAF8F5] p-4">
-          <div className="mb-2 flex items-center justify-between">
-            <p className="text-xs font-medium text-[#78716C]">Original Email</p>
-            <span className="text-xs text-[#78716C]">{formatEmailDate(booking.emailDate)}</span>
+        {booking.emailSubject && (
+          <div className="rounded-xl border border-[#E7E5E4] bg-[#FAF8F5] p-4">
+            <div className="mb-2 flex items-center justify-between">
+              <p className="text-xs font-medium text-[#78716C]">Original Email</p>
+              <span className="text-xs text-[#78716C]">{formatEmailDate(booking.emailDate)}</span>
+            </div>
+            <p className="mb-2 text-sm font-medium text-[#1C1917]">{booking.emailSubject}</p>
+            <p className="text-xs leading-relaxed text-[#78716C]">{booking.emailPreview}</p>
           </div>
-          <p className="mb-2 text-sm font-medium text-[#1C1917]">{booking.emailSubject}</p>
-          <p className="text-xs leading-relaxed text-[#78716C]">{booking.emailPreview}</p>
-        </div>
+        )}
 
-        {/* Open in email - redirects to demo inbox with this email selected */}
-        <OpenInEmailButton emailId={booking.emailId} onClose={onClose} />
+        {/* Open in Gmail */}
+        <a
+          href={`https://mail.google.com/mail/u/0/#inbox/${booking.emailId}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-[#EA580C] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#C2410C]"
+        >
+          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          </svg>
+          Open in Gmail
+        </a>
       </div>
     </div>
   );
@@ -950,13 +808,101 @@ function ViewToggle({
   );
 }
 
+// Loading skeleton for day columns
+function DayColumnSkeleton() {
+  return (
+    <div className="flex min-w-[220px] flex-1 flex-col rounded-xl border border-[#E7E5E4] bg-white">
+      <div className="shrink-0 border-b border-[#E7E5E4] p-3">
+        <div className="h-4 w-12 animate-pulse rounded bg-[#E7E5E4]" />
+        <div className="mt-1 h-6 w-16 animate-pulse rounded bg-[#E7E5E4]" />
+        <div className="mt-2 h-4 w-24 animate-pulse rounded bg-[#E7E5E4]" />
+        <div className="mt-2 h-[26px]" />
+      </div>
+      <div className="flex-1 space-y-2 p-2">
+        <div className="h-24 animate-pulse rounded-lg bg-[#E7E5E4]" />
+        <div className="h-24 animate-pulse rounded-lg bg-[#E7E5E4]" />
+      </div>
+    </div>
+  );
+}
+
+// Empty state component
+function EmptyState() {
+  return (
+    <div className="flex flex-1 flex-col items-center justify-center rounded-xl border border-[#E7E5E4] bg-white p-8">
+      <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#FDF6EC]">
+        <svg className="h-8 w-8 text-[#EA580C]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+      </div>
+      <h3 className="mt-4 text-lg font-semibold text-[#1C1917]">No bookings yet</h3>
+      <p className="mt-1 max-w-sm text-center text-sm text-[#78716C]">
+        Once we sync your email, your bookings from Airbnb, Viator, and GetYourGuide will appear here automatically.
+      </p>
+    </div>
+  );
+}
+
 export default function DashboardPage() {
-  // Start with the current week/month
+  const router = useRouter();
+  
+  // Auth state
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  
+  // Data state
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  
+  // View state
   const [currentWeekStart, setCurrentWeekStart] = useState(() => new Date());
   const [currentMonth, setCurrentMonth] = useState(() => new Date());
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>("week");
+  
   const weekDates = getWeekDates(currentWeekStart);
+
+  // Check authentication and fetch bookings
+  useEffect(() => {
+    async function loadData() {
+      try {
+        // Check auth
+        const meRes = await fetch("/api/auth/me");
+        const meData = await meRes.json();
+        
+        if (!meData.user) {
+          setIsAuthenticated(false);
+          return;
+        }
+        
+        setIsAuthenticated(true);
+        
+        // Fetch bookings
+        const bookingsRes = await fetch("/api/bookings");
+        if (!bookingsRes.ok) {
+          throw new Error("Failed to fetch bookings");
+        }
+        
+        const bookingsData = await bookingsRes.json();
+        const mappedBookings = (bookingsData.bookings as SupabaseBooking[]).map(mapSupabaseBooking);
+        setBookings(mappedBookings);
+      } catch (err) {
+        console.error("Error loading dashboard:", err);
+        setError("Failed to load bookings. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    }
+    
+    loadData();
+  }, []);
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (isAuthenticated === false) {
+      router.push("/login");
+    }
+  }, [isAuthenticated, router]);
 
   const navigateWeek = (direction: "prev" | "next") => {
     setCurrentWeekStart((prev) => {
@@ -980,9 +926,9 @@ export default function DashboardPage() {
     setViewMode("week");
   };
 
-  // Get bookings for the current week
+  // Get bookings for a specific date
   const getBookingsForDate = (date: Date) => {
-    return mockBookings.filter((booking) => isSameDay(booking.date, date));
+    return bookings.filter((booking) => isSameDay(booking.date, date));
   };
 
   // Calculate week totals
@@ -1004,6 +950,18 @@ export default function DashboardPage() {
   const monthSpecialRequestCount = confirmedMonthBookings.filter(
     (b) => b.specialRequests && b.specialRequests.length > 0
   ).length;
+
+  // Show loading state while checking auth
+  if (isAuthenticated === null || (isAuthenticated === false)) {
+    return (
+      <div className="flex h-screen flex-col bg-[#FAF8F5]">
+        <Navbar />
+        <div className="flex flex-1 items-center justify-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#EA580C] border-t-transparent" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen flex-col bg-[#FAF8F5]">
@@ -1030,6 +988,19 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
+
+        {/* Error state */}
+        {error && (
+          <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-4">
+            <p className="text-sm text-red-700">{error}</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="mt-2 text-sm font-medium text-red-700 underline hover:no-underline"
+            >
+              Try again
+            </button>
+          </div>
+        )}
 
         {/* View toggle + Navigation row */}
         <div className="mb-3 flex shrink-0 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -1104,13 +1075,21 @@ export default function DashboardPage() {
               </div>
             )}
             <div className="rounded-lg border border-[#E7E5E4] bg-white px-3 py-1.5">
-              <EmailStack bookings={mockBookings} />
+              <EmailStack bookings={bookings} />
             </div>
           </div>
         </div>
 
         {/* Calendar view - fills remaining height */}
-        {viewMode === "week" ? (
+        {loading ? (
+          <div className="flex min-h-0 flex-1 gap-2 overflow-x-auto sm:gap-3">
+            {[...Array(7)].map((_, i) => (
+              <DayColumnSkeleton key={i} />
+            ))}
+          </div>
+        ) : bookings.length === 0 ? (
+          <EmptyState />
+        ) : viewMode === "week" ? (
           <div className="flex min-h-0 flex-1 gap-2 overflow-x-auto sm:gap-3">
             {weekDates.map((date) => (
               <DayColumn
