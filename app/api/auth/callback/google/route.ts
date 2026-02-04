@@ -123,15 +123,19 @@ export async function GET(request: NextRequest) {
         .eq("email", userInfo.email);
       if (updateError) {
         console.error("Supabase error updating user data:", updateError);
-        throw new Error("Failed to save user data");
+        const msg = updateError.message || "Failed to save user data";
+        throw new Error(msg);
       }
     } else {
+      // New user: insert with organization_id null. You assign org in Supabase manually.
+      // If this fails, make organization_id nullable: ALTER TABLE gmail_accounts ALTER COLUMN organization_id DROP NOT NULL;
       const { error: insertError } = await supabase
         .from("gmail_accounts")
         .insert({ ...basePayload, organization_id: null });
       if (insertError) {
         console.error("Supabase error inserting user data:", insertError);
-        throw new Error("Failed to save user data");
+        const msg = insertError.message || "Failed to save user data";
+        throw new Error(msg);
       }
     }
 
@@ -153,6 +157,7 @@ export async function GET(request: NextRequest) {
     console.error("OAuth callback error:", err);
     const errorMessage =
       err instanceof Error ? err.message : "Authentication failed";
+    // Include full message in redirect so you can see e.g. "null value in column organization_id"
     return NextResponse.redirect(
       `${appUrl}/login?error=${encodeURIComponent(errorMessage)}`
     );
