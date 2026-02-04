@@ -1,15 +1,16 @@
 import Link from "next/link";
 import { getGoogleAuthUrl } from "@/lib/google-oauth";
 
-type SearchParams = Promise<{ error?: string }>;
+type SearchParams = Promise<{ error?: string; reauth?: string }>;
 
 export default async function LoginPage({
   searchParams,
 }: {
   searchParams: SearchParams;
 }) {
-  const { error } = await searchParams;
-  const googleAuthUrl = getGoogleAuthUrl();
+  const { error, reauth } = await searchParams;
+  // Force consent screen if reauth is requested (needed to get a new refresh_token)
+  const googleAuthUrl = getGoogleAuthUrl(reauth === "true");
 
   return (
     <div className="flex min-h-screen flex-col bg-[#FAF8F5]">

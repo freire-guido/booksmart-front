@@ -19,12 +19,15 @@ export function createOAuth2Client() {
 }
 
 // Generate the Google OAuth authorization URL
-export function getGoogleAuthUrl(): string {
+export function getGoogleAuthUrl(forceConsent: boolean = false): string {
   const oauth2Client = createOAuth2Client();
 
   const authUrl = oauth2Client.generateAuthUrl({
     access_type: "offline",
     scope: GMAIL_SCOPES,
+    // Only force consent when explicitly requested (e.g., for new users who
+    // need a refresh_token). Returning users will reuse stored refresh_tokens.
+    ...(forceConsent && { prompt: "consent" }),
   });
 
   return authUrl;
