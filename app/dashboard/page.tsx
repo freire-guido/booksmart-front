@@ -260,12 +260,17 @@ function EmailItem({
 }
 
 // Email Stack Component
-function EmailStack({ bookings }: { bookings: Booking[] }) {
+function EmailStack({ bookings, onBookingClick }: { bookings: Booking[]; onBookingClick?: (booking: Booking) => void }) {
   const [expanded, setExpanded] = useState(false);
   const latestEmails = getLatestEmails(bookings, 3);
   const lowConfidenceEmails = getLowConfidenceEmails(bookings);
   const hasLowConfidence = lowConfidenceEmails.length > 0;
   const mostRecent = latestEmails[0];
+
+  const handleLowConfidenceClick = (booking: Booking) => {
+    setExpanded(false);
+    onBookingClick?.(booking);
+  };
 
   if (bookings.length === 0) {
     return (
@@ -321,7 +326,12 @@ function EmailStack({ bookings }: { bookings: Booking[] }) {
               </div>
               <div className="space-y-1.5">
                 {lowConfidenceEmails.map((booking) => (
-                  <EmailItem key={booking.id} booking={booking} isLowConfidence />
+                  <EmailItem 
+                    key={booking.id} 
+                    booking={booking} 
+                    isLowConfidence 
+                    onClick={() => handleLowConfidenceClick(booking)}
+                  />
                 ))}
               </div>
             </div>
@@ -1451,7 +1461,7 @@ export default function DashboardPage() {
               </div>
             )}
             <div className="rounded-lg border border-[#E7E5E4] bg-white px-3 py-1.5">
-              <EmailStack bookings={bookings} />
+              <EmailStack bookings={bookings} onBookingClick={setSelectedBooking} />
             </div>
           </div>
         </div>
