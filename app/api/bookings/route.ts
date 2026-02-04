@@ -300,3 +300,104 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
   }
 }
+
+export async function DELETE(request: NextRequest) {
+  const session = request.cookies.get("booksmart_session")?.value;
+
+  if (!session) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const supabase = createServerClient();
+
+  // Get user and their organization from gmail_accounts
+  const { data: user, error: userError } = await supabase
+    .from("gmail_accounts")
+    .select("id, organization_id")
+    .eq("email", session)
+    .single();
+
+  if (userError || !user) {
+    return NextResponse.json({ error: "User not found" }, { status: 404 });
+  }
+
+  try {
+    const body = await request.json();
+    const { id } = body;
+
+    if (!id) {
+      return NextResponse.json({ error: "Booking ID is required" }, { status: 400 });
+    }
+
+    // First fetch the existing booking to log it before deletion
+    const { data: existingBooking, error: findError } = await supabase
+      .from("bookings")
+      .select(`
+        id,
+        organization_id,
+        platform,
+        guest_name,
+        guest_count,
+        booking_date,
+        booking_time,
+        status,
+        activity_name,
+        dietary_restrictions,
+        special_requests,
+        email_id,
+        email_subject,
+        email_preview,
+        email_received_at,
+        extraction_confidence,
+        manually_reviewed,
+        created_at
+      `)
+      .eq("id", id)
+      .eq("organization_id", user.organization_id)
+      .single();
+
+    if (findError || !existingBooking) {
+      return NextResponse.json({ error: "Booking not found" }, { status: 404 });
+    }
+
+    // Log the deletion to manual_edits for traceability
+    const userAgent = request.headers.get("user-agent") || null;
+    const forwardedFor = request.headers.get("x-forwarded-for");
+    const ipAddress = forwardedFor ? forwardedFor.split(",")[0].trim() : null;
+
+    const { error: auditError } = await supabase
+      .from("manual_edits")
+      .insert({
+        booking_id: id,
+        edited_by_user_id: user.id,
+        changes: {
+          action_type: "delete",
+          deleted_booking: existingBooking,
+        },
+        ip_address: ipAddress,
+        user_agent: userAgent,
+      });
+
+    if (auditError) {
+      // Log but continue - we want to ensure traceability but not block deletion
+      console.error("Error logging deletion to audit:", auditError);
+    }
+
+    // Delete the booking
+    const { error: deleteError } = await supabase
+      .from("bookings")
+      .delete()
+      .eq("id", id)
+      .eq("organization_id", user.organization_id);
+
+    if (deleteError) {
+      console.error("Error deleting booking:", deleteError);
+      return NextResponse.json({ error: "Failed to delete booking" }, { status: 500 });
+    }
+
+    return NextResponse.json({ success: true, deletedId: id });
+  } catch (err) {
+    console.error("Error parsing request:", err);
+    return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
+  }
+}

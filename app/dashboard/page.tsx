@@ -400,14 +400,19 @@ function BookingModal({
   booking,
   onClose,
   onUpdate,
+  onDelete,
 }: {
   booking: Booking;
   onClose: () => void;
   onUpdate: (updatedBooking: Booking) => void;
+  onDelete: (bookingId: string) => void;
 }) {
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   
   // Edit form state
   const [editGuestName, setEditGuestName] = useState(booking.guestName);
@@ -516,6 +521,32 @@ function BookingModal({
     setIsEditing(false);
   };
 
+  const handleDelete = async () => {
+    setIsDeleting(true);
+    setDeleteError(null);
+
+    try {
+      const response = await fetch("/api/bookings", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: booking.id }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to delete booking");
+      }
+
+      onDelete(booking.id);
+      onClose();
+    } catch (err) {
+      console.error("Error deleting booking:", err);
+      setDeleteError(err instanceof Error ? err.message : "Failed to delete booking");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop */}
@@ -529,15 +560,26 @@ function BookingModal({
         {/* Header buttons */}
         <div className="absolute right-4 top-4 flex items-center gap-2">
           {!isEditing && (
-            <button
-              onClick={() => setIsEditing(true)}
-              className="flex h-8 w-8 items-center justify-center rounded-full text-[#78716C] transition-colors hover:bg-[#FDF6EC] hover:text-[#EA580C]"
-              title="Edit booking"
-            >
-              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-              </svg>
-            </button>
+            <>
+              <button
+                onClick={() => setIsEditing(true)}
+                className="flex h-8 w-8 items-center justify-center rounded-full text-[#78716C] transition-colors hover:bg-[#FDF6EC] hover:text-[#EA580C]"
+                title="Edit booking"
+              >
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                </svg>
+              </button>
+              <button
+                onClick={() => setShowDeleteConfirm(true)}
+                className="flex h-8 w-8 items-center justify-center rounded-full text-[#78716C] transition-colors hover:bg-red-50 hover:text-red-500"
+                title="Delete booking"
+              >
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </button>
+            </>
           )}
           <button
             onClick={isEditing ? handleCancel : onClose}
@@ -671,6 +713,20 @@ function BookingModal({
               </select>
             </div>
             
+            {/* Delete button */}
+            <div className="border-t border-[#E7E5E4] pt-4">
+              <button
+                onClick={() => setShowDeleteConfirm(true)}
+                disabled={isSaving}
+                className="flex w-full items-center justify-center gap-2 rounded-full border border-red-200 px-4 py-2.5 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 disabled:opacity-50"
+              >
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+                Delete Booking
+              </button>
+            </div>
+            
             {/* Save/Cancel buttons */}
             <div className="flex gap-3 pt-2">
               <button
@@ -773,6 +829,66 @@ function BookingModal({
           </>
         )}
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      {showDeleteConfirm && (
+        <div className="absolute inset-0 z-10 flex items-center justify-center">
+          <div 
+            className="absolute inset-0 bg-black/20" 
+            onClick={() => !isDeleting && setShowDeleteConfirm(false)} 
+          />
+          <div className="relative mx-4 w-full max-w-sm rounded-xl border border-[#E7E5E4] bg-white p-6 shadow-xl">
+            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
+              <svg className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </div>
+            <h4 className="mb-2 text-lg font-semibold text-[#1C1917]">Delete Booking?</h4>
+            <p className="mb-1 text-sm text-[#78716C]">
+              Are you sure you want to delete the booking for <span className="font-medium text-[#1C1917]">{booking.guestName}</span>?
+            </p>
+            <p className="mb-4 text-xs text-[#A8A29E]">
+              This action cannot be undone. The booking will be permanently removed.
+            </p>
+            
+            {deleteError && (
+              <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+                {deleteError}
+              </div>
+            )}
+            
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setShowDeleteConfirm(false);
+                  setDeleteError(null);
+                }}
+                disabled={isDeleting}
+                className="flex-1 rounded-full border border-[#E7E5E4] px-4 py-2.5 text-sm font-medium text-[#78716C] transition-colors hover:bg-[#FAF8F5] disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDelete}
+                disabled={isDeleting}
+                className="flex flex-1 items-center justify-center gap-2 rounded-full bg-red-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-red-700 disabled:opacity-50"
+              >
+                {isDeleting ? (
+                  <>
+                    <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                    </svg>
+                    Deleting...
+                  </>
+                ) : (
+                  "Delete"
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -1813,6 +1929,10 @@ export default function DashboardPage() {
               prev.map((b) => (b.id === updatedBooking.id ? updatedBooking : b))
             );
             setSelectedBooking(updatedBooking);
+          }}
+          onDelete={(bookingId) => {
+            setBookings((prev) => prev.filter((b) => b.id !== bookingId));
+            setSelectedBooking(null);
           }}
         />
       )}
