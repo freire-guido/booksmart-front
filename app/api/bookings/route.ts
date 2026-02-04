@@ -12,10 +12,10 @@ export async function GET(request: NextRequest) {
 
   const supabase = createServerClient();
 
-  // Get user ID from gmail_accounts
+  // Get user and their organization from gmail_accounts
   const { data: user, error: userError } = await supabase
     .from("gmail_accounts")
-    .select("id")
+    .select("id, organization_id")
     .eq("email", session)
     .single();
 
@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "User not found" }, { status: 404 });
   }
 
-  // Fetch bookings for this user
+  // Fetch bookings for this organization
   const { data: bookings, error: bookingsError } = await supabase
     .from("bookings")
     .select(`
@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
       extraction_confidence,
       manually_reviewed
     `)
-    .eq("user_id", user.id)
+    .eq("organization_id", user.organization_id)
     .order("booking_date", { ascending: true });
 
   if (bookingsError) {
@@ -64,10 +64,10 @@ export async function POST(request: NextRequest) {
 
   const supabase = createServerClient();
 
-  // Get user ID from gmail_accounts
+  // Get user and their organization from gmail_accounts
   const { data: user, error: userError } = await supabase
     .from("gmail_accounts")
-    .select("id")
+    .select("id, organization_id")
     .eq("email", session)
     .single();
 
@@ -104,7 +104,8 @@ export async function POST(request: NextRequest) {
     const { data: newBooking, error: createError } = await supabase
       .from("bookings")
       .insert({
-        user_id: user.id,
+        organization_id: user.organization_id,
+        created_by_user_id: user.id,
         guest_name,
         guest_count: guest_count || 1,
         booking_date,
@@ -162,10 +163,10 @@ export async function PATCH(request: NextRequest) {
 
   const supabase = createServerClient();
 
-  // Get user ID from gmail_accounts
+  // Get user and their organization from gmail_accounts
   const { data: user, error: userError } = await supabase
     .from("gmail_accounts")
-    .select("id")
+    .select("id, organization_id")
     .eq("email", session)
     .single();
 
@@ -198,7 +199,7 @@ export async function PATCH(request: NextRequest) {
         manually_reviewed
       `)
       .eq("id", id)
-      .eq("user_id", user.id)
+      .eq("organization_id", user.organization_id)
       .single();
 
     if (findError || !existingBooking) {
@@ -245,7 +246,7 @@ export async function PATCH(request: NextRequest) {
       .from("bookings")
       .update(updateData)
       .eq("id", id)
-      .eq("user_id", user.id)
+      .eq("organization_id", user.organization_id)
       .select(`
         id,
         platform,
@@ -281,7 +282,7 @@ export async function PATCH(request: NextRequest) {
         .from("manual_edits")
         .insert({
           booking_id: id,
-          user_id: user.id,
+          edited_by_user_id: user.id,
           changes,
           ip_address: ipAddress,
           user_agent: userAgent,
