@@ -258,105 +258,397 @@ function EmailStack({ bookings }: { bookings: Booking[] }) {
   );
 }
 
+// Convert 12-hour time format back to 24-hour HH:MM:SS for API
+function parseTimeToApiFormat(time: string | undefined): string | null {
+  if (!time) return null;
+  const match = time.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+  if (!match) return null;
+  let hours = parseInt(match[1]);
+  const minutes = match[2];
+  const ampm = match[3].toUpperCase();
+  if (ampm === "PM" && hours !== 12) hours += 12;
+  if (ampm === "AM" && hours === 12) hours = 0;
+  return `${hours.toString().padStart(2, "0")}:${minutes}:00`;
+}
+
+// Format date to YYYY-MM-DD for API
+function formatDateForApi(date: Date): string {
+  const year = date.getFullYear();
+  const month = (date.getMonth() + 1).toString().padStart(2, "0");
+  const day = date.getDate().toString().padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
 // Booking Detail Modal
 function BookingModal({
   booking,
   onClose,
+  onUpdate,
 }: {
   booking: Booking;
   onClose: () => void;
+  onUpdate: (updatedBooking: Booking) => void;
 }) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  
+  // Edit form state
+  const [editGuestName, setEditGuestName] = useState(booking.guestName);
+  const [editGuestCount, setEditGuestCount] = useState(booking.guestCount);
+  const [editDate, setEditDate] = useState(formatDateForApi(booking.date));
+  const [editTime, setEditTime] = useState(booking.time || "");
+  const [editPlatform, setEditPlatform] = useState<Platform>(booking.platform);
+  const [editActivityName, setEditActivityName] = useState(booking.activityName || "");
+  const [editDietaryRestrictions, setEditDietaryRestrictions] = useState(
+    booking.specialRequests?.filter(r => 
+      r.toLowerCase().includes("vegetarian") || 
+      r.toLowerCase().includes("vegan") || 
+      r.toLowerCase().includes("gluten")
+    ).join(", ") || ""
+  );
+  const [editSpecialRequests, setEditSpecialRequests] = useState(
+    booking.specialRequests?.filter(r => 
+      !r.toLowerCase().includes("vegetarian") && 
+      !r.toLowerCase().includes("vegan") && 
+      !r.toLowerCase().includes("gluten")
+    ).join(", ") || ""
+  );
+  const [editStatus, setEditStatus] = useState<"confirmed" | "cancelled" | "rescheduled">(booking.status);
+
   const platformColor = platformColors[booking.platform];
   const platformName = platformNames[booking.platform];
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    setSaveError(null);
+    
+    try {
+      // Parse dietary restrictions into array
+      const dietaryArray = editDietaryRestrictions
+        .split(",")
+        .map(s => s.trim())
+        .filter(Boolean);
+      
+      const response = await fetch("/api/bookings", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: booking.id,
+          guest_name: editGuestName,
+          guest_count: editGuestCount,
+          booking_date: editDate,
+          booking_time: parseTimeToApiFormat(editTime),
+          platform: editPlatform,
+          activity_name: editActivityName || null,
+          dietary_restrictions: dietaryArray.length > 0 ? dietaryArray : null,
+          special_requests: editSpecialRequests || null,
+          status: editStatus,
+        }),
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to update booking");
+      }
+      
+      const { booking: updatedBookingData } = await response.json();
+      
+      // Map back to UI format
+      const updatedBooking = mapSupabaseBooking(updatedBookingData);
+      onUpdate(updatedBooking);
+      setIsEditing(false);
+    } catch (err) {
+      console.error("Error saving booking:", err);
+      setSaveError(err instanceof Error ? err.message : "Failed to save changes");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleCancel = () => {
+    // Reset form state
+    setEditGuestName(booking.guestName);
+    setEditGuestCount(booking.guestCount);
+    setEditDate(formatDateForApi(booking.date));
+    setEditTime(booking.time || "");
+    setEditPlatform(booking.platform);
+    setEditActivityName(booking.activityName || "");
+    setEditDietaryRestrictions(
+      booking.specialRequests?.filter(r => 
+        r.toLowerCase().includes("vegetarian") || 
+        r.toLowerCase().includes("vegan") || 
+        r.toLowerCase().includes("gluten")
+      ).join(", ") || ""
+    );
+    setEditSpecialRequests(
+      booking.specialRequests?.filter(r => 
+        !r.toLowerCase().includes("vegetarian") && 
+        !r.toLowerCase().includes("vegan") && 
+        !r.toLowerCase().includes("gluten")
+      ).join(", ") || ""
+    );
+    setEditStatus(booking.status);
+    setSaveError(null);
+    setIsEditing(false);
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-        onClick={onClose}
+        onClick={isEditing ? undefined : onClose}
       />
       
       {/* Modal */}
-      <div className="relative w-full max-w-md rounded-2xl border border-[#E7E5E4] bg-white p-6 shadow-xl">
-        {/* Close button */}
-        <button
-          onClick={onClose}
-          className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full text-[#78716C] transition-colors hover:bg-[#FDF6EC] hover:text-[#1C1917]"
-        >
-          <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
-
-        {/* Header */}
-        <div className="mb-4">
-          <div className="flex items-center gap-2">
-            <span
-              className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium text-white"
-              style={{ backgroundColor: platformColor }}
+      <div className="relative max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl border border-[#E7E5E4] bg-white p-6 shadow-xl">
+        {/* Header buttons */}
+        <div className="absolute right-4 top-4 flex items-center gap-2">
+          {!isEditing && (
+            <button
+              onClick={() => setIsEditing(true)}
+              className="flex h-8 w-8 items-center justify-center rounded-full text-[#78716C] transition-colors hover:bg-[#FDF6EC] hover:text-[#EA580C]"
+              title="Edit booking"
             >
-              {platformName}
-            </span>
-            {booking.status === "cancelled" && (
-              <span className="text-xs font-medium text-red-500">Cancelled</span>
-            )}
-            {booking.status === "rescheduled" && (
-              <span className="text-xs font-medium text-amber-600">Rescheduled</span>
-            )}
-          </div>
-          <h3 className="mt-2 text-lg font-semibold text-[#1C1917]">
-            {booking.guestName}
-          </h3>
-          <p className="text-sm text-[#78716C]">
-            {booking.guestCount} guest{booking.guestCount !== 1 ? "s" : ""}
-            {booking.time && ` · ${booking.time}`}
-            {booking.activityName && ` · ${booking.activityName}`}
-            {booking.duration && ` · ${booking.duration}`}
-          </p>
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+              </svg>
+            </button>
+          )}
+          <button
+            onClick={isEditing ? handleCancel : onClose}
+            className="flex h-8 w-8 items-center justify-center rounded-full text-[#78716C] transition-colors hover:bg-[#FDF6EC] hover:text-[#1C1917]"
+          >
+            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
         </div>
 
-        {/* Special requests */}
-        {booking.specialRequests && booking.specialRequests.length > 0 && (
-          <div className="mb-4">
-            <p className="mb-1.5 text-xs font-medium text-[#78716C]">Special Requests</p>
-            <div className="flex flex-wrap gap-1.5">
-              {booking.specialRequests.map((request, index) => (
+        {isEditing ? (
+          /* Edit Mode */
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-[#1C1917]">Edit Booking</h3>
+            
+            {saveError && (
+              <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+                {saveError}
+              </div>
+            )}
+            
+            {/* Guest Name */}
+            <div>
+              <label className="mb-1.5 block text-xs font-medium text-[#78716C]">Guest Name</label>
+              <input
+                type="text"
+                value={editGuestName}
+                onChange={(e) => setEditGuestName(e.target.value)}
+                className="w-full rounded-lg border border-[#E7E5E4] px-3 py-2 text-sm text-[#1C1917] focus:border-[#EA580C] focus:outline-none focus:ring-1 focus:ring-[#EA580C]"
+              />
+            </div>
+            
+            {/* Guest Count */}
+            <div>
+              <label className="mb-1.5 block text-xs font-medium text-[#78716C]">Number of Guests</label>
+              <input
+                type="number"
+                min="1"
+                value={editGuestCount}
+                onChange={(e) => setEditGuestCount(parseInt(e.target.value) || 1)}
+                className="w-full rounded-lg border border-[#E7E5E4] px-3 py-2 text-sm text-[#1C1917] focus:border-[#EA580C] focus:outline-none focus:ring-1 focus:ring-[#EA580C]"
+              />
+            </div>
+            
+            {/* Date and Time */}
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="mb-1.5 block text-xs font-medium text-[#78716C]">Date</label>
+                <input
+                  type="date"
+                  value={editDate}
+                  onChange={(e) => setEditDate(e.target.value)}
+                  className="w-full rounded-lg border border-[#E7E5E4] px-3 py-2 text-sm text-[#1C1917] focus:border-[#EA580C] focus:outline-none focus:ring-1 focus:ring-[#EA580C]"
+                />
+              </div>
+              <div>
+                <label className="mb-1.5 block text-xs font-medium text-[#78716C]">Time</label>
+                <input
+                  type="text"
+                  placeholder="e.g. 7:00 PM"
+                  value={editTime}
+                  onChange={(e) => setEditTime(e.target.value)}
+                  className="w-full rounded-lg border border-[#E7E5E4] px-3 py-2 text-sm text-[#1C1917] focus:border-[#EA580C] focus:outline-none focus:ring-1 focus:ring-[#EA580C]"
+                />
+              </div>
+            </div>
+            
+            {/* Platform */}
+            <div>
+              <label className="mb-1.5 block text-xs font-medium text-[#78716C]">Platform</label>
+              <select
+                value={editPlatform}
+                onChange={(e) => setEditPlatform(e.target.value as Platform)}
+                className="w-full rounded-lg border border-[#E7E5E4] px-3 py-2 text-sm text-[#1C1917] focus:border-[#EA580C] focus:outline-none focus:ring-1 focus:ring-[#EA580C]"
+              >
+                {Object.entries(platformNames).map(([key, name]) => (
+                  <option key={key} value={key}>{name}</option>
+                ))}
+              </select>
+            </div>
+            
+            {/* Activity Name */}
+            <div>
+              <label className="mb-1.5 block text-xs font-medium text-[#78716C]">Activity Name</label>
+              <input
+                type="text"
+                value={editActivityName}
+                onChange={(e) => setEditActivityName(e.target.value)}
+                placeholder="e.g. Sunset Wine Tour"
+                className="w-full rounded-lg border border-[#E7E5E4] px-3 py-2 text-sm text-[#1C1917] focus:border-[#EA580C] focus:outline-none focus:ring-1 focus:ring-[#EA580C]"
+              />
+            </div>
+            
+            {/* Dietary Restrictions */}
+            <div>
+              <label className="mb-1.5 block text-xs font-medium text-[#78716C]">Dietary Restrictions</label>
+              <input
+                type="text"
+                value={editDietaryRestrictions}
+                onChange={(e) => setEditDietaryRestrictions(e.target.value)}
+                placeholder="e.g. 2 vegetarian, 1 gluten-free"
+                className="w-full rounded-lg border border-[#E7E5E4] px-3 py-2 text-sm text-[#1C1917] focus:border-[#EA580C] focus:outline-none focus:ring-1 focus:ring-[#EA580C]"
+              />
+              <p className="mt-1 text-xs text-[#A8A29E]">Comma-separated list</p>
+            </div>
+            
+            {/* Special Requests */}
+            <div>
+              <label className="mb-1.5 block text-xs font-medium text-[#78716C]">Special Requests</label>
+              <textarea
+                value={editSpecialRequests}
+                onChange={(e) => setEditSpecialRequests(e.target.value)}
+                placeholder="Any other notes or requests..."
+                rows={2}
+                className="w-full rounded-lg border border-[#E7E5E4] px-3 py-2 text-sm text-[#1C1917] focus:border-[#EA580C] focus:outline-none focus:ring-1 focus:ring-[#EA580C]"
+              />
+            </div>
+            
+            {/* Status */}
+            <div>
+              <label className="mb-1.5 block text-xs font-medium text-[#78716C]">Status</label>
+              <select
+                value={editStatus}
+                onChange={(e) => setEditStatus(e.target.value as "confirmed" | "cancelled" | "rescheduled")}
+                className="w-full rounded-lg border border-[#E7E5E4] px-3 py-2 text-sm text-[#1C1917] focus:border-[#EA580C] focus:outline-none focus:ring-1 focus:ring-[#EA580C]"
+              >
+                <option value="confirmed">Confirmed</option>
+                <option value="rescheduled">Rescheduled</option>
+                <option value="cancelled">Cancelled</option>
+              </select>
+            </div>
+            
+            {/* Save/Cancel buttons */}
+            <div className="flex gap-3 pt-2">
+              <button
+                onClick={handleCancel}
+                disabled={isSaving}
+                className="flex-1 rounded-full border border-[#E7E5E4] px-4 py-2.5 text-sm font-medium text-[#78716C] transition-colors hover:bg-[#FAF8F5] disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSave}
+                disabled={isSaving}
+                className="flex flex-1 items-center justify-center gap-2 rounded-full bg-[#EA580C] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#C2410C] disabled:opacity-50"
+              >
+                {isSaving ? (
+                  <>
+                    <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                    </svg>
+                    Saving...
+                  </>
+                ) : (
+                  "Save Changes"
+                )}
+              </button>
+            </div>
+          </div>
+        ) : (
+          /* View Mode */
+          <>
+            {/* Header */}
+            <div className="mb-4">
+              <div className="flex items-center gap-2">
                 <span
-                  key={index}
-                  className="inline-flex items-center rounded-md bg-[#EA580C]/10 px-2 py-1 text-xs text-[#EA580C]"
+                  className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium text-white"
+                  style={{ backgroundColor: platformColor }}
                 >
-                  {request}
+                  {platformName}
                 </span>
-              ))}
+                {booking.status === "cancelled" && (
+                  <span className="text-xs font-medium text-red-500">Cancelled</span>
+                )}
+                {booking.status === "rescheduled" && (
+                  <span className="text-xs font-medium text-amber-600">Rescheduled</span>
+                )}
+              </div>
+              <h3 className="mt-2 text-lg font-semibold text-[#1C1917]">
+                {booking.guestName}
+              </h3>
+              <p className="text-sm text-[#78716C]">
+                {booking.guestCount} guest{booking.guestCount !== 1 ? "s" : ""}
+                {booking.time && ` · ${booking.time}`}
+                {booking.activityName && ` · ${booking.activityName}`}
+                {booking.duration && ` · ${booking.duration}`}
+              </p>
             </div>
-          </div>
-        )}
 
-        {/* Email preview */}
-        {booking.emailSubject && (
-          <div className="rounded-xl border border-[#E7E5E4] bg-[#FAF8F5] p-4">
-            <div className="mb-2 flex items-center justify-between">
-              <p className="text-xs font-medium text-[#78716C]">Original Email</p>
-              <span className="text-xs text-[#78716C]">{formatEmailDate(booking.emailDate)}</span>
-            </div>
-            <p className="mb-2 text-sm font-medium text-[#1C1917]">{booking.emailSubject}</p>
-            <p className="text-xs leading-relaxed text-[#78716C]">{booking.emailPreview}</p>
-          </div>
-        )}
+            {/* Special requests */}
+            {booking.specialRequests && booking.specialRequests.length > 0 && (
+              <div className="mb-4">
+                <p className="mb-1.5 text-xs font-medium text-[#78716C]">Special Requests</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {booking.specialRequests.map((request, index) => (
+                    <span
+                      key={index}
+                      className="inline-flex items-center rounded-md bg-[#EA580C]/10 px-2 py-1 text-xs text-[#EA580C]"
+                    >
+                      {request}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
 
-        {/* Open in Gmail */}
-        <a
-          href={`https://mail.google.com/mail/u/0/#inbox/${booking.emailId}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-[#EA580C] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#C2410C]"
-        >
-          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-          </svg>
-          Open in Gmail
-        </a>
+            {/* Email preview */}
+            {booking.emailSubject && (
+              <div className="rounded-xl border border-[#E7E5E4] bg-[#FAF8F5] p-4">
+                <div className="mb-2 flex items-center justify-between">
+                  <p className="text-xs font-medium text-[#78716C]">Original Email</p>
+                  <span className="text-xs text-[#78716C]">{formatEmailDate(booking.emailDate)}</span>
+                </div>
+                <p className="mb-2 text-sm font-medium text-[#1C1917]">{booking.emailSubject}</p>
+                <p className="text-xs leading-relaxed text-[#78716C]">{booking.emailPreview}</p>
+              </div>
+            )}
+
+            {/* Open in Gmail */}
+            <a
+              href={`https://mail.google.com/mail/u/0/#inbox/${booking.emailId}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-[#EA580C] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#C2410C]"
+            >
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+              Open in Gmail
+            </a>
+          </>
+        )}
       </div>
     </div>
   );
@@ -1114,6 +1406,12 @@ export default function DashboardPage() {
         <BookingModal
           booking={selectedBooking}
           onClose={() => setSelectedBooking(null)}
+          onUpdate={(updatedBooking) => {
+            setBookings((prev) =>
+              prev.map((b) => (b.id === updatedBooking.id ? updatedBooking : b))
+            );
+            setSelectedBooking(updatedBooking);
+          }}
         />
       )}
     </div>
