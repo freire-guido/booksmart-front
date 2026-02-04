@@ -40,7 +40,9 @@ export async function GET(request: NextRequest) {
       email_id,
       email_subject,
       email_preview,
-      email_received_at
+      email_received_at,
+      extraction_confidence,
+      manually_reviewed
     `)
     .eq("user_id", user.id)
     .order("booking_date", { ascending: true });
@@ -75,7 +77,7 @@ export async function PATCH(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { id, guest_name, guest_count, booking_date, booking_time, platform, dietary_restrictions, special_requests, activity_name, status } = body;
+    const { id, guest_name, guest_count, booking_date, booking_time, platform, dietary_restrictions, special_requests, activity_name, status, manually_reviewed } = body;
 
     if (!id) {
       return NextResponse.json({ error: "Booking ID is required" }, { status: 400 });
@@ -104,6 +106,7 @@ export async function PATCH(request: NextRequest) {
     if (special_requests !== undefined) updateData.special_requests = special_requests;
     if (activity_name !== undefined) updateData.activity_name = activity_name;
     if (status !== undefined) updateData.status = status;
+    if (manually_reviewed !== undefined) updateData.manually_reviewed = manually_reviewed;
 
     // Update the booking
     const { data: updatedBooking, error: updateError } = await supabase
@@ -125,7 +128,9 @@ export async function PATCH(request: NextRequest) {
         email_id,
         email_subject,
         email_preview,
-        email_received_at
+        email_received_at,
+        extraction_confidence,
+        manually_reviewed
       `)
       .single();
 

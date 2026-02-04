@@ -22,6 +22,8 @@ type Booking = {
   emailPreview: string;
   emailDate: Date;
   emailId: string;
+  extraction_confidence?: number;
+  manually_reviewed?: boolean;
 };
 
 // Supabase booking row type
@@ -40,6 +42,8 @@ type SupabaseBooking = {
   email_subject: string | null;
   email_preview: string | null;
   email_received_at: string | null;
+  extraction_confidence: number | null;
+  manually_reviewed: boolean | null;
 };
 
 // Platform brand colors
@@ -101,6 +105,7 @@ function mapSupabaseBooking(row: SupabaseBooking): Booking {
     emailPreview: row.email_preview ?? "",
     emailDate: row.email_received_at ? new Date(row.email_received_at) : new Date(),
     emailId: row.email_id,
+    extraction_confidence: row.extraction_confidence ?? undefined,
   };
 }
 
@@ -160,10 +165,84 @@ function getLatestEmails(bookings: Booking[], count: number): Booking[] {
     .slice(0, count);
 }
 
+// Get low-confidence emails (extraction_confidence <= 0.5)
+function getLowConfidenceEmails(bookings: Booking[]): Booking[] {
+  return [...bookings]
+    .filter((b) => b.extraction_confidence !== undefined && b.extraction_confidence <= 0.5)
+    .sort((a, b) => b.emailDate.getTime() - a.emailDate.getTime());
+}
+
+// Email item component for reuse
+function EmailItem({ booking, isFirst = false, isLowConfidence = false }: { booking: Booking; isFirst?: boolean; isLowConfidence?: boolean }) {
+  return (
+    <div
+      className={`rounded-lg border p-2.5 transition-all ${
+        isLowConfidence
+          ? "border-orange-200 bg-orange-50"
+          : isFirst
+          ? "border-[#E7E5E4] bg-[#FDF6EC]"
+          : "border-[#E7E5E4] bg-white"
+      }`}
+    >
+      <div className="flex items-start gap-2">
+        <div
+          className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full ${
+            isLowConfidence
+              ? "bg-orange-100"
+              : booking.status === "cancelled"
+              ? "bg-red-100"
+              : booking.status === "rescheduled"
+              ? "bg-amber-100"
+              : "bg-[#EA580C]/10"
+          }`}
+        >
+          {isLowConfidence ? (
+            <svg className="h-2.5 w-2.5 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+          ) : booking.status === "cancelled" ? (
+            <svg className="h-2.5 w-2.5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          ) : booking.status === "rescheduled" ? (
+            <svg className="h-2.5 w-2.5 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+          ) : (
+            <svg className="h-2.5 w-2.5 text-[#EA580C]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+          )}
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center justify-between gap-2">
+            <p className="truncate text-xs font-medium text-[#1C1917]">
+              {platformNames[booking.platform]}
+            </p>
+            <span className="shrink-0 text-xs text-[#78716C]">
+              {formatEmailDate(booking.emailDate)}
+            </span>
+          </div>
+          <p className="truncate text-xs text-[#78716C]">
+            {booking.guestName} ({booking.guestCount} guest{booking.guestCount !== 1 ? "s" : ""})
+          </p>
+          {isLowConfidence && booking.extraction_confidence !== undefined && (
+            <p className="mt-0.5 text-xs text-orange-600">
+              {Math.round(booking.extraction_confidence * 100)}% confidence
+            </p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // Email Stack Component
 function EmailStack({ bookings }: { bookings: Booking[] }) {
   const [expanded, setExpanded] = useState(false);
   const latestEmails = getLatestEmails(bookings, 3);
+  const lowConfidenceEmails = getLowConfidenceEmails(bookings);
+  const hasLowConfidence = lowConfidenceEmails.length > 0;
   const mostRecent = latestEmails[0];
 
   if (bookings.length === 0) {
@@ -179,9 +258,18 @@ function EmailStack({ bookings }: { bookings: Booking[] }) {
         onClick={() => setExpanded(!expanded)}
         className="flex items-center gap-2"
       >
-        <svg className="h-4 w-4 text-[#EA580C]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-        </svg>
+        <div className="relative">
+          <svg className="h-4 w-4 text-[#EA580C]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          </svg>
+          {/* Orange dot indicator for low-confidence emails */}
+          {hasLowConfidence && (
+            <span className="absolute -right-1 -top-1 flex h-2.5 w-2.5">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-orange-400 opacity-75"></span>
+              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-orange-500"></span>
+            </span>
+          )}
+        </div>
         <span className="text-xs text-[#78716C]">
           {mostRecent ? formatEmailDate(mostRecent.emailDate) : "—"}
         </span>
@@ -198,59 +286,33 @@ function EmailStack({ bookings }: { bookings: Booking[] }) {
 
       {/* Expanded dropdown */}
       {expanded && (
-        <div className="absolute right-0 top-full z-20 mt-2 w-72 rounded-xl border border-[#E7E5E4] bg-white p-3 shadow-lg">
-          <p className="mb-2 text-xs font-medium text-[#78716C]">Recent Emails</p>
-          <div className="space-y-1.5">
-            {latestEmails.map((booking, index) => (
-              <div
-                key={booking.id}
-                className={`rounded-lg border border-[#E7E5E4] p-2.5 transition-all ${
-                  index === 0 ? "bg-[#FDF6EC]" : "bg-white"
-                }`}
-                style={{
-                  opacity: index === 0 ? 1 : 0.8 - index * 0.15,
-                }}
-              >
-                <div className="flex items-start gap-2">
-                  <div
-                    className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full ${
-                      booking.status === "cancelled"
-                        ? "bg-red-100"
-                        : booking.status === "rescheduled"
-                        ? "bg-amber-100"
-                        : "bg-[#EA580C]/10"
-                    }`}
-                  >
-                    {booking.status === "cancelled" ? (
-                      <svg className="h-2.5 w-2.5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    ) : booking.status === "rescheduled" ? (
-                      <svg className="h-2.5 w-2.5 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                      </svg>
-                    ) : (
-                      <svg className="h-2.5 w-2.5 text-[#EA580C]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                      </svg>
-                    )}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center justify-between gap-2">
-                      <p className="truncate text-xs font-medium text-[#1C1917]">
-                        {platformNames[booking.platform]}
-                      </p>
-                      <span className="shrink-0 text-xs text-[#78716C]">
-                        {formatEmailDate(booking.emailDate)}
-                      </span>
-                    </div>
-                    <p className="truncate text-xs text-[#78716C]">
-                      {booking.guestName} ({booking.guestCount} guest{booking.guestCount !== 1 ? "s" : ""})
-                    </p>
-                  </div>
-                </div>
+        <div className="absolute right-0 top-full z-20 mt-2 w-80 rounded-xl border border-[#E7E5E4] bg-white p-3 shadow-lg max-h-[400px] overflow-y-auto">
+          {/* Low-Confidence Emails Section */}
+          {hasLowConfidence && (
+            <div className="mb-3">
+              <div className="mb-2 flex items-center gap-2">
+                <span className="flex h-2 w-2 rounded-full bg-orange-500"></span>
+                <p className="text-xs font-medium text-orange-600">Low-Confidence Emails</p>
+                <span className="rounded-full bg-orange-100 px-1.5 py-0.5 text-xs font-medium text-orange-600">
+                  {lowConfidenceEmails.length}
+                </span>
               </div>
-            ))}
+              <div className="space-y-1.5">
+                {lowConfidenceEmails.map((booking) => (
+                  <EmailItem key={booking.id} booking={booking} isLowConfidence />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Recent Emails Section */}
+          <div>
+            <p className="mb-2 text-xs font-medium text-[#78716C]">Recent Emails</p>
+            <div className="space-y-1.5">
+              {latestEmails.map((booking, index) => (
+                <EmailItem key={booking.id} booking={booking} isFirst={index === 0} />
+              ))}
+            </div>
           </div>
         </div>
       )}
