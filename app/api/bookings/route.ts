@@ -83,10 +83,22 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: "Booking ID is required" }, { status: 400 });
     }
 
-    // First verify the booking belongs to this user
+    // First fetch the existing booking to compare changes
     const { data: existingBooking, error: findError } = await supabase
       .from("bookings")
-      .select("id")
+      .select(`
+        id,
+        guest_name,
+        guest_count,
+        booking_date,
+        booking_time,
+        platform,
+        dietary_restrictions,
+        special_requests,
+        activity_name,
+        status,
+        manually_reviewed
+      `)
       .eq("id", id)
       .eq("user_id", user.id)
       .single();
@@ -107,6 +119,28 @@ export async function PATCH(request: NextRequest) {
     if (activity_name !== undefined) updateData.activity_name = activity_name;
     if (status !== undefined) updateData.status = status;
     if (manually_reviewed !== undefined) updateData.manually_reviewed = manually_reviewed;
+
+    // Track changes for audit log
+    const changes: Record<string, { old: unknown; new: unknown }> = {};
+    const fieldsToTrack = [
+      'guest_name', 'guest_count', 'booking_date', 'booking_time', 
+      'platform', 'dietary_restrictions', 'special_requests', 
+      'activity_name', 'status'
+    ] as const;
+
+    for (const field of fieldsToTrack) {
+      if (updateData[field] !== undefined) {
+        const oldValue = existingBooking[field];
+        const newValue = updateData[field];
+        
+        // Only log if the value actually changed
+        const oldStr = JSON.stringify(oldValue);
+        const newStr = JSON.stringify(newValue);
+        if (oldStr !== newStr) {
+          changes[field] = { old: oldValue, new: newValue };
+        }
+      }
+    }
 
     // Update the booking
     const { data: updatedBooking, error: updateError } = await supabase
@@ -137,6 +171,28 @@ export async function PATCH(request: NextRequest) {
     if (updateError) {
       console.error("Error updating booking:", updateError);
       return NextResponse.json({ error: "Failed to update booking" }, { status: 500 });
+    }
+
+    // Log to manual_edits audit table if there were actual changes
+    if (Object.keys(changes).length > 0) {
+      const userAgent = request.headers.get("user-agent") || null;
+      const forwardedFor = request.headers.get("x-forwarded-for");
+      const ipAddress = forwardedFor ? forwardedFor.split(",")[0].trim() : null;
+
+      const { error: auditError } = await supabase
+        .from("manual_edits")
+        .insert({
+          booking_id: id,
+          user_id: user.id,
+          changes,
+          ip_address: ipAddress,
+          user_agent: userAgent,
+        });
+
+      if (auditError) {
+        // Log but don't fail the request - audit is secondary
+        console.error("Error logging manual edit:", auditError);
+      }
     }
 
     return NextResponse.json({ booking: updatedBooking });

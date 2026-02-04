@@ -106,6 +106,7 @@ function mapSupabaseBooking(row: SupabaseBooking): Booking {
     emailDate: row.email_received_at ? new Date(row.email_received_at) : new Date(),
     emailId: row.email_id,
     extraction_confidence: row.extraction_confidence ?? undefined,
+    manually_reviewed: row.manually_reviewed ?? false,
   };
 }
 
@@ -165,20 +166,38 @@ function getLatestEmails(bookings: Booking[], count: number): Booking[] {
     .slice(0, count);
 }
 
-// Get low-confidence emails (extraction_confidence <= 0.5)
+// Get low-confidence emails (extraction_confidence <= 0.5 and not manually reviewed)
 function getLowConfidenceEmails(bookings: Booking[]): Booking[] {
   return [...bookings]
-    .filter((b) => b.extraction_confidence !== undefined && b.extraction_confidence <= 0.5)
+    .filter((b) => 
+      b.extraction_confidence !== undefined && 
+      b.extraction_confidence <= 0.5 && 
+      !b.manually_reviewed
+    )
     .sort((a, b) => b.emailDate.getTime() - a.emailDate.getTime());
 }
 
 // Email item component for reuse
-function EmailItem({ booking, isFirst = false, isLowConfidence = false }: { booking: Booking; isFirst?: boolean; isLowConfidence?: boolean }) {
+function EmailItem({ 
+  booking, 
+  isFirst = false, 
+  isLowConfidence = false,
+  onClick
+}: { 
+  booking: Booking; 
+  isFirst?: boolean; 
+  isLowConfidence?: boolean;
+  onClick?: () => void;
+}) {
+  const isClickable = isLowConfidence && onClick;
+  const Component = isClickable ? 'button' : 'div';
+  
   return (
-    <div
-      className={`rounded-lg border p-2.5 transition-all ${
+    <Component
+      onClick={isClickable ? onClick : undefined}
+      className={`w-full text-left rounded-lg border p-2.5 transition-all ${
         isLowConfidence
-          ? "border-orange-200 bg-orange-50"
+          ? "border-orange-200 bg-orange-50 hover:border-orange-300 hover:bg-orange-100 cursor-pointer"
           : isFirst
           ? "border-[#E7E5E4] bg-[#FDF6EC]"
           : "border-[#E7E5E4] bg-white"
@@ -227,13 +246,16 @@ function EmailItem({ booking, isFirst = false, isLowConfidence = false }: { book
             {booking.guestName} ({booking.guestCount} guest{booking.guestCount !== 1 ? "s" : ""})
           </p>
           {isLowConfidence && booking.extraction_confidence !== undefined && (
-            <p className="mt-0.5 text-xs text-orange-600">
-              {Math.round(booking.extraction_confidence * 100)}% confidence
-            </p>
+            <div className="mt-0.5 flex items-center justify-between">
+              <p className="text-xs text-orange-600">
+                {Math.round(booking.extraction_confidence * 100)}% confidence
+              </p>
+              <span className="text-xs text-orange-500">Click to review</span>
+            </div>
           )}
         </div>
       </div>
-    </div>
+    </Component>
   );
 }
 
