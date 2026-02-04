@@ -6,6 +6,8 @@ import Navbar from "../components/Navbar";
 
 type Platform = 'airbnb' | 'viator' | 'getyourguide' | 'civitatis' | 'tripadvisor' | 'booking_com' | 'expedia' | 'meitre' | 'other';
 
+type BookingStatus = "confirmed" | "pending" | "cancelled" | "rescheduled";
+
 type Booking = {
   id: string;
   platform: Platform;
@@ -13,7 +15,7 @@ type Booking = {
   guestCount: number;
   date: Date;
   time?: string;
-  status: "confirmed" | "cancelled" | "rescheduled";
+  status: BookingStatus;
   specialRequests?: string[];
   activityName?: string;
   duration?: string;
@@ -34,7 +36,7 @@ type SupabaseBooking = {
   guest_count: number | null;
   booking_date: string;
   booking_time: string | null;
-  status: "confirmed" | "cancelled" | "rescheduled";
+  status: BookingStatus;
   activity_name: string | null;
   dietary_restrictions: string[] | null;
   special_requests: string | null;
@@ -435,7 +437,7 @@ function BookingModal({
       !r.toLowerCase().includes("gluten")
     ).join(", ") || ""
   );
-  const [editStatus, setEditStatus] = useState<"confirmed" | "cancelled" | "rescheduled">(booking.status);
+  const [editStatus, setEditStatus] = useState<BookingStatus>(booking.status);
 
   const platformColor = platformColors[booking.platform];
   const platformName = platformNames[booking.platform];
@@ -704,10 +706,11 @@ function BookingModal({
               <label className="mb-1.5 block text-xs font-medium text-[#78716C]">Status</label>
               <select
                 value={editStatus}
-                onChange={(e) => setEditStatus(e.target.value as "confirmed" | "cancelled" | "rescheduled")}
+                onChange={(e) => setEditStatus(e.target.value as BookingStatus)}
                 className="w-full rounded-lg border border-[#E7E5E4] px-3 py-2 text-sm text-[#1C1917] focus:border-[#EA580C] focus:outline-none focus:ring-1 focus:ring-[#EA580C]"
               >
                 <option value="confirmed">Confirmed</option>
+                <option value="pending">Pending</option>
                 <option value="rescheduled">Rescheduled</option>
                 <option value="cancelled">Cancelled</option>
               </select>
@@ -772,6 +775,9 @@ function BookingModal({
                 )}
                 {booking.status === "rescheduled" && (
                   <span className="text-xs font-medium text-amber-600">Rescheduled</span>
+                )}
+                {booking.status === "pending" && (
+                  <span className="text-xs font-medium text-slate-600">Pending</span>
                 )}
               </div>
               <h3 className="mt-2 text-lg font-semibold text-[#1C1917]">
@@ -915,7 +921,7 @@ function CreateBookingModal({
   const [activityName, setActivityName] = useState("");
   const [dietaryRestrictions, setDietaryRestrictions] = useState("");
   const [specialRequests, setSpecialRequests] = useState("");
-  const [status, setStatus] = useState<"confirmed" | "cancelled" | "rescheduled">("confirmed");
+  const [status, setStatus] = useState<BookingStatus>("confirmed");
 
   const handleSave = async () => {
     if (!guestName.trim()) {
@@ -1102,10 +1108,11 @@ function CreateBookingModal({
             <label className="mb-1.5 block text-xs font-medium text-[#78716C]">Status</label>
             <select
               value={status}
-              onChange={(e) => setStatus(e.target.value as "confirmed" | "cancelled" | "rescheduled")}
+              onChange={(e) => setStatus(e.target.value as BookingStatus)}
               className="w-full rounded-lg border border-[#E7E5E4] px-3 py-2 text-sm text-[#1C1917] focus:border-[#EA580C] focus:outline-none focus:ring-1 focus:ring-[#EA580C]"
             >
               <option value="confirmed">Confirmed</option>
+              <option value="pending">Pending</option>
               <option value="rescheduled">Rescheduled</option>
               <option value="cancelled">Cancelled</option>
             </select>
@@ -1157,6 +1164,8 @@ function BookingCard({ booking, onClick }: { booking: Booking; onClick: () => vo
           ? "border-red-200 bg-red-50/50 opacity-60"
           : booking.status === "rescheduled"
           ? "border-amber-200 bg-amber-50/50 hover:border-amber-300"
+          : booking.status === "pending"
+          ? "border-slate-200 bg-slate-50/50 hover:border-slate-300"
           : "border-[#E7E5E4] bg-white hover:border-[#EA580C]/30 hover:shadow-sm"
       }`}
     >
@@ -1173,6 +1182,9 @@ function BookingCard({ booking, onClick }: { booking: Booking; onClick: () => vo
         )}
         {booking.status === "rescheduled" && (
           <span className="text-xs font-medium text-amber-600">Rescheduled</span>
+        )}
+        {booking.status === "pending" && (
+          <span className="text-xs font-medium text-slate-600">Pending</span>
         )}
       </div>
 
@@ -1196,7 +1208,7 @@ function BookingCard({ booking, onClick }: { booking: Booking; onClick: () => vo
       )}
 
       {/* Special requests */}
-      {booking.specialRequests && booking.specialRequests.length > 0 && booking.status === "confirmed" && (
+      {booking.specialRequests && booking.specialRequests.length > 0 && (booking.status === "confirmed" || booking.status === "pending") && (
         <div className="mt-2 flex flex-wrap gap-1">
           {booking.specialRequests.map((request, index) => (
             <span

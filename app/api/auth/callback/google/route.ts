@@ -127,8 +127,6 @@ export async function GET(request: NextRequest) {
         throw new Error(msg);
       }
     } else {
-      // New user: insert with organization_id null. You assign org in Supabase manually.
-      // If this fails, make organization_id nullable: ALTER TABLE gmail_accounts ALTER COLUMN organization_id DROP NOT NULL;
       const { error: insertError } = await supabase
         .from("gmail_accounts")
         .insert({ ...basePayload, organization_id: null });
