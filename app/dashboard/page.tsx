@@ -424,6 +424,11 @@ function BookingModal({
         .map(s => s.trim())
         .filter(Boolean);
       
+      // Check if this is a low-confidence booking that should be marked as reviewed
+      const isLowConfidence = booking.extraction_confidence !== undefined && 
+        booking.extraction_confidence <= 0.5 && 
+        !booking.manually_reviewed;
+      
       const response = await fetch("/api/bookings", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -438,6 +443,8 @@ function BookingModal({
           dietary_restrictions: dietaryArray.length > 0 ? dietaryArray : null,
           special_requests: editSpecialRequests || null,
           status: editStatus,
+          // Mark as manually reviewed if it was a low-confidence extraction
+          ...(isLowConfidence && { manually_reviewed: true }),
         }),
       });
       

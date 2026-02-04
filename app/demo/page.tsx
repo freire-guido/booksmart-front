@@ -22,6 +22,7 @@ type Booking = {
   emailDate: Date;
   emailId: string;
   extraction_confidence?: number;
+  manually_reviewed?: boolean;
 };
 
 // Platform brand colors
@@ -325,17 +326,35 @@ function getLatestEmails(bookings: Booking[], count: number): Booking[] {
 // Get low-confidence emails (extraction_confidence <= 0.5)
 function getLowConfidenceEmails(bookings: Booking[]): Booking[] {
   return [...bookings]
-    .filter((b) => b.extraction_confidence !== undefined && b.extraction_confidence <= 0.5)
+    .filter((b) => 
+      b.extraction_confidence !== undefined && 
+      b.extraction_confidence <= 0.5 && 
+      !b.manually_reviewed
+    )
     .sort((a, b) => b.emailDate.getTime() - a.emailDate.getTime());
 }
 
 // Email item component for reuse
-function EmailItem({ booking, isFirst = false, isLowConfidence = false }: { booking: Booking; isFirst?: boolean; isLowConfidence?: boolean }) {
+function EmailItem({ 
+  booking, 
+  isFirst = false, 
+  isLowConfidence = false,
+  onClick
+}: { 
+  booking: Booking; 
+  isFirst?: boolean; 
+  isLowConfidence?: boolean;
+  onClick?: () => void;
+}) {
+  const isClickable = isLowConfidence && onClick;
+  const Component = isClickable ? 'button' : 'div';
+  
   return (
-    <div
-      className={`rounded-lg border p-2.5 transition-all ${
+    <Component
+      onClick={isClickable ? onClick : undefined}
+      className={`w-full text-left rounded-lg border p-2.5 transition-all ${
         isLowConfidence
-          ? "border-orange-200 bg-orange-50"
+          ? "border-orange-200 bg-orange-50 hover:border-orange-300 hover:bg-orange-100 cursor-pointer"
           : isFirst
           ? "border-[#E7E5E4] bg-[#FDF6EC]"
           : "border-[#E7E5E4] bg-white"
@@ -384,23 +403,31 @@ function EmailItem({ booking, isFirst = false, isLowConfidence = false }: { book
             {booking.guestName} ({booking.guestCount} guest{booking.guestCount !== 1 ? "s" : ""})
           </p>
           {isLowConfidence && booking.extraction_confidence !== undefined && (
-            <p className="mt-0.5 text-xs text-orange-600">
-              {Math.round(booking.extraction_confidence * 100)}% confidence
-            </p>
+            <div className="mt-0.5 flex items-center justify-between">
+              <p className="text-xs text-orange-600">
+                {Math.round(booking.extraction_confidence * 100)}% confidence
+              </p>
+              <span className="text-xs text-orange-500">Click to review</span>
+            </div>
           )}
         </div>
       </div>
-    </div>
+    </Component>
   );
 }
 
 // Email Stack Component
-function EmailStack({ bookings }: { bookings: Booking[] }) {
+function EmailStack({ bookings, onBookingClick }: { bookings: Booking[]; onBookingClick?: (booking: Booking) => void }) {
   const [expanded, setExpanded] = useState(false);
   const latestEmails = getLatestEmails(bookings, 3);
   const lowConfidenceEmails = getLowConfidenceEmails(bookings);
   const hasLowConfidence = lowConfidenceEmails.length > 0;
   const mostRecent = latestEmails[0];
+
+  const handleLowConfidenceClick = (booking: Booking) => {
+    setExpanded(false);
+    onBookingClick?.(booking);
+  };
 
   return (
     <div className="relative">
@@ -450,7 +477,12 @@ function EmailStack({ bookings }: { bookings: Booking[] }) {
               </div>
               <div className="space-y-1.5">
                 {lowConfidenceEmails.map((booking) => (
-                  <EmailItem key={booking.id} booking={booking} isLowConfidence />
+                  <EmailItem 
+                    key={booking.id} 
+                    booking={booking} 
+                    isLowConfidence 
+                    onClick={() => handleLowConfidenceClick(booking)}
+                  />
                 ))}
               </div>
             </div>
@@ -1025,7 +1057,14 @@ export default function DemoPage() {
   const [currentMonth, setCurrentMonth] = useState(() => new Date());
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>("week");
+  const [reviewedIds, setReviewedIds] = useState<Set<string>>(new Set());
   const weekDates = getWeekDates(currentWeekStart);
+
+  // Derive bookings with reviewed status from mock data
+  const bookings = mockBookings.map((b) => ({
+    ...b,
+    manually_reviewed: reviewedIds.has(b.id) || b.manually_reviewed,
+  }));
 
   const navigateWeek = (direction: "prev" | "next") => {
     setCurrentWeekStart((prev) => {
@@ -1049,9 +1088,20 @@ export default function DemoPage() {
     setViewMode("week");
   };
 
+  // Handle closing the modal - mark low-confidence bookings as reviewed
+  const handleModalClose = () => {
+    if (selectedBooking && 
+        selectedBooking.extraction_confidence !== undefined && 
+        selectedBooking.extraction_confidence <= 0.5 &&
+        !selectedBooking.manually_reviewed) {
+      setReviewedIds((prev) => new Set(prev).add(selectedBooking.id));
+    }
+    setSelectedBooking(null);
+  };
+
   // Get bookings for the current week
   const getBookingsForDate = (date: Date) => {
-    return mockBookings.filter((booking) => isSameDay(booking.date, date));
+    return bookings.filter((booking) => isSameDay(booking.date, date));
   };
 
   // Calculate week totals
@@ -1173,7 +1223,7 @@ export default function DemoPage() {
               </div>
             )}
             <div className="rounded-lg border border-[#E7E5E4] bg-white px-3 py-1.5">
-              <EmailStack bookings={mockBookings} />
+              <EmailStack bookings={bookings} onBookingClick={setSelectedBooking} />
             </div>
           </div>
         </div>
@@ -1203,7 +1253,7 @@ export default function DemoPage() {
       {selectedBooking && (
         <BookingModal
           booking={selectedBooking}
-          onClose={() => setSelectedBooking(null)}
+          onClose={handleModalClose}
         />
       )}
     </div>
