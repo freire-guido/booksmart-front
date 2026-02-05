@@ -1910,7 +1910,7 @@ export default function DashboardPage() {
           <div className="flex items-center justify-between gap-3">
             <div className="min-w-0 flex-1">
               <h1 className="text-xl font-semibold text-[#1C1917] sm:text-2xl">Dashboard</h1>
-              <p className="mt-0.5 text-sm text-[#78716C]">
+              <p className="mt-0.5 hidden text-sm text-[#78716C] sm:block">
                 All your bookings in one place
               </p>
             </div>
