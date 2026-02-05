@@ -1419,7 +1419,7 @@ function DayColumn({
 
   return (
     <div
-      className={`flex min-w-[220px] flex-1 flex-col rounded-xl border ${
+      className={`flex min-w-[160px] flex-1 flex-col rounded-xl border sm:min-w-[220px] ${
         today ? "border-[#EA580C] bg-[#FDF6EC]" : "border-[#E7E5E4] bg-white"
       }`}
     >
@@ -1747,7 +1747,7 @@ function ViewToggle({
 // Loading skeleton for day columns
 function DayColumnSkeleton() {
   return (
-    <div className="flex min-w-[220px] flex-1 flex-col rounded-xl border border-[#E7E5E4] bg-white">
+    <div className="flex min-w-[160px] flex-1 flex-col rounded-xl border border-[#E7E5E4] bg-white sm:min-w-[220px]">
       <div className="shrink-0 border-b border-[#E7E5E4] p-3">
         <div className="h-4 w-12 animate-pulse rounded bg-[#E7E5E4]" />
         <div className="mt-1 h-6 w-16 animate-pulse rounded bg-[#E7E5E4]" />
