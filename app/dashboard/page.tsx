@@ -1618,12 +1618,15 @@ function MonthDayCell({
         {date.getDate()}
       </span>
 
-      {/* Booking info - same format as weekly view: bookings · guests, no icon */}
+      {/* Booking info - same format as weekly view; abbreviate to b/g on narrow for month tiles */}
       {hasBookings && inCurrentMonth && (
         <div className="mt-1 flex flex-col gap-1">
           <p className="text-xs text-[#78716C]">
-            {confirmedBookings.length} booking{confirmedBookings.length !== 1 ? "s" : ""} · {totalGuests} guest
-            {totalGuests !== 1 ? "s" : ""}
+            <span className="sm:hidden">{confirmedBookings.length} b · {totalGuests} g</span>
+            <span className="hidden sm:inline">
+              {confirmedBookings.length} booking{confirmedBookings.length !== 1 ? "s" : ""} · {totalGuests} guest
+              {totalGuests !== 1 ? "s" : ""}
+            </span>
           </p>
 
           {/* Dietary summary — same as weekly view */}
