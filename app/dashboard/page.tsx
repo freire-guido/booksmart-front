@@ -22,7 +22,7 @@ type Booking = {
   // Email metadata
   emailSubject: string;
   emailPreview: string;
-  emailDate: Date;
+  emailDate: Date | null;
   emailId: string;
   extraction_confidence?: number;
   manually_reviewed?: boolean;
@@ -105,7 +105,7 @@ function mapSupabaseBooking(row: SupabaseBooking): Booking {
     activityName: row.activity_name ?? undefined,
     emailSubject: row.email_subject ?? "",
     emailPreview: row.email_preview ?? "",
-    emailDate: row.email_received_at ? new Date(row.email_received_at) : new Date(),
+    emailDate: row.email_received_at ? new Date(row.email_received_at) : null,
     emailId: row.email_id,
     extraction_confidence: row.extraction_confidence ?? undefined,
     manually_reviewed: row.manually_reviewed ?? false,
@@ -161,9 +161,10 @@ function formatEmailDate(date: Date): string {
   return `${months[date.getMonth()]} ${date.getDate()}, ${hour12}:${minutes} ${ampm}`;
 }
 
-// Get latest emails sorted by date
+// Get latest emails sorted by date (excludes spreadsheet imports with null email_received_at)
 function getLatestEmails(bookings: Booking[], count: number): Booking[] {
   return [...bookings]
+    .filter((b): b is Booking & { emailDate: Date } => b.emailDate != null)
     .sort((a, b) => b.emailDate.getTime() - a.emailDate.getTime())
     .slice(0, count);
 }
@@ -176,7 +177,7 @@ function getLowConfidenceEmails(bookings: Booking[]): Booking[] {
       b.extraction_confidence <= 0.5 && 
       !b.manually_reviewed
     )
-    .sort((a, b) => b.emailDate.getTime() - a.emailDate.getTime());
+    .sort((a, b) => (b.emailDate?.getTime() ?? 0) - (a.emailDate?.getTime() ?? 0));
 }
 
 // Email item component for reuse
@@ -245,7 +246,7 @@ function EmailItem({
               {platformNames[booking.platform]}
             </p>
             <span className="shrink-0 text-xs text-[#78716C]">
-              {formatEmailDate(booking.emailDate)}
+              {booking.emailDate ? formatEmailDate(booking.emailDate) : "—"}
             </span>
           </div>
           <p className="truncate text-xs text-[#78716C]">
@@ -276,7 +277,7 @@ function EmailStack({
   onNavigateToWeek?: (date: Date) => void;
 }) {
   const [expanded, setExpanded] = useState(false);
-  const latestEmails = getLatestEmails(bookings, 3);
+  const latestEmails = getLatestEmails(bookings, 10);
   const lowConfidenceEmails = getLowConfidenceEmails(bookings);
   const hasLowConfidence = lowConfidenceEmails.length > 0;
   const mostRecent = latestEmails[0];
@@ -317,7 +318,7 @@ function EmailStack({
           )}
         </div>
         <span className="text-xs text-[#78716C]">
-          {mostRecent ? formatEmailDate(mostRecent.emailDate) : "—"}
+          {mostRecent?.emailDate ? formatEmailDate(mostRecent.emailDate) : "—"}
         </span>
         <svg
           className={`h-3.5 w-3.5 text-[#78716C] transition-transform ${expanded ? "rotate-180" : ""}`}
@@ -356,10 +357,10 @@ function EmailStack({
             </div>
           )}
 
-          {/* Recent Emails Section */}
+          {/* Recent Emails Section - 10 items, show 3 with scroll */}
           <div>
             <p className="mb-2 text-xs font-medium text-[#78716C]">Recent Emails</p>
-            <div className="space-y-1.5">
+            <div className="max-h-[7.5rem] space-y-1.5 overflow-y-auto">
               {latestEmails.map((booking, index) => (
                 <EmailItem 
                   key={booking.id} 
@@ -813,7 +814,7 @@ function BookingModal({
               <div className="rounded-xl border border-[#E7E5E4] bg-[#FAF8F5] p-4">
                 <div className="mb-2 flex items-center justify-between">
                   <p className="text-xs font-medium text-[#78716C]">Original Email</p>
-                  <span className="text-xs text-[#78716C]">{formatEmailDate(booking.emailDate)}</span>
+                  <span className="text-xs text-[#78716C]">{booking.emailDate ? formatEmailDate(booking.emailDate) : "—"}</span>
                 </div>
                 <p className="mb-2 text-sm font-medium text-[#1C1917]">{booking.emailSubject}</p>
                 <p className="text-xs leading-relaxed text-[#78716C]">{booking.emailPreview}</p>
@@ -1593,7 +1594,7 @@ function ViewToggle({
   onViewChange: (mode: ViewMode) => void;
 }) {
   return (
-    <div className="flex rounded-lg border border-[#E7E5E4] bg-white p-0.5">
+    <div className="flex w-fit rounded-lg border border-[#E7E5E4] bg-white p-0.5">
       <button
         onClick={() => onViewChange("week")}
         className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
@@ -1821,12 +1822,12 @@ export default function DashboardPage() {
 
         {/* View toggle + Navigation row */}
         <div className="mb-3 flex shrink-0 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
             {/* View Toggle */}
             <ViewToggle viewMode={viewMode} onViewChange={setViewMode} />
 
-            {/* Navigation controls */}
-            <div className="flex items-center gap-3">
+            {/* Navigation controls — own row on narrow phones to avoid overflow */}
+            <div className="flex items-center justify-center gap-3 sm:justify-start">
               <button
                 onClick={() => viewMode === "week" ? navigateWeek("prev") : navigateMonth("prev")}
                 className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#E7E5E4] bg-white text-[#78716C] transition-colors hover:bg-[#FDF6EC] hover:text-[#1C1917]"
