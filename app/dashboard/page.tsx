@@ -1594,7 +1594,7 @@ function ViewToggle({
   onViewChange: (mode: ViewMode) => void;
 }) {
   return (
-    <div className="flex rounded-lg border border-[#E7E5E4] bg-white p-0.5">
+    <div className="flex w-fit rounded-lg border border-[#E7E5E4] bg-white p-0.5">
       <button
         onClick={() => onViewChange("week")}
         className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
