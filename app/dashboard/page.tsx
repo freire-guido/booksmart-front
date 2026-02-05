@@ -22,7 +22,7 @@ type Booking = {
   // Email metadata
   emailSubject: string;
   emailPreview: string;
-  emailDate: Date;
+  emailDate: Date | null;
   emailId: string;
   extraction_confidence?: number;
   manually_reviewed?: boolean;
@@ -105,7 +105,7 @@ function mapSupabaseBooking(row: SupabaseBooking): Booking {
     activityName: row.activity_name ?? undefined,
     emailSubject: row.email_subject ?? "",
     emailPreview: row.email_preview ?? "",
-    emailDate: row.email_received_at ? new Date(row.email_received_at) : new Date(),
+    emailDate: row.email_received_at ? new Date(row.email_received_at) : null,
     emailId: row.email_id,
     extraction_confidence: row.extraction_confidence ?? undefined,
     manually_reviewed: row.manually_reviewed ?? false,
@@ -161,9 +161,10 @@ function formatEmailDate(date: Date): string {
   return `${months[date.getMonth()]} ${date.getDate()}, ${hour12}:${minutes} ${ampm}`;
 }
 
-// Get latest emails sorted by date
+// Get latest emails sorted by date (excludes spreadsheet imports with null email_received_at)
 function getLatestEmails(bookings: Booking[], count: number): Booking[] {
   return [...bookings]
+    .filter((b): b is Booking & { emailDate: Date } => b.emailDate != null)
     .sort((a, b) => b.emailDate.getTime() - a.emailDate.getTime())
     .slice(0, count);
 }
@@ -176,7 +177,7 @@ function getLowConfidenceEmails(bookings: Booking[]): Booking[] {
       b.extraction_confidence <= 0.5 && 
       !b.manually_reviewed
     )
-    .sort((a, b) => b.emailDate.getTime() - a.emailDate.getTime());
+    .sort((a, b) => (b.emailDate?.getTime() ?? 0) - (a.emailDate?.getTime() ?? 0));
 }
 
 // Email item component for reuse
@@ -245,7 +246,7 @@ function EmailItem({
               {platformNames[booking.platform]}
             </p>
             <span className="shrink-0 text-xs text-[#78716C]">
-              {formatEmailDate(booking.emailDate)}
+              {booking.emailDate ? formatEmailDate(booking.emailDate) : "—"}
             </span>
           </div>
           <p className="truncate text-xs text-[#78716C]">
@@ -317,7 +318,7 @@ function EmailStack({
           )}
         </div>
         <span className="text-xs text-[#78716C]">
-          {mostRecent ? formatEmailDate(mostRecent.emailDate) : "—"}
+          {mostRecent?.emailDate ? formatEmailDate(mostRecent.emailDate) : "—"}
         </span>
         <svg
           className={`h-3.5 w-3.5 text-[#78716C] transition-transform ${expanded ? "rotate-180" : ""}`}
@@ -813,7 +814,7 @@ function BookingModal({
               <div className="rounded-xl border border-[#E7E5E4] bg-[#FAF8F5] p-4">
                 <div className="mb-2 flex items-center justify-between">
                   <p className="text-xs font-medium text-[#78716C]">Original Email</p>
-                  <span className="text-xs text-[#78716C]">{formatEmailDate(booking.emailDate)}</span>
+                  <span className="text-xs text-[#78716C]">{booking.emailDate ? formatEmailDate(booking.emailDate) : "—"}</span>
                 </div>
                 <p className="mb-2 text-sm font-medium text-[#1C1917]">{booking.emailSubject}</p>
                 <p className="text-xs leading-relaxed text-[#78716C]">{booking.emailPreview}</p>
