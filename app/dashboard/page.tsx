@@ -82,6 +82,32 @@ function formatTimeString(timeStr: string | null): string | undefined {
   return `${hour12}:${minutes.toString().padStart(2, "0")} ${ampm}`;
 }
 
+// Parse display time "h:mm AM/PM" to minutes since midnight for sorting. Returns 24*60 if no time.
+function bookingTimeSortKey(timeStr: string | undefined): number {
+  if (!timeStr) return 24 * 60;
+  const parts = timeStr.split(" ");
+  if (parts.length !== 2) return 24 * 60;
+  const [timePart, ampm] = parts;
+  const [h, m] = timePart.split(":").map(Number);
+  let hours = h ?? 0;
+  const minutes = m ?? 0;
+  if (ampm === "PM" && hours !== 12) hours += 12;
+  if (ampm === "AM" && hours === 12) hours = 0;
+  return hours * 60 + minutes;
+}
+
+// Sort bookings for week view: first by booking time, then by email/booking creation time
+function sortBookingsForWeekView(bookings: Booking[]): Booking[] {
+  return [...bookings].sort((a, b) => {
+    const timeA = bookingTimeSortKey(a.time);
+    const timeB = bookingTimeSortKey(b.time);
+    if (timeA !== timeB) return timeA - timeB;
+    const emailA = a.emailDate?.getTime() ?? 0;
+    const emailB = b.emailDate?.getTime() ?? 0;
+    return emailA - emailB;
+  });
+}
+
 // Map Supabase booking to UI Booking type
 function mapSupabaseBooking(row: SupabaseBooking): Booking {
   // Combine dietary_restrictions and special_requests into specialRequests array
@@ -282,6 +308,33 @@ function EmailStack({
   const hasLowConfidence = lowConfidenceEmails.length > 0;
   const mostRecent = latestEmails[0];
 
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown on Escape
+  useEffect(() => {
+    if (!expanded) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        setExpanded(false);
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [expanded]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    if (!expanded) return;
+    const onMouseDown = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setExpanded(false);
+      }
+    };
+    document.addEventListener("mousedown", onMouseDown);
+    return () => document.removeEventListener("mousedown", onMouseDown);
+  }, [expanded]);
+
   const handleLowConfidenceClick = (booking: Booking) => {
     setExpanded(false);
     onBookingClick?.(booking);
@@ -299,7 +352,7 @@ function EmailStack({
   }
 
   return (
-    <div className="relative">
+    <div className="relative" ref={containerRef}>
       {/* Header - always visible */}
       <button
         onClick={() => setExpanded(!expanded)}
@@ -550,12 +603,42 @@ function BookingModal({
     }
   };
 
+  // Keyboard: Enter = save (when editing, and not in textarea), Escape = cancel/close or close delete confirm
+  const handleSaveRef = useRef(handleSave);
+  const handleCancelRef = useRef(handleCancel);
+  handleSaveRef.current = handleSave;
+  handleCancelRef.current = handleCancel;
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        if (showDeleteConfirm) {
+          setShowDeleteConfirm(false);
+          setDeleteError(null);
+        } else if (isEditing) {
+          handleCancelRef.current();
+        } else {
+          onClose();
+        }
+        return;
+      }
+      if (e.key === "Enter" && !e.shiftKey && isEditing && !isSaving) {
+        const target = document.activeElement as HTMLElement | null;
+        if (target?.tagName === "TEXTAREA") return;
+        e.preventDefault();
+        handleSaveRef.current();
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [showDeleteConfirm, isEditing, isSaving, onClose]);
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* Backdrop */}
+      {/* Backdrop - click outside to close (or cancel when editing) */}
       <div
         className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-        onClick={isEditing ? undefined : onClose}
+        onClick={isEditing ? handleCancel : onClose}
       />
       
       {/* Modal */}
@@ -587,6 +670,7 @@ function BookingModal({
           <button
             onClick={isEditing ? handleCancel : onClose}
             className="flex h-8 w-8 items-center justify-center rounded-full text-[#78716C] transition-colors hover:bg-[#FDF6EC] hover:text-[#1C1917]"
+            title={isEditing ? "Cancel (Esc)" : "Close (Esc)"}
           >
             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -743,6 +827,7 @@ function BookingModal({
               <button
                 onClick={handleSave}
                 disabled={isSaving}
+                title="Save (Enter)"
                 className="flex flex-1 items-center justify-center gap-2 rounded-full bg-[#EA580C] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#C2410C] disabled:opacity-50"
               >
                 {isSaving ? (
@@ -871,6 +956,7 @@ function BookingModal({
                   setDeleteError(null);
                 }}
                 disabled={isDeleting}
+                title="Cancel (Esc)"
                 className="flex-1 rounded-full border border-[#E7E5E4] px-4 py-2.5 text-sm font-medium text-[#78716C] transition-colors hover:bg-[#FAF8F5] disabled:opacity-50"
               >
                 Cancel
@@ -975,6 +1061,27 @@ function CreateBookingModal({
     }
   };
 
+  // Keyboard: Enter = save (not in textarea), Escape = close
+  const handleSaveRef = useRef(handleSave);
+  handleSaveRef.current = handleSave;
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        onClose();
+        return;
+      }
+      if (e.key === "Enter" && !e.shiftKey && !isSaving) {
+        const target = document.activeElement as HTMLElement | null;
+        if (target?.tagName === "TEXTAREA") return;
+        e.preventDefault();
+        handleSaveRef.current();
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [isSaving, onClose]);
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop */}
@@ -990,6 +1097,7 @@ function CreateBookingModal({
           <button
             onClick={onClose}
             className="flex h-8 w-8 items-center justify-center rounded-full text-[#78716C] transition-colors hover:bg-[#FDF6EC] hover:text-[#1C1917]"
+            title="Close (Esc)"
           >
             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -1124,6 +1232,7 @@ function CreateBookingModal({
             <button
               onClick={onClose}
               disabled={isSaving}
+              title="Cancel (Esc)"
               className="flex-1 rounded-full border border-[#E7E5E4] px-4 py-2.5 text-sm font-medium text-[#78716C] transition-colors hover:bg-[#FAF8F5] disabled:opacity-50"
             >
               Cancel
@@ -1131,6 +1240,7 @@ function CreateBookingModal({
             <button
               onClick={handleSave}
               disabled={isSaving}
+              title="Create booking (Enter)"
               className="flex flex-1 items-center justify-center gap-2 rounded-full bg-[#EA580C] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#C2410C] disabled:opacity-50"
             >
               {isSaving ? (
@@ -1917,7 +2027,7 @@ export default function DashboardPage() {
               <DayColumn
                 key={date.toISOString()}
                 date={date}
-                bookings={getBookingsForDate(date)}
+                bookings={sortBookingsForWeekView(getBookingsForDate(date))}
                 onBookingClick={setSelectedBooking}
                 onAddBooking={setCreateBookingDate}
               />
