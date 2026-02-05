@@ -308,6 +308,8 @@ function EmailStack({
   const hasLowConfidence = lowConfidenceEmails.length > 0;
   const mostRecent = latestEmails[0];
 
+  const containerRef = useRef<HTMLDivElement>(null);
+
   // Close dropdown on Escape
   useEffect(() => {
     if (!expanded) return;
@@ -319,6 +321,18 @@ function EmailStack({
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
+  }, [expanded]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    if (!expanded) return;
+    const onMouseDown = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setExpanded(false);
+      }
+    };
+    document.addEventListener("mousedown", onMouseDown);
+    return () => document.removeEventListener("mousedown", onMouseDown);
   }, [expanded]);
 
   const handleLowConfidenceClick = (booking: Booking) => {
@@ -338,7 +352,7 @@ function EmailStack({
   }
 
   return (
-    <div className="relative">
+    <div className="relative" ref={containerRef}>
       {/* Header - always visible */}
       <button
         onClick={() => setExpanded(!expanded)}
@@ -621,10 +635,10 @@ function BookingModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* Backdrop */}
+      {/* Backdrop - click outside to close (or cancel when editing) */}
       <div
         className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-        onClick={isEditing ? undefined : onClose}
+        onClick={isEditing ? handleCancel : onClose}
       />
       
       {/* Modal */}
