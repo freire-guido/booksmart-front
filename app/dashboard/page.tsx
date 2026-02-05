@@ -277,7 +277,7 @@ function EmailStack({
   onNavigateToWeek?: (date: Date) => void;
 }) {
   const [expanded, setExpanded] = useState(false);
-  const latestEmails = getLatestEmails(bookings, 3);
+  const latestEmails = getLatestEmails(bookings, 10);
   const lowConfidenceEmails = getLowConfidenceEmails(bookings);
   const hasLowConfidence = lowConfidenceEmails.length > 0;
   const mostRecent = latestEmails[0];
@@ -357,10 +357,10 @@ function EmailStack({
             </div>
           )}
 
-          {/* Recent Emails Section */}
+          {/* Recent Emails Section - 10 items, show 3 with scroll */}
           <div>
             <p className="mb-2 text-xs font-medium text-[#78716C]">Recent Emails</p>
-            <div className="space-y-1.5">
+            <div className="max-h-[7.5rem] space-y-1.5 overflow-y-auto">
               {latestEmails.map((booking, index) => (
                 <EmailItem 
                   key={booking.id} 
