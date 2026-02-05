@@ -82,6 +82,32 @@ function formatTimeString(timeStr: string | null): string | undefined {
   return `${hour12}:${minutes.toString().padStart(2, "0")} ${ampm}`;
 }
 
+// Parse display time "h:mm AM/PM" to minutes since midnight for sorting. Returns 24*60 if no time.
+function bookingTimeSortKey(timeStr: string | undefined): number {
+  if (!timeStr) return 24 * 60;
+  const parts = timeStr.split(" ");
+  if (parts.length !== 2) return 24 * 60;
+  const [timePart, ampm] = parts;
+  const [h, m] = timePart.split(":").map(Number);
+  let hours = h ?? 0;
+  const minutes = m ?? 0;
+  if (ampm === "PM" && hours !== 12) hours += 12;
+  if (ampm === "AM" && hours === 12) hours = 0;
+  return hours * 60 + minutes;
+}
+
+// Sort bookings for week view: first by booking time, then by email/booking creation time
+function sortBookingsForWeekView(bookings: Booking[]): Booking[] {
+  return [...bookings].sort((a, b) => {
+    const timeA = bookingTimeSortKey(a.time);
+    const timeB = bookingTimeSortKey(b.time);
+    if (timeA !== timeB) return timeA - timeB;
+    const emailA = a.emailDate?.getTime() ?? 0;
+    const emailB = b.emailDate?.getTime() ?? 0;
+    return emailA - emailB;
+  });
+}
+
 // Map Supabase booking to UI Booking type
 function mapSupabaseBooking(row: SupabaseBooking): Booking {
   // Combine dietary_restrictions and special_requests into specialRequests array
@@ -1917,7 +1943,7 @@ export default function DashboardPage() {
               <DayColumn
                 key={date.toISOString()}
                 date={date}
-                bookings={getBookingsForDate(date)}
+                bookings={sortBookingsForWeekView(getBookingsForDate(date))}
                 onBookingClick={setSelectedBooking}
                 onAddBooking={setCreateBookingDate}
               />
