@@ -1822,12 +1822,12 @@ export default function DashboardPage() {
 
         {/* View toggle + Navigation row */}
         <div className="mb-3 flex shrink-0 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
             {/* View Toggle */}
             <ViewToggle viewMode={viewMode} onViewChange={setViewMode} />
 
-            {/* Navigation controls */}
-            <div className="flex items-center gap-3">
+            {/* Navigation controls — own row on narrow phones to avoid overflow */}
+            <div className="flex items-center justify-center gap-3 sm:justify-start">
               <button
                 onClick={() => viewMode === "week" ? navigateWeek("prev") : navigateMonth("prev")}
                 className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#E7E5E4] bg-white text-[#78716C] transition-colors hover:bg-[#FDF6EC] hover:text-[#1C1917]"
