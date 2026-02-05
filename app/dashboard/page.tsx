@@ -308,6 +308,19 @@ function EmailStack({
   const hasLowConfidence = lowConfidenceEmails.length > 0;
   const mostRecent = latestEmails[0];
 
+  // Close dropdown on Escape
+  useEffect(() => {
+    if (!expanded) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        setExpanded(false);
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [expanded]);
+
   const handleLowConfidenceClick = (booking: Booking) => {
     setExpanded(false);
     onBookingClick?.(booking);
@@ -576,6 +589,36 @@ function BookingModal({
     }
   };
 
+  // Keyboard: Enter = save (when editing, and not in textarea), Escape = cancel/close or close delete confirm
+  const handleSaveRef = useRef(handleSave);
+  const handleCancelRef = useRef(handleCancel);
+  handleSaveRef.current = handleSave;
+  handleCancelRef.current = handleCancel;
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        if (showDeleteConfirm) {
+          setShowDeleteConfirm(false);
+          setDeleteError(null);
+        } else if (isEditing) {
+          handleCancelRef.current();
+        } else {
+          onClose();
+        }
+        return;
+      }
+      if (e.key === "Enter" && !e.shiftKey && isEditing && !isSaving) {
+        const target = document.activeElement as HTMLElement | null;
+        if (target?.tagName === "TEXTAREA") return;
+        e.preventDefault();
+        handleSaveRef.current();
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [showDeleteConfirm, isEditing, isSaving, onClose]);
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop */}
@@ -613,6 +656,7 @@ function BookingModal({
           <button
             onClick={isEditing ? handleCancel : onClose}
             className="flex h-8 w-8 items-center justify-center rounded-full text-[#78716C] transition-colors hover:bg-[#FDF6EC] hover:text-[#1C1917]"
+            title={isEditing ? "Cancel (Esc)" : "Close (Esc)"}
           >
             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -769,6 +813,7 @@ function BookingModal({
               <button
                 onClick={handleSave}
                 disabled={isSaving}
+                title="Save (Enter)"
                 className="flex flex-1 items-center justify-center gap-2 rounded-full bg-[#EA580C] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#C2410C] disabled:opacity-50"
               >
                 {isSaving ? (
@@ -897,6 +942,7 @@ function BookingModal({
                   setDeleteError(null);
                 }}
                 disabled={isDeleting}
+                title="Cancel (Esc)"
                 className="flex-1 rounded-full border border-[#E7E5E4] px-4 py-2.5 text-sm font-medium text-[#78716C] transition-colors hover:bg-[#FAF8F5] disabled:opacity-50"
               >
                 Cancel
@@ -1001,6 +1047,27 @@ function CreateBookingModal({
     }
   };
 
+  // Keyboard: Enter = save (not in textarea), Escape = close
+  const handleSaveRef = useRef(handleSave);
+  handleSaveRef.current = handleSave;
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        onClose();
+        return;
+      }
+      if (e.key === "Enter" && !e.shiftKey && !isSaving) {
+        const target = document.activeElement as HTMLElement | null;
+        if (target?.tagName === "TEXTAREA") return;
+        e.preventDefault();
+        handleSaveRef.current();
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [isSaving, onClose]);
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop */}
@@ -1016,6 +1083,7 @@ function CreateBookingModal({
           <button
             onClick={onClose}
             className="flex h-8 w-8 items-center justify-center rounded-full text-[#78716C] transition-colors hover:bg-[#FDF6EC] hover:text-[#1C1917]"
+            title="Close (Esc)"
           >
             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -1150,6 +1218,7 @@ function CreateBookingModal({
             <button
               onClick={onClose}
               disabled={isSaving}
+              title="Cancel (Esc)"
               className="flex-1 rounded-full border border-[#E7E5E4] px-4 py-2.5 text-sm font-medium text-[#78716C] transition-colors hover:bg-[#FAF8F5] disabled:opacity-50"
             >
               Cancel
@@ -1157,6 +1226,7 @@ function CreateBookingModal({
             <button
               onClick={handleSave}
               disabled={isSaving}
+              title="Create booking (Enter)"
               className="flex flex-1 items-center justify-center gap-2 rounded-full bg-[#EA580C] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#C2410C] disabled:opacity-50"
             >
               {isSaving ? (
