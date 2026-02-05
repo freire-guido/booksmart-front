@@ -1905,18 +1905,17 @@ export default function DashboardPage() {
       <Navbar />
 
       <main className="mx-auto flex min-h-0 w-full max-w-7xl flex-1 flex-col px-4 py-4 sm:px-6 sm:py-6">
-        {/* Header */}
+        {/* Header — title and Live Sync on one row on all sizes to save vertical space */}
         <div className="mb-4 shrink-0">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div>
+          <div className="flex items-center justify-between gap-3">
+            <div className="min-w-0 flex-1">
               <h1 className="text-xl font-semibold text-[#1C1917] sm:text-2xl">Dashboard</h1>
               <p className="mt-0.5 text-sm text-[#78716C]">
                 All your bookings in one place
               </p>
             </div>
-
-            {/* Sync status */}
-            <div className="flex items-center gap-2 rounded-full bg-green-50 px-3 py-1.5 text-sm font-medium text-green-700">
+            {/* Sync status — stays on same row */}
+            <div className="flex shrink-0 items-center gap-2 rounded-full bg-green-50 px-3 py-1.5 text-sm font-medium text-green-700">
               <span className="relative flex h-2 w-2">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-500 opacity-75"></span>
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500"></span>
