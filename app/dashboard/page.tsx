@@ -168,6 +168,15 @@ function formatDate(date: Date): string {
   return `${months[date.getMonth()]} ${date.getDate()}`;
 }
 
+// Compact week range for narrow viewports (e.g. "Jan 6–12" when same month)
+function formatWeekRangeShort(start: Date, end: Date): string {
+  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  if (start.getMonth() === end.getMonth() && start.getFullYear() === end.getFullYear()) {
+    return `${months[start.getMonth()]} ${start.getDate()}–${end.getDate()}`;
+  }
+  return `${months[start.getMonth()]} ${start.getDate()} – ${months[end.getMonth()]} ${end.getDate()}`;
+}
+
 function getDayName(date: Date): string {
   const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   return days[date.getDay()];
@@ -384,9 +393,9 @@ function EmailStack({
         </svg>
       </button>
 
-      {/* Expanded dropdown */}
+      {/* Expanded dropdown — open right on mobile so it stays in view; open left on sm+ */}
       {expanded && (
-        <div className="absolute right-0 top-full z-20 mt-2 w-80 rounded-xl border border-[#E7E5E4] bg-white p-3 shadow-lg max-h-[400px] overflow-y-auto">
+        <div className="absolute left-0 right-auto top-full z-20 mt-2 w-80 rounded-xl border border-[#E7E5E4] bg-white p-3 shadow-lg max-h-[400px] overflow-y-auto sm:left-auto sm:right-0">
           {/* Low-Confidence Emails Section */}
           {hasLowConfidence && (
             <div className="mb-3">
@@ -1932,26 +1941,25 @@ export default function DashboardPage() {
 
         {/* View toggle + Navigation row */}
         <div className="mb-3 flex shrink-0 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
-            {/* View Toggle */}
+          {/* Toggle and week/month selector on one row; compact on mobile to avoid overflow */}
+          <div className="flex flex-wrap items-center gap-2 sm:gap-4">
             <ViewToggle viewMode={viewMode} onViewChange={setViewMode} />
-
-            {/* Navigation controls — own row on narrow phones to avoid overflow */}
-            <div className="flex items-center justify-center gap-3 sm:justify-start">
+            <div className="flex min-w-0 flex-1 basis-0 items-center gap-2 sm:basis-auto sm:flex-initial">
               <button
                 onClick={() => viewMode === "week" ? navigateWeek("prev") : navigateMonth("prev")}
-                className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#E7E5E4] bg-white text-[#78716C] transition-colors hover:bg-[#FDF6EC] hover:text-[#1C1917]"
+                className="flex h-8 shrink-0 items-center justify-center rounded-lg border border-[#E7E5E4] bg-white text-[#78716C] transition-colors hover:bg-[#FDF6EC] hover:text-[#1C1917]"
                 aria-label={viewMode === "week" ? "Previous week" : "Previous month"}
               >
                 <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
                 </svg>
               </button>
-              <div className="min-w-[140px] text-center">
+              <div className="min-w-0 flex-1 text-center sm:min-w-[100px]">
                 {viewMode === "week" ? (
                   <>
-                    <p className="text-sm font-medium text-[#1C1917]">
-                      {formatDate(weekDates[0])} – {formatDate(weekDates[6])}
+                    <p className="truncate text-xs font-medium text-[#1C1917] sm:text-sm" title={`${formatDate(weekDates[0])} – ${formatDate(weekDates[6])}`}>
+                      <span className="sm:hidden">{formatWeekRangeShort(weekDates[0], weekDates[6])}</span>
+                      <span className="hidden sm:inline">{formatDate(weekDates[0])} – {formatDate(weekDates[6])}</span>
                     </p>
                     <p className="text-xs text-[#78716C]">
                       {weekDates[0].getFullYear()}
@@ -1959,7 +1967,7 @@ export default function DashboardPage() {
                   </>
                 ) : (
                   <>
-                    <p className="text-sm font-medium text-[#1C1917]">
+                    <p className="truncate text-xs font-medium text-[#1C1917] sm:text-sm">
                       {getMonthName(currentMonth)}
                     </p>
                     <p className="text-xs text-[#78716C]">
@@ -1970,7 +1978,7 @@ export default function DashboardPage() {
               </div>
               <button
                 onClick={() => viewMode === "week" ? navigateWeek("next") : navigateMonth("next")}
-                className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#E7E5E4] bg-white text-[#78716C] transition-colors hover:bg-[#FDF6EC] hover:text-[#1C1917]"
+                className="flex h-8 shrink-0 items-center justify-center rounded-lg border border-[#E7E5E4] bg-white text-[#78716C] transition-colors hover:bg-[#FDF6EC] hover:text-[#1C1917]"
                 aria-label={viewMode === "week" ? "Next week" : "Next month"}
               >
                 <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
