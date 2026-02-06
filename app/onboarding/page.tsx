@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
@@ -101,6 +101,21 @@ export default function OnboardingPage() {
   // Complete state
   const [importedCount, setImportedCount] = useState(0);
 
+  // CSV mapping: first data row and column options (simple, no fancy sample logic)
+  const csvFirstRow = useMemo(
+    () =>
+      csvLines.length >= 2
+        ? parseCSVRow(csvLines[1]).map((v) =>
+            v.trim().replace(/^"|"$/g, "")
+          )
+        : [],
+    [csvLines]
+  );
+  const csvColOptions = useMemo(
+    () => mapping.map((m) => m.csv_column.trim()).filter(Boolean),
+    [mapping]
+  );
+
   // Fetch user on mount
   useEffect(() => {
     async function checkAuth() {
@@ -198,7 +213,8 @@ export default function OnboardingPage() {
     setMappingLoading(true);
 
     try {
-      const text = await file.text();
+      let text = await file.text();
+      if (text.charCodeAt(0) === 0xfeff) text = text.slice(1);
       const lines = text.split("\n").filter((l) => l.trim());
       setCsvAllLines(lines);
 
@@ -220,8 +236,10 @@ export default function OnboardingPage() {
 
       const data = await res.json();
       const headers = preview[0]
-        .split(",")
-        .map((h: string) => h.trim().replace(/^"|"$/g, ""));
+        ? parseCSVRow(preview[0]).map((h: string) =>
+            h.trim().replace(/^"|"$/g, "")
+          )
+        : [];
       const normalized: ColumnMapping[] = headers.map((header: string) => {
         const match = data.mapping?.find(
           (m: ColumnMapping) =>
@@ -257,8 +275,10 @@ export default function OnboardingPage() {
     setCsvError(null);
 
     try {
-      // Parse CSV header
-      const header = csvAllLines[0].split(",").map((h) => h.trim().replace(/^"|"$/g, ""));
+      // Parse CSV header (same as mapping table so column indices match)
+      const header = csvAllLines[0]
+        ? parseCSVRow(csvAllLines[0]).map((h) => h.trim().replace(/^"|"$/g, ""))
+        : [];
 
       // Build column index map from mapping
       const fieldMap: Record<string, number> = {};
@@ -730,19 +750,13 @@ export default function OnboardingPage() {
                   </thead>
                   <tbody>
                     {BOOKING_FIELDS.map((f) => {
-                      const selectedCsv = mapping.find(
+                      const colIdx = mapping.findIndex(
                         (m) => m.booking_field === f.value
-                      )?.csv_column ?? "";
-                      const headerRow =
-                        csvLines[0]?.split(",").map((h) => h.trim().replace(/^"|"$/g, "")) || [];
-                      const colIdx = headerRow.findIndex(
-                        (h) => h.toLowerCase() === selectedCsv.toLowerCase()
                       );
-                      const sampleRow =
-                        csvLines[1]?.split(",").map((v) => v.trim().replace(/^"|"$/g, "")) || [];
+                      const selectedCsv =
+                        colIdx >= 0 ? mapping[colIdx].csv_column : "";
                       const sample =
-                        colIdx >= 0 ? (sampleRow[colIdx] ?? "") : "";
-                      const csvColumns = mapping.map((m) => m.csv_column);
+                        colIdx >= 0 ? (csvFirstRow[colIdx] ?? "") : "";
 
                       return (
                         <tr
@@ -777,8 +791,8 @@ export default function OnboardingPage() {
                               className="w-full rounded-lg border border-[#E7E5E4] px-2 py-1.5 text-sm text-[#1C1917] focus:border-[#EA580C] focus:outline-none focus:ring-1 focus:ring-[#EA580C]"
                             >
                               <option value=""></option>
-                              {csvColumns.map((col) => (
-                                <option key={col} value={col}>
+                              {csvColOptions.map((col, i) => (
+                                <option key={`${col}-${i}`} value={col}>
                                   {col}
                                 </option>
                               ))}
