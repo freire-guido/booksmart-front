@@ -395,19 +395,6 @@ export default function OnboardingPage() {
     router.push("/dashboard");
   };
 
-  const pollAndContinue = useCallback(async () => {
-    clearAllPolling();
-    // Get final count
-    try {
-      const res = await fetch("/api/onboarding/status");
-      const data = await res.json();
-      setImportedCount(data.count || bookingCount);
-    } catch {
-      setImportedCount(bookingCount);
-    }
-    setStep("complete");
-  }, [bookingCount, clearAllPolling]);
-
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#FAF8F5]">
@@ -697,7 +684,7 @@ export default function OnboardingPage() {
                 </div>
                 <h1 className="text-2xl font-semibold text-[#1C1917]">Scanning Your Emails</h1>
                 <p className="mt-2 text-[#78716C]">
-                  This may take a few minutes. You can continue while we work in the background.
+                  This may take a few minutes. Please stay on this page until scanning is complete.
                 </p>
               </div>
 
@@ -713,13 +700,6 @@ export default function OnboardingPage() {
                   {scanError}
                 </div>
               )}
-
-              <button
-                onClick={pollAndContinue}
-                className="w-full rounded-full bg-[#EA580C] px-6 py-3 font-medium text-white transition-colors hover:bg-[#C2410C]"
-              >
-                Continue to Dashboard
-              </button>
             </div>
           )}
 
@@ -898,11 +878,6 @@ export default function OnboardingPage() {
                     ? `${importedCount} booking${importedCount === 1 ? "" : "s"} imported successfully.`
                     : "Your account is ready."}
                 </p>
-                {method === "gmail" && (
-                  <p className="mt-1 text-sm text-[#78716C]">
-                    We&apos;ll continue scanning in the background.
-                  </p>
-                )}
               </div>
 
               <button
