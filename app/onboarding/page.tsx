@@ -83,7 +83,10 @@ export default function OnboardingPage() {
 
   // Scanning state
   const [bookingCount, setBookingCount] = useState(0);
+  const [batchJobId, setBatchJobId] = useState<string | null>(null);
+  const [batchStatus, setBatchStatus] = useState<string | null>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const countPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // CSV state
   const [csvFile, setCsvFile] = useState<File | null>(null);
@@ -140,6 +143,7 @@ export default function OnboardingPage() {
   useEffect(() => {
     return () => {
       if (pollRef.current) clearInterval(pollRef.current);
+      if (countPollRef.current) clearInterval(countPollRef.current);
     };
   }, []);
 
@@ -170,6 +174,11 @@ export default function OnboardingPage() {
     });
   };
 
+  const clearAllPolling = useCallback(() => {
+    if (pollRef.current) { clearInterval(pollRef.current); pollRef.current = null; }
+    if (countPollRef.current) { clearInterval(countPollRef.current); countPollRef.current = null; }
+  }, []);
+
   const startScanning = async () => {
     setScanLoading(true);
     setScanError(null);
@@ -185,17 +194,52 @@ export default function OnboardingPage() {
         const data = await res.json();
         throw new Error(data.error || "Failed to start scanning");
       }
+      const scanData = await res.json();
+      const jobId = scanData.job_id;
+      setBatchJobId(jobId);
+      setBatchStatus("processing");
+      setBookingCount(scanData.email_count || 0);
       setStep("scanning");
-      // Start polling for booking count
+
+      if (!jobId) {
+        setImportedCount(0);
+        setStep("complete");
+        return;
+      }
+
+      // Poll batch status every 30s
       pollRef.current = setInterval(async () => {
+        try {
+          const statusRes = await fetch("/api/onboarding/batch-status", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ job_id: jobId }),
+          });
+          const statusData = await statusRes.json();
+          setBatchStatus(statusData.status);
+          if (statusData.status === "completed") {
+            clearAllPolling();
+            setImportedCount(statusData.processed_count || 0);
+            setStep("complete");
+          } else if (statusData.status === "failed") {
+            clearAllPolling();
+            setScanError(statusData.error || "Batch processing failed");
+          }
+        } catch {
+          // ignore polling errors
+        }
+      }, 30000);
+
+      // Also poll booking count for live feedback
+      countPollRef.current = setInterval(async () => {
         try {
           const statusRes = await fetch("/api/onboarding/status");
           const statusData = await statusRes.json();
           setBookingCount(statusData.count || 0);
         } catch {
-          // ignore polling errors
+          // ignore
         }
-      }, 3000);
+      }, 5000);
     } catch (err) {
       setScanError(err instanceof Error ? err.message : "Failed to start scanning");
     } finally {
@@ -352,7 +396,7 @@ export default function OnboardingPage() {
   };
 
   const pollAndContinue = useCallback(async () => {
-    if (pollRef.current) clearInterval(pollRef.current);
+    clearAllPolling();
     // Get final count
     try {
       const res = await fetch("/api/onboarding/status");
@@ -362,7 +406,7 @@ export default function OnboardingPage() {
       setImportedCount(bookingCount);
     }
     setStep("complete");
-  }, [bookingCount]);
+  }, [bookingCount, clearAllPolling]);
 
   if (loading) {
     return (
@@ -659,8 +703,16 @@ export default function OnboardingPage() {
 
               <div className="mb-8 rounded-xl bg-[#FDF6EC] p-6 text-center">
                 <p className="text-3xl font-bold text-[#EA580C]">{bookingCount}</p>
-                <p className="mt-1 text-sm text-[#78716C]">bookings found so far</p>
+                <p className="mt-1 text-sm text-[#78716C]">
+                  {batchStatus === "completed" ? "bookings imported" : "emails being processed"}
+                </p>
               </div>
+
+              {scanError && (
+                <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+                  {scanError}
+                </div>
+              )}
 
               <button
                 onClick={pollAndContinue}
