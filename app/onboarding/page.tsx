@@ -115,7 +115,7 @@ export default function OnboardingPage() {
     [mapping]
   );
 
-  // Fetch user on mount
+  // Fetch user on mount and restore to scanning if there's an in-progress batch job
   useEffect(() => {
     async function checkAuth() {
       try {
@@ -130,6 +130,18 @@ export default function OnboardingPage() {
           return;
         }
         setUser(data.user);
+
+        const pendingRes = await fetch("/api/onboarding/pending-job");
+        if (pendingRes.ok) {
+          const pending = await pendingRes.json();
+          if (pending.job_id) {
+            setMethod("gmail");
+            setStep("scanning");
+            setBatchJobId(pending.job_id);
+            setBatchStatus("processing");
+            setBookingCount(pending.email_count ?? 0);
+          }
+        }
       } catch {
         router.push("/login");
       } finally {
@@ -179,6 +191,51 @@ export default function OnboardingPage() {
     if (countPollRef.current) { clearInterval(countPollRef.current); countPollRef.current = null; }
   }, []);
 
+  // Start polling when on scanning step with a job id (from startScanning or restore)
+  useEffect(() => {
+    if (step !== "scanning" || !batchJobId || pollRef.current) return;
+
+    const jobId = batchJobId;
+    pollRef.current = setInterval(async () => {
+      try {
+        const statusRes = await fetch("/api/onboarding/batch-status", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ job_id: jobId }),
+        });
+        const statusData = await statusRes.json();
+        setBatchStatus(statusData.status);
+        if (statusData.status === "completed") {
+          clearAllPolling();
+          setImportedCount(statusData.processed_count ?? 0);
+          setStep("complete");
+        } else if (statusData.status === "failed") {
+          clearAllPolling();
+          setScanError(statusData.error ?? "Batch processing failed");
+        }
+      } catch {
+        // ignore
+      }
+    }, 30000);
+
+    countPollRef.current = setInterval(async () => {
+      try {
+        const statusRes = await fetch("/api/onboarding/status");
+        const statusData = await statusRes.json();
+        setBookingCount(statusData.count ?? 0);
+      } catch {
+        // ignore
+      }
+    }, 5000);
+
+    return () => {
+      if (pollRef.current) clearInterval(pollRef.current);
+      if (countPollRef.current) clearInterval(countPollRef.current);
+      pollRef.current = null;
+      countPollRef.current = null;
+    };
+  }, [step, batchJobId, clearAllPolling]);
+
   const startScanning = async () => {
     setScanLoading(true);
     setScanError(null);
@@ -206,40 +263,7 @@ export default function OnboardingPage() {
         setStep("complete");
         return;
       }
-
-      // Poll batch status every 30s
-      pollRef.current = setInterval(async () => {
-        try {
-          const statusRes = await fetch("/api/onboarding/batch-status", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ job_id: jobId }),
-          });
-          const statusData = await statusRes.json();
-          setBatchStatus(statusData.status);
-          if (statusData.status === "completed") {
-            clearAllPolling();
-            setImportedCount(statusData.processed_count || 0);
-            setStep("complete");
-          } else if (statusData.status === "failed") {
-            clearAllPolling();
-            setScanError(statusData.error || "Batch processing failed");
-          }
-        } catch {
-          // ignore polling errors
-        }
-      }, 30000);
-
-      // Also poll booking count for live feedback
-      countPollRef.current = setInterval(async () => {
-        try {
-          const statusRes = await fetch("/api/onboarding/status");
-          const statusData = await statusRes.json();
-          setBookingCount(statusData.count || 0);
-        } catch {
-          // ignore
-        }
-      }, 5000);
+      // Polling is started by the effect when step === "scanning" && batchJobId
     } catch (err) {
       setScanError(err instanceof Error ? err.message : "Failed to start scanning");
     } finally {
