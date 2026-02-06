@@ -24,17 +24,18 @@ type ColumnMapping = {
   booking_field: string | null;
 };
 
-const BOOKING_FIELDS = [
-  { value: "guest_name", label: "Guest Name" },
-  { value: "guest_count", label: "Guest Count" },
-  { value: "booking_date", label: "Booking Date" },
+// Key fields first so users see what's important; key: true = bold
+const BOOKING_FIELDS: { value: string; label: string; key?: boolean }[] = [
+  { value: "guest_name", label: "Guest Name", key: true },
+  { value: "guest_count", label: "Guest Count", key: true },
+  { value: "booking_date", label: "Booking Date", key: true },
   { value: "booking_time", label: "Booking Time" },
-  { value: "platform", label: "Platform" },
-  { value: "activity_name", label: "Activity Name" },
-  { value: "dietary_restrictions", label: "Dietary Restrictions" },
+  { value: "platform", label: "Platform", key: true },
+  { value: "activity_name", label: "Activity Name", key: true },
+  { value: "dietary_restrictions", label: "Dietary Restrictions", key: true },
   { value: "special_requests", label: "Special Requests" },
   { value: "status", label: "Status" },
-] as const;
+];
 
 const DEFAULT_EMAIL_SOURCES = [
   { email: "express@airbnb.com", platform: "Airbnb" },
@@ -218,7 +219,17 @@ export default function OnboardingPage() {
       }
 
       const data = await res.json();
-      setMapping(data.mapping);
+      const headers = preview[0]
+        .split(",")
+        .map((h: string) => h.trim().replace(/^"|"$/g, ""));
+      const normalized: ColumnMapping[] = headers.map((header: string) => {
+        const match = data.mapping?.find(
+          (m: ColumnMapping) =>
+            m.csv_column?.trim().toLowerCase() === header.trim().toLowerCase()
+        );
+        return { csv_column: header, booking_field: match?.booking_field ?? null };
+      });
+      setMapping(normalized);
       setStep("csv-mapping");
     } catch (err) {
       setCsvError(err instanceof Error ? err.message : "Failed to process CSV");
@@ -227,9 +238,17 @@ export default function OnboardingPage() {
     }
   };
 
-  const updateMapping = (index: number, field: string | null) => {
+  const updateMappingByField = (bookingField: string, csvColumn: string | null) => {
     setMapping((prev) =>
-      prev.map((m, i) => (i === index ? { ...m, booking_field: field } : m))
+      prev.map((m) => {
+        if (m.booking_field === bookingField) return { ...m, booking_field: null };
+        if (
+          csvColumn &&
+          m.csv_column.trim().toLowerCase() === csvColumn.trim().toLowerCase()
+        )
+          return { ...m, booking_field: bookingField };
+        return m;
+      })
     );
   };
 
@@ -704,39 +723,63 @@ export default function OnboardingPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-[#E7E5E4]">
-                      <th className="pb-2 pr-4 text-left font-medium text-[#78716C]">CSV Column</th>
+                      <th className="pb-2 pr-4 text-left font-medium text-[#78716C]">Booking field</th>
                       <th className="pb-2 pr-4 text-left font-medium text-[#78716C]">Sample</th>
-                      <th className="pb-2 text-left font-medium text-[#78716C]">Maps To</th>
+                      <th className="pb-2 text-left font-medium text-[#78716C]">CSV column</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {mapping.map((m, i) => {
-                      // Get sample value from first data row
-                      const headerRow = csvLines[0]?.split(",").map((h) => h.trim().replace(/^"|"$/g, "")) || [];
+                    {BOOKING_FIELDS.map((f) => {
+                      const selectedCsv = mapping.find(
+                        (m) => m.booking_field === f.value
+                      )?.csv_column ?? "";
+                      const headerRow =
+                        csvLines[0]?.split(",").map((h) => h.trim().replace(/^"|"$/g, "")) || [];
                       const colIdx = headerRow.findIndex(
-                        (h) => h.toLowerCase() === m.csv_column.toLowerCase()
+                        (h) => h.toLowerCase() === selectedCsv.toLowerCase()
                       );
-                      const sampleRow = csvLines[1]?.split(",").map((v) => v.trim().replace(/^"|"$/g, "")) || [];
-                      const sample = colIdx >= 0 ? sampleRow[colIdx] || "—" : "—";
+                      const sampleRow =
+                        csvLines[1]?.split(",").map((v) => v.trim().replace(/^"|"$/g, "")) || [];
+                      const sample =
+                        colIdx >= 0 ? sampleRow[colIdx] || "—" : "—";
+                      const csvColumns = mapping.map((m) => m.csv_column);
 
                       return (
-                        <tr key={i} className="border-b border-[#E7E5E4] last:border-0">
-                          <td className="py-3 pr-4 font-medium text-[#1C1917]">{m.csv_column}</td>
+                        <tr
+                          key={f.value}
+                          className="border-b border-[#E7E5E4] last:border-0"
+                        >
+                          <td className="py-3 pr-4">
+                            <span
+                              className={
+                                f.key
+                                  ? "font-semibold text-[#1C1917]"
+                                  : "text-[#1C1917]"
+                              }
+                            >
+                              {f.label}
+                            </span>
+                          </td>
                           <td className="py-3 pr-4 text-[#78716C]">
-                            <span className="inline-block max-w-[120px] truncate">{sample}</span>
+                            <span className="inline-block max-w-[120px] truncate">
+                              {sample}
+                            </span>
                           </td>
                           <td className="py-3">
                             <select
-                              value={m.booking_field || ""}
+                              value={selectedCsv}
                               onChange={(e) =>
-                                updateMapping(i, e.target.value || null)
+                                updateMappingByField(
+                                  f.value,
+                                  e.target.value || null
+                                )
                               }
                               className="w-full rounded-lg border border-[#E7E5E4] px-2 py-1.5 text-sm text-[#1C1917] focus:border-[#EA580C] focus:outline-none focus:ring-1 focus:ring-[#EA580C]"
                             >
-                              <option value="">Skip</option>
-                              {BOOKING_FIELDS.map((f) => (
-                                <option key={f.value} value={f.value}>
-                                  {f.label}
+                              <option value=""></option>
+                              {csvColumns.map((col) => (
+                                <option key={col} value={col}>
+                                  {col}
                                 </option>
                               ))}
                             </select>
