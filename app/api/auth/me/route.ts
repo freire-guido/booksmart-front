@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
   const supabase = createServerClient();
   const { data: user } = await supabase
     .from("gmail_accounts")
-    .select("id, email, name, picture")
+    .select("id, email, name, picture, onboarding_completed")
     .eq("email", session)
     .single();
 
