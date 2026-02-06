@@ -24,15 +24,15 @@ type ColumnMapping = {
   booking_field: string | null;
 };
 
-// Key fields first so users see what's important; key: true = bold
+// Key fields first, then less important; key: true = bold
 const BOOKING_FIELDS: { value: string; label: string; key?: boolean }[] = [
   { value: "guest_name", label: "Guest Name", key: true },
   { value: "guest_count", label: "Guest Count", key: true },
   { value: "booking_date", label: "Booking Date", key: true },
-  { value: "booking_time", label: "Booking Time" },
   { value: "platform", label: "Platform", key: true },
   { value: "activity_name", label: "Activity Name", key: true },
   { value: "dietary_restrictions", label: "Dietary Restrictions", key: true },
+  { value: "booking_time", label: "Booking Time" },
   { value: "special_requests", label: "Special Requests" },
   { value: "status", label: "Status" },
 ];
@@ -741,7 +741,7 @@ export default function OnboardingPage() {
                       const sampleRow =
                         csvLines[1]?.split(",").map((v) => v.trim().replace(/^"|"$/g, "")) || [];
                       const sample =
-                        colIdx >= 0 ? sampleRow[colIdx] || "—" : "—";
+                        colIdx >= 0 ? (sampleRow[colIdx] ?? "") : "";
                       const csvColumns = mapping.map((m) => m.csv_column);
 
                       return (
