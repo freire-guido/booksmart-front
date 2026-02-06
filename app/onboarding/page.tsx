@@ -38,14 +38,10 @@ const BOOKING_FIELDS: { value: string; label: string; key?: boolean }[] = [
 ];
 
 const DEFAULT_EMAIL_SOURCES = [
-  { email: "express@airbnb.com", platform: "Airbnb" },
-  { email: "noreply@viator.com", platform: "Viator" },
-  { email: "noreply@getyourguide.com", platform: "GetYourGuide" },
-  { email: "noreply@civitatis.com", platform: "Civitatis" },
-  { email: "noreply@tripadvisor.com", platform: "TripAdvisor" },
-  { email: "noreply@booking.com", platform: "Booking.com" },
-  { email: "expediamail@expedia.com", platform: "Expedia" },
-  { email: "noreply@meitre.com", platform: "Meitre" },
+  { email: "automated@airbnb.com", platform: "Airbnb" },
+  { email: "booking@t1.viator.com", platform: "Viator" },
+  { email: "do-not-reply@notification.getyourguide.com", platform: "GetYourGuide" },
+  { email: "no-reply@meitre.com", platform: "Meitre" },
 ];
 
 // Step indicator labels for progress
@@ -215,18 +211,25 @@ export default function OnboardingPage() {
     try {
       let text = await file.text();
       if (text.charCodeAt(0) === 0xfeff) text = text.slice(1);
-      const lines = text.split("\n").filter((l) => l.trim());
+      const rawLines = text.split("\n").filter((l) => l.trim());
+      const lines = rawLines.filter((line, i) => {
+        if (i === 0) return true;
+        const cells = parseCSVRow(line).map((c) => c.trim());
+        return cells.some((c) => c !== "");
+      });
       setCsvAllLines(lines);
 
-      // Take first 10 lines for preview & mapping
+      // First 10 lines for UI preview (mapping table)
       const preview = lines.slice(0, 10);
       setCsvLines(preview);
 
-      // Send to API for mapping
+      // First 101 lines (header + 100 rows) for mapping API
+      const linesForMapping = lines.slice(0, 101);
+
       const res = await fetch("/api/onboarding/csv-mapping", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ lines: preview.join("\n") }),
+        body: JSON.stringify({ lines: linesForMapping.join("\n") }),
       });
 
       if (!res.ok) {
@@ -406,7 +409,7 @@ export default function OnboardingPage() {
           {stepSequence.map((s, i) => (
             <div key={s} className="flex items-center gap-2">
               <div
-                className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-medium ${
+                className={`flex h-7 min-h-7 w-7 min-w-7 shrink-0 items-center justify-center rounded-full text-xs font-medium ${
                   i < currentStepIndex
                     ? "bg-[#EA580C] text-white"
                     : i === currentStepIndex
