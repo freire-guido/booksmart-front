@@ -218,16 +218,6 @@ export default function OnboardingPage() {
       }
     }, 30000);
 
-    countPollRef.current = setInterval(async () => {
-      try {
-        const statusRes = await fetch("/api/onboarding/status");
-        const statusData = await statusRes.json();
-        setBookingCount(statusData.count ?? 0);
-      } catch {
-        // ignore
-      }
-    }, 5000);
-
     return () => {
       if (pollRef.current) clearInterval(pollRef.current);
       if (countPollRef.current) clearInterval(countPollRef.current);
