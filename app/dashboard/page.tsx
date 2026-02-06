@@ -1811,7 +1811,12 @@ export default function DashboardPage() {
           setIsAuthenticated(false);
           return;
         }
-        
+
+        if (meData.user.onboarding_completed === false) {
+          router.push("/onboarding");
+          return;
+        }
+
         setIsAuthenticated(true);
         
         // Fetch bookings
