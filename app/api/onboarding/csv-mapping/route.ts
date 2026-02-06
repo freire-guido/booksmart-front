@@ -23,12 +23,9 @@ export async function POST(request: NextRequest) {
     }
 
     const openai = getOpenAI();
-    const completion = await openai.chat.completions.create({
+    const response = await openai.responses.create({
       model: "gpt-5-nano",
-      messages: [
-        {
-          role: "system",
-          content: `You are a data mapping assistant. Given these CSV headers and sample data rows, map each column to the most appropriate booking field.
+      instructions: `You are a data mapping assistant. Given these CSV headers and sample data rows, map each column to the most appropriate booking field.
 
 Available booking fields:
 - guest_name: Name of the guest
@@ -45,15 +42,10 @@ If a column doesn't clearly map to any field, set booking_field to null.
 
 Return ONLY valid JSON:
 { "mapping": [{ "csv_column": "Header Name", "booking_field": "field_name" | null }] }`,
-        },
-        {
-          role: "user",
-          content: `CSV data:\n${lines}`,
-        },
-      ],
+      input: `CSV data:\n${lines}`,
     });
 
-    const content = completion.choices[0]?.message?.content?.trim();
+    const content = response.output_text?.trim();
     if (!content) {
       return NextResponse.json(
         { error: "Failed to generate mapping" },
