@@ -24,8 +24,7 @@ export async function POST(request: NextRequest) {
 
     const openai = getOpenAI();
     const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      temperature: 0,
+      model: "gpt-5-nano",
       messages: [
         {
           role: "system",
