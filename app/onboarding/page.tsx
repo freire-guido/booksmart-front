@@ -696,16 +696,16 @@ export default function OnboardingPage() {
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                   </svg>
                 </div>
-                <h1 className="text-2xl font-semibold text-[#1C1917]">Scanning Your Emails</h1>
+                <h1 className="text-2xl font-semibold text-[#1C1917]">Parsing with AI</h1>
                 <p className="mt-2 text-[#78716C]">
-                  This may take a few minutes. Please stay on this page until scanning is complete.
+                  This may take a few minutes.
                 </p>
               </div>
 
               <div className="mb-8 rounded-xl bg-[#FDF6EC] p-6 text-center">
                 <p className="text-3xl font-bold text-[#EA580C]">{bookingCount}</p>
                 <p className="mt-1 text-sm text-[#78716C]">
-                  {batchStatus === "completed" ? "bookings imported" : "emails being processed"}
+                  {batchStatus === "completed" ? "bookings imported" : "emails being parsed"}
                 </p>
               </div>
 
