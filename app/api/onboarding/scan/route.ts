@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabase";
+import { fetchWithCloudRunAuth } from "@/lib/cloud-run-fetch";
 
 export async function POST(request: NextRequest) {
   const session = request.cookies.get("booksmart_session")?.value;
@@ -64,7 +65,7 @@ export async function POST(request: NextRequest) {
       batchHeaders["x-batch-api-key"] = process.env.BATCH_API_KEY;
     }
 
-    const batchRes = await fetch(`${batchUrl}/scan`, {
+    const batchRes = await fetchWithCloudRunAuth(`${batchUrl}/scan`, {
       method: "POST",
       headers: batchHeaders,
       body: JSON.stringify({
