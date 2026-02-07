@@ -66,10 +66,10 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Step 3: Check if existing account and whether we process emails (decide before storing)
+    // Step 3: Check if existing account, process_emails, and org onboarding (for watch + redirect)
     const { data: existingAccount } = await supabase
       .from("gmail_accounts")
-      .select("id, process_emails")
+      .select("id, process_emails, organization_id, organizations(onboarding_completed)")
       .eq("email", userInfo.email)
       .maybeSingle();
 
@@ -79,7 +79,7 @@ export async function GET(request: NextRequest) {
       historyId: null,
       expiration: null,
     };
-    if (shouldSetupWatch) {
+    if (shouldSetupWatch && refreshToken) {
       try {
         const result = await setupGmailWatch(
           tokens.access_token,
@@ -154,7 +154,16 @@ export async function GET(request: NextRequest) {
 
     // Step 5: Create a session token (simple approach - you may want to use JWT)
     // For now, we'll use a simple cookie with the user's email
-    const response = NextResponse.redirect(`${appUrl}/dashboard`);
+    const isNewUser = !existingAccount;
+    const org = existingAccount?.organizations as
+      | { onboarding_completed?: boolean }
+      | { onboarding_completed?: boolean }[]
+      | null
+      | undefined;
+    const onboardingDone =
+      (Array.isArray(org) ? org[0]?.onboarding_completed : org?.onboarding_completed) === true;
+    const redirectTo = isNewUser || !onboardingDone ? "/onboarding" : "/dashboard";
+    const response = NextResponse.redirect(`${appUrl}${redirectTo}`);
 
     // Set a session cookie (HttpOnly for security)
     response.cookies.set("booksmart_session", userInfo.email, {

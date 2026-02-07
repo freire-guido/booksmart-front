@@ -1787,23 +1787,6 @@ function DayColumnSkeleton() {
   );
 }
 
-// Empty state component
-function EmptyState() {
-  return (
-    <div className="flex flex-1 flex-col items-center justify-center rounded-xl border border-[#E7E5E4] bg-white p-8">
-      <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#FDF6EC]">
-        <svg className="h-8 w-8 text-[#EA580C]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-        </svg>
-      </div>
-      <h3 className="mt-4 text-lg font-semibold text-[#1C1917]">No bookings yet</h3>
-      <p className="mt-1 max-w-sm text-center text-sm text-[#78716C]">
-        Once we sync your email, your bookings from Airbnb, Viator, and GetYourGuide will appear here automatically.
-      </p>
-    </div>
-  );
-}
-
 export default function DashboardPage() {
   const router = useRouter();
   
@@ -1836,7 +1819,12 @@ export default function DashboardPage() {
           setIsAuthenticated(false);
           return;
         }
-        
+
+        if (meData.user.onboarding_completed === false) {
+          router.push("/onboarding");
+          return;
+        }
+
         setIsAuthenticated(true);
         
         // Fetch bookings
@@ -2051,8 +2039,6 @@ export default function DashboardPage() {
               <DayColumnSkeleton key={i} />
             ))}
           </div>
-        ) : bookings.length === 0 ? (
-          <EmptyState />
         ) : viewMode === "week" ? (
           <div className="flex min-h-0 flex-1 gap-2 overflow-x-auto sm:gap-3">
             {weekDates.map((date) => (
