@@ -15,15 +15,21 @@ export async function GET(request: NextRequest) {
     .eq("email", session)
     .single();
 
+  const org = row?.organizations as
+    | { onboarding_completed?: boolean }
+    | { onboarding_completed?: boolean }[]
+    | null
+    | undefined;
+  const onboardingCompleted =
+    Array.isArray(org) ? org[0]?.onboarding_completed : org?.onboarding_completed;
+
   const user = row
     ? {
         id: row.id,
         email: row.email,
         name: row.name,
         picture: row.picture,
-        onboarding_completed:
-          (row as { organizations?: { onboarding_completed: boolean } | null })
-            .organizations?.onboarding_completed ?? false,
+        onboarding_completed: onboardingCompleted ?? false,
       }
     : null;
 
