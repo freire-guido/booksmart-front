@@ -204,60 +204,69 @@ function getLatestEmails(bookings: Booking[], count: number): Booking[] {
     .slice(0, count);
 }
 
-// Get low-confidence emails (extraction_confidence <= 0.5 and not manually reviewed)
-function getLowConfidenceEmails(bookings: Booking[]): Booking[] {
-  return [...bookings]
-    .filter((b) => 
-      b.extraction_confidence !== undefined && 
-      b.extraction_confidence <= 0.5 && 
+// Get bookings that need review: low-confidence (not manually reviewed) or Pending status
+function getReviewEmails(bookings: Booking[]): Booking[] {
+  const lowConfidence = bookings.filter(
+    (b) =>
+      b.extraction_confidence !== undefined &&
+      b.extraction_confidence <= 0.5 &&
       !b.manually_reviewed
-    )
+  );
+  const pending = bookings.filter((b) => b.status === "pending");
+  const reviewIds = new Set([
+    ...lowConfidence.map((b) => b.id),
+    ...pending.map((b) => b.id),
+  ]);
+  return [...bookings]
+    .filter((b) => reviewIds.has(b.id))
     .sort((a, b) => (b.emailDate?.getTime() ?? 0) - (a.emailDate?.getTime() ?? 0));
 }
 
 // Email item component for reuse
-function EmailItem({ 
-  booking, 
-  isFirst = false, 
-  isLowConfidence = false,
-  onClick
-}: { 
-  booking: Booking; 
-  isFirst?: boolean; 
-  isLowConfidence?: boolean;
+function EmailItem({
+  booking,
+  isFirst = false,
+  isReviewItem = false,
+  reviewReason,
+  onClick,
+}: {
+  booking: Booking;
+  isFirst?: boolean;
+  isReviewItem?: boolean;
+  reviewReason?: "low_confidence" | "pending";
   onClick?: () => void;
 }) {
   const isClickable = !!onClick;
-  const Component = isClickable ? 'button' : 'div';
-  
+  const Component = isClickable ? "button" : "div";
+
   return (
     <Component
       onClick={isClickable ? onClick : undefined}
       className={`w-full text-left rounded-lg border p-2.5 transition-all ${
-        isLowConfidence
+        isReviewItem
           ? "border-orange-200 bg-orange-50 hover:border-orange-300 hover:bg-orange-100 cursor-pointer"
           : isClickable
-          ? isFirst
-            ? "border-[#E7E5E4] bg-[#FDF6EC] hover:border-[#EA580C]/30 hover:shadow-sm cursor-pointer"
-            : "border-[#E7E5E4] bg-white hover:border-[#EA580C]/30 hover:shadow-sm cursor-pointer"
-          : isFirst
-          ? "border-[#E7E5E4] bg-[#FDF6EC]"
-          : "border-[#E7E5E4] bg-white"
+            ? isFirst
+              ? "border-[#E7E5E4] bg-[#FDF6EC] hover:border-[#EA580C]/30 hover:shadow-sm cursor-pointer"
+              : "border-[#E7E5E4] bg-white hover:border-[#EA580C]/30 hover:shadow-sm cursor-pointer"
+            : isFirst
+              ? "border-[#E7E5E4] bg-[#FDF6EC]"
+              : "border-[#E7E5E4] bg-white"
       }`}
     >
       <div className="flex items-start gap-2">
         <div
           className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full ${
-            isLowConfidence
+            isReviewItem
               ? "bg-orange-100"
               : booking.status === "cancelled"
-              ? "bg-red-100"
-              : booking.status === "rescheduled"
-              ? "bg-amber-100"
-              : "bg-[#EA580C]/10"
+                ? "bg-red-100"
+                : booking.status === "rescheduled"
+                  ? "bg-amber-100"
+                  : "bg-[#EA580C]/10"
           }`}
         >
-          {isLowConfidence ? (
+          {isReviewItem ? (
             <svg className="h-2.5 w-2.5 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
             </svg>
@@ -287,10 +296,14 @@ function EmailItem({
           <p className="truncate text-xs text-[#78716C]">
             {booking.guestName} ({booking.guestCount} guest{booking.guestCount !== 1 ? "s" : ""})
           </p>
-          {isLowConfidence && booking.extraction_confidence !== undefined && (
+          {isReviewItem && reviewReason && (
             <div className="mt-0.5 flex items-center justify-between">
               <p className="text-xs text-orange-600">
-                {Math.round(booking.extraction_confidence * 100)}% confidence
+                {reviewReason === "pending"
+                  ? "Pending"
+                  : booking.extraction_confidence !== undefined
+                    ? `${Math.round(booking.extraction_confidence * 100)}% confidence`
+                    : ""}
               </p>
               <span className="text-xs text-orange-500">Click to review</span>
             </div>
@@ -313,8 +326,8 @@ function EmailStack({
 }) {
   const [expanded, setExpanded] = useState(false);
   const latestEmails = getLatestEmails(bookings, 10);
-  const lowConfidenceEmails = getLowConfidenceEmails(bookings);
-  const hasLowConfidence = lowConfidenceEmails.length > 0;
+  const reviewEmails = getReviewEmails(bookings);
+  const hasReviewItems = reviewEmails.length > 0;
   const mostRecent = latestEmails[0];
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -344,7 +357,7 @@ function EmailStack({
     return () => document.removeEventListener("mousedown", onMouseDown);
   }, [expanded]);
 
-  const handleLowConfidenceClick = (booking: Booking) => {
+  const handleReviewClick = (booking: Booking) => {
     setExpanded(false);
     onBookingClick?.(booking);
   };
@@ -371,8 +384,8 @@ function EmailStack({
           <svg className="h-4 w-4 text-[#EA580C]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
           </svg>
-          {/* Orange dot indicator for low-confidence emails */}
-          {hasLowConfidence && (
+          {/* Orange dot indicator for items needing review */}
+          {hasReviewItems && (
             <span className="absolute -right-1 -top-1 flex h-2.5 w-2.5">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-orange-400 opacity-75"></span>
               <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-orange-500"></span>
@@ -396,23 +409,32 @@ function EmailStack({
       {/* Expanded dropdown — open right on mobile so it stays in view; open left on sm+ */}
       {expanded && (
         <div className="absolute left-0 right-auto top-full z-20 mt-2 w-80 rounded-xl border border-[#E7E5E4] bg-white p-3 shadow-lg max-h-[400px] overflow-y-auto sm:left-auto sm:right-0">
-          {/* Low-Confidence Emails Section */}
-          {hasLowConfidence && (
+          {/* Review Section (low-confidence + Pending) */}
+          {hasReviewItems && (
             <div className="mb-3">
               <div className="mb-2 flex items-center gap-2">
                 <span className="flex h-2 w-2 rounded-full bg-orange-500"></span>
-                <p className="text-xs font-medium text-orange-600">Low-Confidence Emails</p>
+                <p className="text-xs font-medium text-orange-600">Review</p>
                 <span className="rounded-full bg-orange-100 px-1.5 py-0.5 text-xs font-medium text-orange-600">
-                  {lowConfidenceEmails.length}
+                  {reviewEmails.length}
                 </span>
               </div>
               <div className="space-y-1.5">
-                {lowConfidenceEmails.map((booking) => (
-                  <EmailItem 
-                    key={booking.id} 
-                    booking={booking} 
-                    isLowConfidence 
-                    onClick={() => handleLowConfidenceClick(booking)}
+                {reviewEmails.map((booking) => (
+                  <EmailItem
+                    key={booking.id}
+                    booking={booking}
+                    isReviewItem
+                    reviewReason={
+                      booking.status === "pending"
+                        ? "pending"
+                        : booking.extraction_confidence !== undefined &&
+                            booking.extraction_confidence <= 0.5 &&
+                            !booking.manually_reviewed
+                          ? "low_confidence"
+                          : undefined
+                    }
+                    onClick={() => handleReviewClick(booking)}
                   />
                 ))}
               </div>
@@ -1419,7 +1441,7 @@ function DayColumn({
 
   return (
     <div
-      className={`flex min-w-[220px] flex-1 flex-col rounded-xl border ${
+      className={`flex min-w-[160px] flex-1 flex-col rounded-xl border sm:min-w-[220px] ${
         today ? "border-[#EA580C] bg-[#FDF6EC]" : "border-[#E7E5E4] bg-white"
       }`}
     >
@@ -1618,12 +1640,15 @@ function MonthDayCell({
         {date.getDate()}
       </span>
 
-      {/* Booking info - same format as weekly view: bookings · guests, no icon */}
+      {/* Booking info - same format as weekly view; abbreviate to b/g on narrow for month tiles */}
       {hasBookings && inCurrentMonth && (
         <div className="mt-1 flex flex-col gap-1">
           <p className="text-xs text-[#78716C]">
-            {confirmedBookings.length} booking{confirmedBookings.length !== 1 ? "s" : ""} · {totalGuests} guest
-            {totalGuests !== 1 ? "s" : ""}
+            <span className="sm:hidden">{confirmedBookings.length} b · {totalGuests} g</span>
+            <span className="hidden sm:inline">
+              {confirmedBookings.length} booking{confirmedBookings.length !== 1 ? "s" : ""} · {totalGuests} guest
+              {totalGuests !== 1 ? "s" : ""}
+            </span>
           </p>
 
           {/* Dietary summary — same as weekly view */}
@@ -1747,7 +1772,7 @@ function ViewToggle({
 // Loading skeleton for day columns
 function DayColumnSkeleton() {
   return (
-    <div className="flex min-w-[220px] flex-1 flex-col rounded-xl border border-[#E7E5E4] bg-white">
+    <div className="flex min-w-[160px] flex-1 flex-col rounded-xl border border-[#E7E5E4] bg-white sm:min-w-[220px]">
       <div className="shrink-0 border-b border-[#E7E5E4] p-3">
         <div className="h-4 w-12 animate-pulse rounded bg-[#E7E5E4]" />
         <div className="mt-1 h-6 w-16 animate-pulse rounded bg-[#E7E5E4]" />
@@ -1893,18 +1918,17 @@ export default function DashboardPage() {
       <Navbar />
 
       <main className="mx-auto flex min-h-0 w-full max-w-7xl flex-1 flex-col px-4 py-4 sm:px-6 sm:py-6">
-        {/* Header */}
+        {/* Header — title and Live Sync on one row on all sizes to save vertical space */}
         <div className="mb-4 shrink-0">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div>
+          <div className="flex items-center justify-between gap-3">
+            <div className="min-w-0 flex-1">
               <h1 className="text-xl font-semibold text-[#1C1917] sm:text-2xl">Dashboard</h1>
-              <p className="mt-0.5 text-sm text-[#78716C]">
+              <p className="mt-0.5 hidden text-sm text-[#78716C] sm:block">
                 All your bookings in one place
               </p>
             </div>
-
-            {/* Sync status */}
-            <div className="flex items-center gap-2 rounded-full bg-green-50 px-3 py-1.5 text-sm font-medium text-green-700">
+            {/* Sync status — stays on same row */}
+            <div className="flex shrink-0 items-center gap-2 rounded-full bg-green-50 px-3 py-1.5 text-sm font-medium text-green-700">
               <span className="relative flex h-2 w-2">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-500 opacity-75"></span>
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500"></span>
