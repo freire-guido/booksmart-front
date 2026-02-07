@@ -66,12 +66,20 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Step 3: Set up Gmail watch for push notifications
+    // Step 3: Check if existing account and whether we process emails (decide before storing)
+    const { data: existingAccount } = await supabase
+      .from("gmail_accounts")
+      .select("id, process_emails")
+      .eq("email", userInfo.email)
+      .maybeSingle();
+
+    // Only set up Gmail watch for accounts that process emails (new users get process_emails true below)
+    const shouldSetupWatch = refreshToken && (!existingAccount || existingAccount.process_emails);
     let watchData: { historyId: string | null; expiration: string | null } = {
       historyId: null,
       expiration: null,
     };
-    if (refreshToken) {
+    if (shouldSetupWatch) {
       try {
         const result = await setupGmailWatch(
           tokens.access_token,
@@ -93,14 +101,6 @@ export async function GET(request: NextRequest) {
     const watchExpiry = watchData.expiration
       ? new Date(parseInt(watchData.expiration)).toISOString()
       : null;
-
-    // Upsert Gmail account data. organization_id is set only for new users (null);
-    // you assign mail → org mappings manually in Supabase. Existing users keep their org.
-    const { data: existingAccount } = await supabase
-      .from("gmail_accounts")
-      .select("id")
-      .eq("email", userInfo.email)
-      .maybeSingle();
 
     const basePayload = {
       email: userInfo.email,
@@ -127,9 +127,24 @@ export async function GET(request: NextRequest) {
         throw new Error(msg);
       }
     } else {
+      // First-time registration: create organisation and set process_emails true
+      const orgName = userInfo.name?.trim() || userInfo.email?.split("@")[0] || "My organisation";
+      const { data: newOrg, error: orgError } = await supabase
+        .from("organizations")
+        .insert({ name: orgName })
+        .select("id")
+        .single();
+      if (orgError || !newOrg?.id) {
+        console.error("Supabase error creating organisation:", orgError);
+        throw new Error(orgError?.message || "Failed to create organization");
+      }
       const { error: insertError } = await supabase
         .from("gmail_accounts")
-        .insert({ ...basePayload, organization_id: null });
+        .insert({
+          ...basePayload,
+          organization_id: newOrg.id,
+          process_emails: true,
+        });
       if (insertError) {
         console.error("Supabase error inserting user data:", insertError);
         const msg = insertError.message || "Failed to save user data";
