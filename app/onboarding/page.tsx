@@ -85,6 +85,8 @@ export default function OnboardingPage() {
   const [bookingCount, setBookingCount] = useState(0);
   const [batchJobId, setBatchJobId] = useState<string | null>(null);
   const [batchStatus, setBatchStatus] = useState<string | null>(null);
+  const [batchProgressCompleted, setBatchProgressCompleted] = useState<number | null>(null);
+  const [batchProgressTotal, setBatchProgressTotal] = useState<number | null>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const countPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -135,12 +137,14 @@ export default function OnboardingPage() {
         const pendingRes = await fetch("/api/onboarding/pending-job");
         if (pendingRes.ok) {
           const pending = await pendingRes.json();
-          if (pending.job_id) {
+            if (pending.job_id) {
             setMethod("gmail");
             setStep("scanning");
             setBatchJobId(pending.job_id);
             setBatchStatus("processing");
             setBookingCount(pending.email_count ?? 0);
+            setBatchProgressCompleted(null);
+            setBatchProgressTotal(null);
           }
         }
       } catch {
@@ -197,7 +201,7 @@ export default function OnboardingPage() {
     if (step !== "scanning" || !batchJobId || pollRef.current) return;
 
     const jobId = batchJobId;
-    pollRef.current = setInterval(async () => {
+    const poll = async () => {
       try {
         const statusRes = await fetch("/api/onboarding/batch-status", {
           method: "POST",
@@ -206,6 +210,11 @@ export default function OnboardingPage() {
         });
         const statusData = await statusRes.json();
         setBatchStatus(statusData.status);
+        const rc = statusData.request_counts;
+        if (rc && typeof rc.completed === "number" && typeof rc.total === "number") {
+          setBatchProgressCompleted(rc.completed);
+          setBatchProgressTotal(rc.total);
+        }
         if (statusData.status === "completed") {
           clearAllPolling();
           setImportedCount(statusData.processed_count ?? 0);
@@ -217,7 +226,10 @@ export default function OnboardingPage() {
       } catch {
         // ignore
       }
-    }, 30000);
+    };
+
+    poll();
+    pollRef.current = setInterval(poll, 10000);
 
     return () => {
       if (pollRef.current) clearInterval(pollRef.current);
@@ -247,6 +259,8 @@ export default function OnboardingPage() {
       setBatchJobId(jobId);
       setBatchStatus("processing");
       setBookingCount(scanData.email_count || 0);
+      setBatchProgressCompleted(null);
+      setBatchProgressTotal(null);
       setStep("scanning");
 
       if (!jobId) {
@@ -734,9 +748,13 @@ export default function OnboardingPage() {
               </div>
 
               <div className="mb-8 rounded-xl bg-[#FDF6EC] p-6 text-center">
-                <p className="text-3xl font-bold text-[#EA580C]">{bookingCount}</p>
+                <p className="text-3xl font-bold text-[#EA580C]">
+                  {batchStatus === "completed"
+                    ? bookingCount
+                    : `${batchProgressCompleted ?? 0} / ${batchProgressTotal ?? bookingCount}`}
+                </p>
                 <p className="mt-1 text-sm text-[#78716C]">
-                  {batchStatus === "completed" ? "bookings imported" : "emails being parsed"}
+                  {batchStatus === "completed" ? "bookings imported" : "emails parsed"}
                 </p>
               </div>
 
