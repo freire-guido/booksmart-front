@@ -98,7 +98,7 @@ export async function GET(request: NextRequest) {
     // you assign mail → org mappings manually in Supabase. Existing users keep their org.
     const { data: existingAccount } = await supabase
       .from("gmail_accounts")
-      .select("id, onboarding_completed")
+      .select("id, organization_id, organizations(onboarding_completed)")
       .eq("email", userInfo.email)
       .maybeSingle();
 
@@ -140,7 +140,13 @@ export async function GET(request: NextRequest) {
     // Step 5: Create a session token (simple approach - you may want to use JWT)
     // For now, we'll use a simple cookie with the user's email
     const isNewUser = !existingAccount;
-    const onboardingDone = existingAccount?.onboarding_completed === true;
+    const org = existingAccount?.organizations as
+      | { onboarding_completed?: boolean }
+      | { onboarding_completed?: boolean }[]
+      | null
+      | undefined;
+    const onboardingDone =
+      (Array.isArray(org) ? org[0]?.onboarding_completed : org?.onboarding_completed) === true;
     const redirectTo = isNewUser || !onboardingDone ? "/onboarding" : "/dashboard";
     const response = NextResponse.redirect(`${appUrl}${redirectTo}`);
 

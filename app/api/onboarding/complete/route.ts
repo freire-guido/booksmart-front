@@ -9,10 +9,23 @@ export async function POST(request: NextRequest) {
 
   const supabase = createServerClient();
 
-  const { error } = await supabase
+  const { data: account } = await supabase
     .from("gmail_accounts")
+    .select("organization_id")
+    .eq("email", session)
+    .single();
+
+  if (!account?.organization_id) {
+    return NextResponse.json(
+      { error: "No organization for this account" },
+      { status: 400 }
+    );
+  }
+
+  const { error } = await supabase
+    .from("organizations")
     .update({ onboarding_completed: true })
-    .eq("email", session);
+    .eq("id", account.organization_id);
 
   if (error) {
     console.error("Error completing onboarding:", error);
