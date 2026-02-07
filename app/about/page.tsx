@@ -260,6 +260,18 @@ export default function About() {
                 BookSmart
               </span>
             </Link>
+            <Link
+              href="/privacy"
+              className="text-sm text-[#78716C] hover:text-[#1C1917]"
+            >
+              Privacy Policy
+            </Link>
+            <Link
+              href="/terms"
+              className="text-sm text-[#78716C] hover:text-[#1C1917]"
+            >
+              Terms of Service
+            </Link>
             <a
               href="mailto:freireguidoi@gmail.com?subject=BookSmart%20Inquiry&body=Hi%20BookSmart%20team%2C"
               className="text-sm text-[#78716C] hover:text-[#1C1917]"
