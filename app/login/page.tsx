@@ -9,8 +9,10 @@ export default async function LoginPage({
   searchParams: SearchParams;
 }) {
   const { error, reauth } = await searchParams;
-  // Force consent screen if reauth is requested (needed to get a new refresh_token)
-  const googleAuthUrl = getGoogleAuthUrl(reauth === "true");
+  const needsReauth = reauth === "true";
+  // Force consent screen when reauth is requested (e.g. after account was deleted
+  // or first sign-in without refresh_token) so Google issues a new refresh_token.
+  const googleAuthUrl = getGoogleAuthUrl(needsReauth);
 
   return (
     <div className="flex min-h-screen flex-col bg-[#FAF8F5]">
@@ -95,6 +97,11 @@ export default async function LoginPage({
                     <p className="mt-1 text-sm text-red-600">
                       {decodeURIComponent(error)}
                     </p>
+                    {needsReauth && (
+                      <p className="mt-2 text-sm font-medium text-red-800">
+                        Click &quot;Continue with Google&quot; below to sign in again and grant access.
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>
@@ -166,7 +173,7 @@ export default async function LoginPage({
               </ul>
             </div>
 
-            {/* Connect button */}
+            {/* Connect button — when reauth, URL includes prompt=consent so Google returns refresh_token */}
             <a
               href={googleAuthUrl}
               className="flex w-full items-center justify-center gap-3 rounded-full border border-[#E7E5E4] bg-white px-6 py-3.5 font-medium text-[#1C1917] transition-all hover:bg-[#FDF6EC] hover:shadow-md"
