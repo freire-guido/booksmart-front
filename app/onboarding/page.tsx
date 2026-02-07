@@ -96,6 +96,7 @@ export default function OnboardingPage() {
   const [mappingLoading, setMappingLoading] = useState(false);
   const [importLoading, setImportLoading] = useState(false);
   const [csvError, setCsvError] = useState<string | null>(null);
+  const [skipLoading, setSkipLoading] = useState(false);
 
   // Complete state
   const [importedCount, setImportedCount] = useState(0);
@@ -409,6 +410,20 @@ export default function OnboardingPage() {
     router.push("/dashboard");
   };
 
+  const handleSkipOnboarding = async () => {
+    setSkipLoading(true);
+    try {
+      const res = await fetch("/api/onboarding/complete", { method: "POST" });
+      if (!res.ok) {
+        setSkipLoading(false);
+        return;
+      }
+      router.push("/dashboard");
+    } catch {
+      setSkipLoading(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#FAF8F5]">
@@ -587,6 +602,22 @@ export default function OnboardingPage() {
                     </p>
                   </div>
                 </div>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleSkipOnboarding}
+                disabled={skipLoading}
+                className="w-full rounded-2xl border border-[#E7E5E4] bg-white p-4 text-center text-sm font-medium text-[#78716C] transition-colors hover:border-[#D6D3D1] hover:bg-[#FAFAF9] hover:text-[#1C1917] disabled:opacity-50"
+              >
+                {skipLoading ? (
+                  <span className="inline-flex items-center gap-2">
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-[#E7E5E4] border-t-[#EA580C]" />
+                    Setting up…
+                  </span>
+                ) : (
+                  "Skip for now"
+                )}
               </button>
             </div>
           )}
