@@ -18,8 +18,14 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
+const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://booksmart.app";
+
 export const metadata: Metadata = {
-  title: "BookSmart - Turn Booking Chaos Into a Clear Schedule",
+  metadataBase: new URL(baseUrl),
+  title: {
+    default: "BookSmart - Turn Booking Chaos Into a Clear Schedule",
+    template: "%s | BookSmart",
+  },
   description:
     "BookSmart uses AI to parse your Gmail booking confirmations from Airbnb, GetYourGuide, Viator, and more. Keep your schedule live, accurate, and always up to date.",
   keywords: [
@@ -32,12 +38,49 @@ export const metadata: Metadata = {
     "GetYourGuide",
     "Viator",
   ],
+  authors: [{ name: "BookSmart", url: baseUrl }],
+  creator: "BookSmart",
+  publisher: "BookSmart",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
   openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: baseUrl,
+    siteName: "BookSmart",
     title: "BookSmart - Focus on Your Guests, Not Your Inbox",
     description:
       "AI-powered booking management that reads your Gmail and keeps your schedule live and accurate.",
-    type: "website",
+    images: [
+      {
+        url: "/icon.svg",
+        width: 512,
+        height: 512,
+        alt: "BookSmart - Booking management for tourism professionals",
+      },
+    ],
   },
+  twitter: {
+    card: "summary_large_image",
+    title: "BookSmart - Focus on Your Guests, Not Your Inbox",
+    description:
+      "AI-powered booking management that reads your Gmail and keeps your schedule live and accurate.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+    },
+  },
+  alternates: {
+    canonical: baseUrl,
+  },
+  category: "technology",
 };
 
 export default function RootLayout({

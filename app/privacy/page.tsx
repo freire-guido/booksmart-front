@@ -1,5 +1,13 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import Navbar from "../components/Navbar";
+
+export const metadata: Metadata = {
+  title: "Privacy Policy",
+  description:
+    "BookSmart Privacy Policy. How we collect, use, and protect your information. We do not store full email content—only extracted booking data.",
+  robots: { index: true, follow: true },
+};
 
 export default function Privacy() {
   return (
