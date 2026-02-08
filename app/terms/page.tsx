@@ -1,5 +1,13 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import Navbar from "../components/Navbar";
+
+export const metadata: Metadata = {
+  title: "Terms of Service",
+  description:
+    "BookSmart Terms of Service. Agreement, service description, your responsibilities, and important disclaimers about AI-extracted data.",
+  robots: { index: true, follow: true },
+};
 
 export default function Terms() {
   return (

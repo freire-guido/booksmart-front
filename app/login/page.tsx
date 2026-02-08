@@ -1,5 +1,12 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { getGoogleAuthUrl } from "@/lib/google-oauth";
+
+export const metadata: Metadata = {
+  title: "Log in",
+  description: "Connect your Gmail to BookSmart. We read only booking confirmations to keep your schedule live and accurate.",
+  robots: { index: false, follow: true },
+};
 
 type SearchParams = Promise<{ error?: string; reauth?: string }>;
 

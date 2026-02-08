@@ -1,6 +1,18 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import Navbar from "../components/Navbar";
+
+export const metadata: Metadata = {
+  title: "About Us",
+  description:
+    "BookSmart was built in Buenos Aires to help tourism professionals focus on their guests instead of their inbox. Meet the team and our story.",
+  openGraph: {
+    title: "About BookSmart - Built from the kitchen table",
+    description:
+      "BookSmart was built in Buenos Aires to help tourism professionals focus on their guests instead of their inbox.",
+  },
+};
 
 export default function About() {
   return (
