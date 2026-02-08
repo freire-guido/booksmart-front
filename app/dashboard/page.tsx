@@ -2,7 +2,12 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import useSWR from "swr";
 import Navbar from "../components/Navbar";
+
+const BOOKINGS_POLL_INTERVAL_MS = 30_000;
+
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 type Platform = 'airbnb' | 'viator' | 'getyourguide' | 'civitatis' | 'tripadvisor' | 'booking_com' | 'expedia' | 'meitre' | 'other';
 
@@ -1807,45 +1812,69 @@ export default function DashboardPage() {
   
   const weekDates = getWeekDates(currentWeekStart);
 
-  // Check authentication and fetch bookings
+  // Auth: fetch once, cache with SWR
+  const { data: meData } = useSWR<{ user: { onboarding_completed?: boolean } | null }>(
+    "/api/auth/me",
+    fetcher
+  );
+
+  const authReady = meData !== undefined;
+  const ready =
+    !!meData?.user && meData.user.onboarding_completed !== false;
+
+  // Bookings: poll every 30s when authenticated and onboarded (SWR cache + revalidate)
+  const {
+    data: bookingsResponse,
+    isValidating: bookingsValidating,
+    error: bookingsError,
+    mutate: mutateBookings,
+  } = useSWR<{ bookings: SupabaseBooking[] }>(
+    ready ? "/api/bookings" : null,
+    fetcher,
+    { refreshInterval: BOOKINGS_POLL_INTERVAL_MS }
+  );
+
+  const syncing = bookingsValidating && !!bookingsResponse?.bookings?.length;
+
+  // Sync SWR bookings into local state (for edits/add/delete from modals)
+  const bookingsData = bookingsResponse?.bookings;
   useEffect(() => {
-    async function loadData() {
-      try {
-        // Check auth
-        const meRes = await fetch("/api/auth/me");
-        const meData = await meRes.json();
-        
-        if (!meData.user) {
-          setIsAuthenticated(false);
-          return;
-        }
+    if (!bookingsData) return;
+    const mapped = (bookingsData as SupabaseBooking[]).map(mapSupabaseBooking);
+    setBookings(mapped);
+  }, [bookingsData]);
 
-        if (meData.user.onboarding_completed === false) {
-          router.push("/onboarding");
-          return;
-        }
-
-        setIsAuthenticated(true);
-        
-        // Fetch bookings
-        const bookingsRes = await fetch("/api/bookings");
-        if (!bookingsRes.ok) {
-          throw new Error("Failed to fetch bookings");
-        }
-        
-        const bookingsData = await bookingsRes.json();
-        const mappedBookings = (bookingsData.bookings as SupabaseBooking[]).map(mapSupabaseBooking);
-        setBookings(mappedBookings);
-      } catch (err) {
-        console.error("Error loading dashboard:", err);
-        setError("Failed to load bookings. Please try again.");
-      } finally {
-        setLoading(false);
-      }
+  // Loading: waiting for auth or first bookings load
+  useEffect(() => {
+    if (!authReady) {
+      setLoading(true);
+      return;
     }
-    
-    loadData();
-  }, []);
+    if (!meData?.user) {
+      setIsAuthenticated(false);
+      setLoading(false);
+      return;
+    }
+    if (meData.user.onboarding_completed === false) {
+      router.push("/onboarding");
+      setLoading(false);
+      return;
+    }
+    setIsAuthenticated(true);
+    if (ready && bookingsData === undefined && !bookingsError) {
+      setLoading(true);
+    } else {
+      setLoading(false);
+    }
+  }, [authReady, meData, ready, bookingsData, bookingsError, router]);
+
+  useEffect(() => {
+    if (bookingsError) {
+      setError("Failed to load bookings. Please try again.");
+    } else {
+      setError(null);
+    }
+  }, [bookingsError]);
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -1927,13 +1956,29 @@ export default function DashboardPage() {
                 All your bookings in one place
               </p>
             </div>
-            {/* Sync status — stays on same row */}
-            <div className="flex shrink-0 items-center gap-2 rounded-full bg-green-50 px-3 py-1.5 text-sm font-medium text-green-700">
+            {/* Sync status — yellow when revalidating, green when idle */}
+            <div
+              className={`flex shrink-0 items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium ${
+                syncing
+                  ? "bg-amber-50 text-amber-700"
+                  : "bg-green-50 text-green-700"
+              }`}
+            >
               <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-500 opacity-75"></span>
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500"></span>
+                <span
+                  className={`absolute inline-flex h-full w-full rounded-full opacity-75 ${
+                    syncing
+                      ? "animate-ping bg-amber-500"
+                      : "animate-ping bg-green-500"
+                  }`}
+                />
+                <span
+                  className={`relative inline-flex h-2 w-2 rounded-full ${
+                    syncing ? "bg-amber-500" : "bg-green-500"
+                  }`}
+                />
               </span>
-              Live Sync
+              {syncing ? "Syncing..." : "Live Sync"}
             </div>
           </div>
         </div>
@@ -2070,10 +2115,12 @@ export default function DashboardPage() {
               prev.map((b) => (b.id === updatedBooking.id ? updatedBooking : b))
             );
             setSelectedBooking(updatedBooking);
+            void mutateBookings();
           }}
           onDelete={(bookingId) => {
             setBookings((prev) => prev.filter((b) => b.id !== bookingId));
             setSelectedBooking(null);
+            void mutateBookings();
           }}
         />
       )}
@@ -2085,6 +2132,7 @@ export default function DashboardPage() {
           onClose={() => setCreateBookingDate(null)}
           onCreate={(newBooking) => {
             setBookings((prev) => [...prev, newBooking]);
+            void mutateBookings();
           }}
         />
       )}
