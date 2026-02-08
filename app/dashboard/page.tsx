@@ -1831,7 +1831,11 @@ export default function DashboardPage() {
   } = useSWR<{ bookings: SupabaseBooking[] }>(
     ready ? "/api/bookings" : null,
     fetcher,
-    { refreshInterval: BOOKINGS_POLL_INTERVAL_MS }
+    {
+      refreshInterval: BOOKINGS_POLL_INTERVAL_MS,
+      revalidateOnFocus: true,
+      revalidateOnReconnect: true,
+    }
   );
 
   const syncing = bookingsValidating && !!bookingsResponse?.bookings?.length;

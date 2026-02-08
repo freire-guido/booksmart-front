@@ -1,7 +1,27 @@
 import { NextRequest, NextResponse } from "next/server";
+import { unstable_cache } from "next/cache";
 import { createServerClient } from "@/lib/supabase";
 
 type Platform = 'airbnb' | 'viator' | 'getyourguide' | 'civitatis' | 'tripadvisor' | 'booking_com' | 'expedia' | 'meitre' | 'other';
+
+const BOOKINGS_SELECT = `
+  id,
+  platform,
+  guest_name,
+  guest_count,
+  booking_date,
+  booking_time,
+  status,
+  activity_name,
+  dietary_restrictions,
+  special_requests,
+  email_id,
+  email_subject,
+  email_preview,
+  email_received_at,
+  extraction_confidence,
+  manually_reviewed
+`;
 
 export async function GET(request: NextRequest) {
   const session = request.cookies.get("booksmart_session")?.value;
@@ -12,7 +32,7 @@ export async function GET(request: NextRequest) {
 
   const supabase = createServerClient();
 
-  // Get user and their organization from gmail_accounts
+  // Get user and their organization (auth outside cache)
   const { data: user, error: userError } = await supabase
     .from("gmail_accounts")
     .select("id, organization_id")
@@ -23,36 +43,29 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "User not found" }, { status: 404 });
   }
 
-  // Fetch bookings for this organization
-  const { data: bookings, error: bookingsError } = await supabase
-    .from("bookings")
-    .select(`
-      id,
-      platform,
-      guest_name,
-      guest_count,
-      booking_date,
-      booking_time,
-      status,
-      activity_name,
-      dietary_restrictions,
-      special_requests,
-      email_id,
-      email_subject,
-      email_preview,
-      email_received_at,
-      extraction_confidence,
-      manually_reviewed
-    `)
-    .eq("organization_id", user.organization_id)
-    .order("booking_date", { ascending: true });
+  const organizationId = user.organization_id;
 
-  if (bookingsError) {
-    console.error("Error fetching bookings:", bookingsError);
-    return NextResponse.json({ error: "Failed to fetch bookings" }, { status: 500 });
-  }
+  // Server-side cache: revalidated by worker via revalidateTag(`bookings-${organizationId}`)
+  const getCachedBookings = unstable_cache(
+    async () => {
+      const db = createServerClient();
+      const { data, error } = await db
+        .from("bookings")
+        .select(BOOKINGS_SELECT)
+        .eq("organization_id", organizationId)
+        .order("booking_date", { ascending: true });
+      if (error) {
+        console.error("Error fetching bookings:", error);
+        throw new Error("Failed to fetch bookings");
+      }
+      return data ?? [];
+    },
+    ["bookings", organizationId],
+    { tags: ["bookings", `bookings-${organizationId}`] }
+  );
 
-  return NextResponse.json({ bookings: bookings || [] });
+  const bookings = await getCachedBookings();
+  return NextResponse.json({ bookings });
 }
 
 export async function POST(request: NextRequest) {
