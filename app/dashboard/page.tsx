@@ -1835,6 +1835,7 @@ export default function DashboardPage() {
   );
 
   const syncing = bookingsValidating && !!bookingsResponse?.bookings?.length;
+  const hasSyncError = ready && !!bookingsError;
 
   // Sync SWR bookings into local state (for edits/add/delete from modals)
   const bookingsData = bookingsResponse?.bookings;
@@ -1956,30 +1957,44 @@ export default function DashboardPage() {
                 All your bookings in one place
               </p>
             </div>
-            {/* Sync status — yellow when revalidating, green when idle */}
-            <div
-              className={`flex shrink-0 items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium ${
-                syncing
-                  ? "bg-amber-50 text-amber-700"
-                  : "bg-green-50 text-green-700"
-              }`}
-            >
-              <span className="relative flex h-2 w-2">
-                <span
-                  className={`absolute inline-flex h-full w-full rounded-full opacity-75 ${
-                    syncing
-                      ? "animate-ping bg-amber-500"
-                      : "animate-ping bg-green-500"
-                  }`}
-                />
-                <span
-                  className={`relative inline-flex h-2 w-2 rounded-full ${
-                    syncing ? "bg-amber-500" : "bg-green-500"
-                  }`}
-                />
-              </span>
-              {syncing ? "Syncing..." : "Live Sync"}
-            </div>
+            {/* Sync status — red (click to retry) when error, yellow when revalidating, green when idle */}
+            {hasSyncError ? (
+              <button
+                type="button"
+                onClick={() => void mutateBookings()}
+                className="flex shrink-0 cursor-pointer items-center gap-2 rounded-full bg-red-50 px-3 py-1.5 text-sm font-medium text-red-700 transition-colors hover:bg-red-100"
+                aria-label="Sync failed. Click to try again."
+              >
+                <span className="relative flex h-2 w-2">
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-red-500" />
+                </span>
+                Error
+              </button>
+            ) : (
+              <div
+                className={`flex shrink-0 items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium ${
+                  syncing
+                    ? "bg-amber-50 text-amber-700"
+                    : "bg-green-50 text-green-700"
+                }`}
+              >
+                <span className="relative flex h-2 w-2">
+                  <span
+                    className={`absolute inline-flex h-full w-full rounded-full opacity-75 ${
+                      syncing
+                        ? "animate-ping bg-amber-500"
+                        : "animate-ping bg-green-500"
+                    }`}
+                  />
+                  <span
+                    className={`relative inline-flex h-2 w-2 rounded-full ${
+                      syncing ? "bg-amber-500" : "bg-green-500"
+                    }`}
+                  />
+                </span>
+                {syncing ? "Syncing..." : "Live Sync"}
+              </div>
+            )}
           </div>
         </div>
 
