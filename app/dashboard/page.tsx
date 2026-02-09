@@ -2049,7 +2049,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Summary stats + Email stack */}
-          <div className="flex flex-wrap items-center gap-2 text-sm">
+          <div className="flex flex-wrap items-center justify-end gap-2 text-sm">
             <div className="rounded-lg bg-card px-2.5 py-1.5 border border-border">
               <span className="text-foreground-muted">Bookings:</span>{" "}
               <span className="font-medium text-foreground">
