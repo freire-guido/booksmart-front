@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import useSWR from "swr";
-import Navbar from "../components/Navbar";
+import DashboardNavbar from "../components/DashboardNavbar";
 
 const BOOKINGS_POLL_INTERVAL_MS = 30_000;
 
@@ -1939,7 +1939,7 @@ export default function DashboardPage() {
   if (isAuthenticated === null || (isAuthenticated === false)) {
     return (
       <div className="flex h-screen flex-col bg-[#FAF8F5]">
-        <Navbar />
+        <DashboardNavbar />
         <div className="flex flex-1 items-center justify-center">
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#EA580C] border-t-transparent" />
         </div>
@@ -1947,61 +1947,45 @@ export default function DashboardPage() {
     );
   }
 
+  const liveSyncInNavbar = hasSyncError ? (
+    <button
+      type="button"
+      onClick={() => void mutateBookings()}
+      className="flex shrink-0 cursor-pointer items-center gap-2 rounded-full bg-red-50 px-3 py-1.5 text-sm font-medium text-red-700 transition-colors hover:bg-red-100"
+      aria-label="Sync failed. Click to try again."
+    >
+      <span className="relative flex h-2 w-2">
+        <span className="relative inline-flex h-2 w-2 rounded-full bg-red-500" />
+      </span>
+      Error
+    </button>
+  ) : (
+    <div
+      className={`flex shrink-0 items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium ${
+        syncing ? "bg-amber-50 text-amber-700" : "bg-green-50 text-green-700"
+      }`}
+    >
+      <span className="relative flex h-2 w-2">
+        <span
+          className={`absolute inline-flex h-full w-full rounded-full opacity-75 ${
+            syncing ? "animate-ping bg-amber-500" : "animate-ping bg-green-500"
+          }`}
+        />
+        <span
+          className={`relative inline-flex h-2 w-2 rounded-full ${
+            syncing ? "bg-amber-500" : "bg-green-500"
+          }`}
+        />
+      </span>
+      {syncing ? "Syncing..." : "Live Sync"}
+    </div>
+  );
+
   return (
     <div className="flex h-screen flex-col bg-[#FAF8F5]">
-      <Navbar />
+      <DashboardNavbar rightContent={liveSyncInNavbar} />
 
       <main className="mx-auto flex min-h-0 w-full max-w-7xl flex-1 flex-col px-4 py-4 sm:px-6 sm:py-6">
-        {/* Header — title and Live Sync on one row on all sizes to save vertical space */}
-        <div className="mb-4 shrink-0">
-          <div className="flex items-center justify-between gap-3">
-            <div className="min-w-0 flex-1">
-              <h1 className="text-xl font-semibold text-[#1C1917] sm:text-2xl">Dashboard</h1>
-              <p className="mt-0.5 hidden text-sm text-[#78716C] sm:block">
-                All your bookings in one place
-              </p>
-            </div>
-            {/* Sync status — red (click to retry) when error, yellow when revalidating, green when idle */}
-            {hasSyncError ? (
-              <button
-                type="button"
-                onClick={() => void mutateBookings()}
-                className="flex shrink-0 cursor-pointer items-center gap-2 rounded-full bg-red-50 px-3 py-1.5 text-sm font-medium text-red-700 transition-colors hover:bg-red-100"
-                aria-label="Sync failed. Click to try again."
-              >
-                <span className="relative flex h-2 w-2">
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-red-500" />
-                </span>
-                Error
-              </button>
-            ) : (
-              <div
-                className={`flex shrink-0 items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium ${
-                  syncing
-                    ? "bg-amber-50 text-amber-700"
-                    : "bg-green-50 text-green-700"
-                }`}
-              >
-                <span className="relative flex h-2 w-2">
-                  <span
-                    className={`absolute inline-flex h-full w-full rounded-full opacity-75 ${
-                      syncing
-                        ? "animate-ping bg-amber-500"
-                        : "animate-ping bg-green-500"
-                    }`}
-                  />
-                  <span
-                    className={`relative inline-flex h-2 w-2 rounded-full ${
-                      syncing ? "bg-amber-500" : "bg-green-500"
-                    }`}
-                  />
-                </span>
-                {syncing ? "Syncing..." : "Live Sync"}
-              </div>
-            )}
-          </div>
-        </div>
-
         {/* Error state */}
         {error && (
           <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-4">
