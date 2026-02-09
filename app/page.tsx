@@ -181,7 +181,7 @@ export default function Home() {
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-card opacity-75"></span>
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-card"></span>
               </span>
-              LIVE
+              Live Sync
             </div>
             <h2 className="mb-4 text-3xl font-semibold text-white lg:text-4xl">
               Always up to date. Always accurate.
