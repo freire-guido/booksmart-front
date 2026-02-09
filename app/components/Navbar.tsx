@@ -6,10 +6,15 @@ import { useState } from "react";
 export default function Navbar() {
   const [open, setOpen] = useState(false);
 
+  const pillFrost = "border border-white/20 bg-white/60 shadow-lg shadow-black/5 backdrop-blur-md";
+
   return (
     <>
-      <nav className="fixed left-1/2 top-4 z-50 w-[calc(100%-2rem)] max-w-6xl -translate-x-1/2 rounded-2xl border border-white/20 bg-white/60 shadow-lg shadow-black/5 backdrop-blur-md">
-        <div className="mx-auto flex items-center justify-between px-4 py-3 sm:px-6 sm:py-3.5">
+      <nav className="fixed left-1/2 top-4 z-50 w-[calc(100%-2rem)] max-w-6xl -translate-x-1/2">
+        {/* Top bar — only this has the pill bg when closed; when open it gets rounded-t so dropdown can sit below with page behind it */}
+        <div
+          className={`mx-auto flex items-center justify-between px-4 py-3 sm:px-6 sm:py-3.5 ${pillFrost} ${open ? "rounded-t-2xl border-b-0" : "rounded-2xl"}`}
+        >
           <Link href="/" className="flex items-center gap-2" onClick={() => setOpen(false)}>
             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-accent sm:h-8 sm:w-8">
               <svg
@@ -61,18 +66,18 @@ export default function Navbar() {
         </div>
 
         {open && (
-          <div className="rounded-b-2xl border-t border-white/20 bg-white/70 px-4 py-3 backdrop-blur-md">
-            <div className="flex flex-col gap-1">
+          <div className={`rounded-b-2xl border border-white/20 border-t-0 bg-white/60 px-4 py-3 shadow-lg shadow-black/5 backdrop-blur-md`}>
+            <div className="flex flex-col items-center justify-center gap-1">
               <Link
                 href="/about"
-                className="rounded-lg px-3 py-2.5 text-sm font-medium text-foreground-muted hover:bg-background-secondary hover:text-foreground"
+                className="w-full rounded-lg px-3 py-2.5 text-center text-sm font-medium text-foreground-muted hover:bg-white/20 hover:text-foreground"
                 onClick={() => setOpen(false)}
               >
                 About
               </Link>
               <Link
                 href="/dashboard"
-                className="rounded-lg px-3 py-2.5 text-sm font-medium text-foreground-muted hover:bg-background-secondary hover:text-foreground"
+                className="w-full rounded-lg px-3 py-2.5 text-center text-sm font-medium text-foreground-muted hover:bg-white/20 hover:text-foreground"
                 onClick={() => setOpen(false)}
               >
                 Log in
