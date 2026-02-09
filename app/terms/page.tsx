@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Footer from "../components/Footer";
 import Navbar from "../components/Navbar";
 
 export const metadata: Metadata = {
@@ -11,23 +12,23 @@ export const metadata: Metadata = {
 
 export default function Terms() {
   return (
-    <div className="min-h-screen bg-[#FAF8F5] overflow-x-hidden">
+    <div className="min-h-screen bg-background overflow-x-hidden">
       <Navbar />
 
       <section className="mx-auto max-w-3xl px-6 py-12 lg:py-16">
         <div className="mb-10">
-          <p className="mb-2 text-sm font-medium uppercase tracking-wide text-[#EA580C]">
+          <p className="mb-2 text-sm font-medium uppercase tracking-wide text-accent">
             Legal
           </p>
-          <h1 className="mb-4 text-4xl font-semibold leading-tight tracking-tight text-[#1C1917] lg:text-5xl">
+          <h1 className="mb-4 text-4xl font-semibold leading-tight tracking-tight text-foreground lg:text-5xl">
             Terms of Service
           </h1>
-          <p className="text-sm text-[#78716C]">Last updated: February 7, 2026</p>
+          <p className="text-sm text-foreground-muted">Last updated: February 7, 2026</p>
         </div>
 
         <div className="space-y-10 text-[#57534E]">
           <section>
-            <h2 className="mb-3 text-xl font-semibold text-[#1C1917]">
+            <h2 className="mb-3 text-xl font-semibold text-foreground">
               1. Agreement
             </h2>
             <p className="leading-relaxed">
@@ -36,7 +37,7 @@ export default function Terms() {
           </section>
 
           <section>
-            <h2 className="mb-3 text-xl font-semibold text-[#1C1917]">
+            <h2 className="mb-3 text-xl font-semibold text-foreground">
               2. Description of Service
             </h2>
             <p className="leading-relaxed">
@@ -45,7 +46,7 @@ export default function Terms() {
           </section>
 
           <section>
-            <h2 className="mb-3 text-xl font-semibold text-[#1C1917]">
+            <h2 className="mb-3 text-xl font-semibold text-foreground">
               3. Your Responsibilities
             </h2>
             <p className="mb-3 leading-relaxed">
@@ -60,11 +61,11 @@ export default function Terms() {
           </section>
 
           <section>
-            <h2 className="mb-3 text-xl font-semibold text-[#1C1917]">
+            <h2 className="mb-3 text-xl font-semibold text-foreground">
               4. Accuracy of Extracted Information: Important Disclaimer
             </h2>
             <p className="mb-3 leading-relaxed">
-              The Service uses artificial intelligence to automatically extract information from your emails. <strong className="text-[#1C1917]">Extraction is not guaranteed to be complete or accurate.</strong> You are solely responsible for verifying all extracted data before acting on it.
+              The Service uses artificial intelligence to automatically extract information from your emails. <strong className="text-foreground">Extraction is not guaranteed to be complete or accurate.</strong> You are solely responsible for verifying all extracted data before acting on it.
             </p>
             <p className="mb-3 leading-relaxed">
               We expressly disclaim responsibility for missed or incorrect dietary restrictions, allergies, special requests, reschedulings, cancellations, modifications, or any other omissions or errors in extracted information. BookSmart is a management tool and does not replace your own verification and due diligence.
@@ -72,7 +73,7 @@ export default function Terms() {
           </section>
 
           <section>
-            <h2 className="mb-3 text-xl font-semibold text-[#1C1917]">
+            <h2 className="mb-3 text-xl font-semibold text-foreground">
               5. Limitation of Liability
             </h2>
             <p className="leading-relaxed">
@@ -81,7 +82,7 @@ export default function Terms() {
           </section>
 
           <section>
-            <h2 className="mb-3 text-xl font-semibold text-[#1C1917]">
+            <h2 className="mb-3 text-xl font-semibold text-foreground">
               6. Service Availability
             </h2>
             <p className="leading-relaxed">
@@ -90,7 +91,7 @@ export default function Terms() {
           </section>
 
           <section>
-            <h2 className="mb-3 text-xl font-semibold text-[#1C1917]">
+            <h2 className="mb-3 text-xl font-semibold text-foreground">
               7. Termination
             </h2>
             <p className="leading-relaxed">
@@ -99,7 +100,7 @@ export default function Terms() {
           </section>
 
           <section>
-            <h2 className="mb-3 text-xl font-semibold text-[#1C1917]">
+            <h2 className="mb-3 text-xl font-semibold text-foreground">
               8. Changes
             </h2>
             <p className="leading-relaxed">
@@ -108,7 +109,7 @@ export default function Terms() {
           </section>
 
           <section>
-            <h2 className="mb-3 text-xl font-semibold text-[#1C1917]">
+            <h2 className="mb-3 text-xl font-semibold text-foreground">
               9. Contact
             </h2>
             <p className="leading-relaxed">
@@ -118,62 +119,7 @@ export default function Terms() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-[#E7E5E4] bg-[#FAF8F5] py-8 mt-16">
-        <div className="mx-auto max-w-6xl px-6">
-          <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
-            <Link href="/" className="flex items-center gap-2">
-              <div className="h-8 w-8 flex items-center justify-center rounded-lg bg-[#EA580C]">
-                <svg
-                  className="h-5 w-5 text-white"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                  />
-                </svg>
-              </div>
-              <span className="text-lg font-semibold text-[#1C1917]">
-                BookSmart
-              </span>
-            </Link>
-            <div className="flex items-center gap-6">
-              <Link
-                href="/privacy"
-                className="text-sm text-[#78716C] hover:text-[#1C1917]"
-              >
-                Privacy Policy
-              </Link>
-              <Link
-                href="/terms"
-                className="text-sm text-[#78716C] hover:text-[#1C1917]"
-              >
-                Terms of Service
-              </Link>
-              <Link
-                href="/about"
-                className="text-sm text-[#78716C] hover:text-[#1C1917]"
-              >
-                About
-              </Link>
-              <Link
-                href="/about"
-                className="text-sm text-[#78716C] hover:text-[#1C1917]"
-              >
-                Contact
-              </Link>
-            </div>
-            <p className="text-sm text-[#78716C]">
-              © 2026 BookSmart. All rights reserved.
-            </p>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

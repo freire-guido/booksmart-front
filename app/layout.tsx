@@ -18,7 +18,7 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://booksmart.app";
+const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
@@ -46,6 +46,7 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
+  // OG/Twitter image: same as favicon (app/icon.svg) for a single source of truth
   openGraph: {
     type: "website",
     locale: "en_US",
@@ -68,6 +69,7 @@ export const metadata: Metadata = {
     title: "BookSmart - Focus on Your Guests, Not Your Inbox",
     description:
       "AI-powered booking management that reads your Gmail and keeps your schedule live and accurate.",
+    images: ["/icon.svg"],
   },
   robots: {
     index: true,

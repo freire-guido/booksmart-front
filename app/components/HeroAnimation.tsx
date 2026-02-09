@@ -176,14 +176,14 @@ export default function HeroAnimation() {
 
   return (
     <div className="relative overflow-hidden">
-      <div className="rounded-2xl border border-[#E7E5E4] bg-white p-4 sm:p-6 shadow-xl shadow-[#EA580C]/5 overflow-hidden">
+      <div className="rounded-2xl border border-border bg-card p-4 sm:p-6 shadow-xl shadow-accent/5 overflow-hidden">
         {/* Email Cards */}
         <div className="mb-4 space-y-2">
           {emails.map((email, index) => (
             <div
               key={email.id}
-              className={`rounded-xl border border-[#E7E5E4] p-3 transition-all duration-500 ${
-                index === 0 ? "bg-[#FDF6EC] scale-100" : "bg-[#FDF6EC]/50 scale-[0.98]"
+              className={`rounded-xl border border-border p-3 transition-all duration-500 ${
+                index === 0 ? "bg-background-secondary scale-100" : "bg-background-secondary/50 scale-[0.98]"
               } ${
                 email.type === "cancellation"
                   ? "border-red-200"
@@ -201,7 +201,7 @@ export default function HeroAnimation() {
                     ? "bg-red-100"
                     : email.type === "reschedule"
                     ? "bg-amber-100"
-                    : "bg-[#EA580C]/10"
+                    : "bg-accent/10"
                 }`}>
                   {email.type === "cancellation" ? (
                     <svg className="h-4 w-4 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -212,14 +212,14 @@ export default function HeroAnimation() {
                       <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                     </svg>
                   ) : (
-                    <svg className="h-4 w-4 text-[#EA580C]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <svg className="h-4 w-4 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                     </svg>
                   )}
                 </div>
                 <div className="flex-1 min-w-0 overflow-hidden">
                   <div className="flex items-center gap-2">
-                    <p className="text-sm font-medium text-[#1C1917] truncate">{email.platform}</p>
+                    <p className="text-sm font-medium text-foreground truncate">{email.platform}</p>
                     {email.type === "cancellation" && (
                       <span className="text-xs font-medium text-red-500 shrink-0">CANCELLED</span>
                     )}
@@ -227,7 +227,7 @@ export default function HeroAnimation() {
                       <span className="text-xs font-medium text-amber-500 shrink-0">→ {email.date}</span>
                     )}
                   </div>
-                  <p className="text-xs text-[#78716C] truncate">
+                  <p className="text-xs text-foreground-muted truncate">
                     {email.guest} ({email.guests} guests)
                   </p>
                 </div>
@@ -239,7 +239,7 @@ export default function HeroAnimation() {
         {/* Arrow */}
         <div className="my-4 flex justify-center">
           <div className={`flex h-10 w-10 items-center justify-center rounded-full transition-colors duration-300 ${
-            syncing ? "bg-amber-500" : "bg-[#EA580C]"
+            syncing ? "bg-amber-500" : "bg-accent"
           }`}>
             {syncing ? (
               <svg className="h-5 w-5 text-white animate-spin" fill="none" viewBox="0 0 24 24">
@@ -255,16 +255,16 @@ export default function HeroAnimation() {
         </div>
 
         {/* Calendar Card */}
-        <div className="rounded-xl border border-[#E7E5E4] bg-white p-3 sm:p-4 overflow-hidden">
+        <div className="rounded-xl border border-border bg-card p-3 sm:p-4 overflow-hidden">
           <div className="mb-3 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="text-center">
-                <p className="text-xs text-[#78716C]">{todayMonth}</p>
-                <p className="text-2xl font-semibold text-[#EA580C]">{todayDay}</p>
+                <p className="text-xs text-foreground-muted">{todayMonth}</p>
+                <p className="text-2xl font-semibold text-accent">{todayDay}</p>
               </div>
               <div>
-                <p className="text-sm font-medium text-[#1C1917]">{todayDayName}</p>
-                <p className="text-xs text-[#78716C]">
+                <p className="text-sm font-medium text-foreground">{todayDayName}</p>
+                <p className="text-xs text-foreground-muted">
                   {activeBookings} booking{activeBookings !== 1 ? "s" : ""} · {totalGuests} guests
                 </p>
               </div>
@@ -304,15 +304,15 @@ export default function HeroAnimation() {
                     ? "bg-red-50 opacity-50"
                     : booking.status === "leaving" && booking.leavingType === "rescheduled"
                     ? "bg-amber-50 opacity-50"
-                    : "bg-[#EA580C]/5"
+                    : "bg-accent/5"
                 }`}
               >
-                <span className="text-xs font-medium text-[#78716C] w-16 sm:w-20 truncate shrink-0">{booking.platform}</span>
-                <span className={`flex-1 min-w-0 truncate ${booking.status === "leaving" ? "line-through text-[#78716C]" : "text-[#1C1917]"}`}>
+                <span className="text-xs font-medium text-foreground-muted w-16 sm:w-20 truncate shrink-0">{booking.platform}</span>
+                <span className={`flex-1 min-w-0 truncate ${booking.status === "leaving" ? "line-through text-foreground-muted" : "text-foreground"}`}>
                   {booking.guest}
                 </span>
                 {booking.dietary && booking.status === "confirmed" && (
-                  <span className="text-xs text-[#EA580C] shrink-0 hidden sm:inline">({booking.dietary})</span>
+                  <span className="text-xs text-accent shrink-0 hidden sm:inline">({booking.dietary})</span>
                 )}
                 {booking.status === "leaving" && booking.leavingType === "cancelled" && (
                   <span className="text-xs font-medium text-red-500 shrink-0">✕</span>
@@ -320,7 +320,7 @@ export default function HeroAnimation() {
                 {booking.status === "leaving" && booking.leavingType === "rescheduled" && (
                   <span className="text-xs font-medium text-amber-500 shrink-0">→</span>
                 )}
-                <span className="text-xs text-[#78716C] w-6 text-right shrink-0">{booking.guests}g</span>
+                <span className="text-xs text-foreground-muted w-6 text-right shrink-0">{booking.guests}g</span>
               </div>
             ))}
           </div>

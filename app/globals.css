@@ -1,5 +1,6 @@
 @import "tailwindcss";
 
+/* Single source of truth for app colors. Use in components via Tailwind: bg-background, text-foreground, bg-accent, border-border, etc. */
 :root {
   --background: #FAF8F5;
   --background-secondary: #FDF6EC;
@@ -8,6 +9,7 @@
   --accent: #EA580C;
   --accent-hover: #C2410C;
   --border: #E7E5E4;
+  --card: #ffffff;
 }
 
 @theme inline {
@@ -18,6 +20,7 @@
   --color-accent: var(--accent);
   --color-accent-hover: var(--accent-hover);
   --color-border: var(--border);
+  --color-card: var(--card);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }

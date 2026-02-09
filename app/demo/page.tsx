@@ -466,7 +466,7 @@ function EmailStack({
           )}
         </div>
         <span className="text-xs text-[#78716C]">
-          {mostRecent ? formatEmailDate(mostRecent.emailDate) : "—"}
+          {mostRecent ? formatEmailDate(mostRecent.emailDate) : "-"}
         </span>
         <svg
           className={`h-3.5 w-3.5 text-[#78716C] transition-transform ${expanded ? "rotate-180" : ""}`}
@@ -794,7 +794,7 @@ function DayColumn({
           {totalGuests !== 1 ? "s" : ""}
         </p>
         
-        {/* Dietary summary — fixed height so header alignment is consistent across days */}
+        {/* Dietary summary: fixed height so header alignment is consistent across days */}
         <div className="mt-2 flex min-h-[26px] flex-wrap items-center gap-1">
           {hasDietary && (
             <>
@@ -955,7 +955,7 @@ function MonthDayCell({
             {totalGuests !== 1 ? "s" : ""}
           </p>
 
-          {/* Dietary summary — same as weekly view */}
+          {/* Dietary summary: same as weekly view */}
           {hasDietary && (
             <div className="flex flex-wrap items-center gap-1">
               {dietary.vegetarian > 0 && (

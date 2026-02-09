@@ -88,7 +88,7 @@ export async function POST(request: NextRequest) {
         if (batchRes.status === 403) {
           batchData = {
             error:
-              "Batch service returned 403 Forbidden. The scan service may require authentication — allow invocations in Cloud Run IAM or use an authenticated client.",
+              "Batch service returned 403 Forbidden. The scan service may require authentication. Allow invocations in Cloud Run IAM or use an authenticated client.",
           };
           console.error(
             "Batch 403: allow unauthenticated invocations with: gcloud run services add-iam-policy-binding SERVICE_NAME --region=us-central1 --member=allUsers --role=roles/run.invoker"
