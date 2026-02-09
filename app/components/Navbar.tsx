@@ -11,7 +11,7 @@ export default function Navbar() {
   return (
     <>
       <nav className="fixed left-1/2 top-4 z-50 w-[calc(100%-2rem)] max-w-6xl -translate-x-1/2">
-        {/* Top bar — only this has the pill bg when closed; when open it gets rounded-t so dropdown can sit below with page behind it */}
+        {/* Top bar: only this has the pill bg when closed; when open it gets rounded-t so dropdown can sit below with page behind it */}
         <div
           className={`mx-auto flex items-center justify-between px-4 py-3 sm:px-6 sm:py-3.5 ${pillFrost} ${open ? "rounded-t-2xl border-b-0" : "rounded-2xl"}`}
         >

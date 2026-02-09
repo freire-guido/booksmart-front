@@ -180,7 +180,7 @@ export default async function LoginPage({
               </ul>
             </div>
 
-            {/* Connect button — when reauth, URL includes prompt=consent so Google returns refresh_token */}
+            {/* Connect button: when reauth, URL includes prompt=consent so Google returns refresh_token */}
             <a
               href={googleAuthUrl}
               className="flex w-full items-center justify-center gap-3 rounded-full border border-border bg-card px-6 py-3.5 font-medium text-foreground transition-all hover:bg-background-secondary hover:shadow-md"

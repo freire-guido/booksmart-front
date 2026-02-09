@@ -62,16 +62,16 @@ export default function About() {
 
               <div className="space-y-3 text-[#57534E]">
                 <p className="leading-relaxed">
-                  My family has always been in hospitality. I got tired of watching them comb through emails for hours every morning. Airbnb, GetYourGuide, Viator, direct bookings.
+                  I&apos;ve seen hospitality from the inside. The reality of combing through emails for hours every morning. Airbnb, GetYourGuide, Viator, direct bookings. It&apos;s the same story everywhere.
                 </p>
                 <p className="leading-relaxed">
-                  The thing that frustrated me most? Ask any of these businesses a simple question: <span className="font-medium text-foreground">&ldquo;How many guests did you serve last month?&rdquo;</span> and they couldn&apos;t tell you. Everything was scattered across inboxes and spreadsheets and sticky notes.
+                  The thing that got me: ask many of these businesses a simple question: <span className="font-medium text-foreground">&ldquo;How many guests did you serve last month?&rdquo;</span>, and they can&apos;t tell you. Everything is scattered across inboxes, spreadsheets, and sticky notes.
                 </p>
                 <p className="leading-relaxed">
-                  I figured if I could build clinical data infrastructure for pharma companies, I could probably parse a dinner reservation.
+                  I figured if I could build clinical trial data infrastructure for large pharmaceutical companies, I could probably parse a dinner reservation.
                 </p>
                 <p className="leading-relaxed font-medium text-foreground">
-                  Turns out I could. And now I&apos;m helping others do the same, and save 3+ hours every day like we did.
+                  Turns out I could. Now I&apos;m helping operators get their time back, 3+ hours every day, so they can focus on guests, not admin.
                 </p>
               </div>
             </div>
@@ -94,9 +94,9 @@ export default function About() {
                   side: "left" as const,
                   cards: [
                     {
-                      title: "Family roots",
+                      title: "Hospitality roots",
                       description:
-                        "Raised in a family of cooks and dinner parties. Learned firsthand that great hospitality is about people, not paperwork.",
+                        "Grew up around cooks and dinner parties. Learned early that great hospitality is about people, not paperwork.",
                     },
                   ],
                 },
@@ -123,7 +123,7 @@ export default function About() {
                     {
                       title: "The breaking point",
                       description:
-                        "Watching my parents spend hours daily managing bookings across 12+ platforms. There had to be a better way.",
+                        "Seeing operators spend hours every day managing bookings across 12+ platforms. There had to be a better way.",
                     },
                   ],
                 },
@@ -134,7 +134,7 @@ export default function About() {
                     {
                       title: "First prototype",
                       description:
-                        "Built the first version of BookSmart. Saved my parents 3+ hours every day.",
+                        "Built the first version of BookSmart. Early users were saving 3+ hours every day from day one.",
                     },
                   ],
                 },

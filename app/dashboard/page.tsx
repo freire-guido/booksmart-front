@@ -295,7 +295,7 @@ function EmailItem({
               {platformNames[booking.platform]}
             </p>
             <span className="shrink-0 text-xs text-foreground-muted">
-              {booking.emailDate ? formatEmailDate(booking.emailDate) : "—"}
+              {booking.emailDate ? formatEmailDate(booking.emailDate) : "-"}
             </span>
           </div>
           <p className="truncate text-xs text-foreground-muted">
@@ -398,7 +398,7 @@ function EmailStack({
           )}
         </div>
         <span className="text-xs text-foreground-muted">
-          {mostRecent?.emailDate ? formatEmailDate(mostRecent.emailDate) : "—"}
+          {mostRecent?.emailDate ? formatEmailDate(mostRecent.emailDate) : "-"}
         </span>
         <svg
           className={`h-3.5 w-3.5 text-foreground-muted transition-transform ${expanded ? "rotate-180" : ""}`}
@@ -411,7 +411,7 @@ function EmailStack({
         </svg>
       </button>
 
-      {/* Expanded dropdown — open right on mobile so it stays in view; open left on sm+ */}
+      {/* Expanded dropdown: open right on mobile so it stays in view; open left on sm+ */}
       {expanded && (
         <div className="absolute left-0 right-auto top-full z-20 mt-2 w-80 rounded-xl border border-border bg-card p-3 shadow-lg max-h-[400px] overflow-y-auto sm:left-auto sm:right-0">
           {/* Review Section (low-confidence + Pending) */}
@@ -935,7 +935,7 @@ function BookingModal({
               <div className="rounded-xl border border-border bg-background p-4">
                 <div className="mb-2 flex items-center justify-between">
                   <p className="text-xs font-medium text-foreground-muted">Original Email</p>
-                  <span className="text-xs text-foreground-muted">{booking.emailDate ? formatEmailDate(booking.emailDate) : "—"}</span>
+                  <span className="text-xs text-foreground-muted">{booking.emailDate ? formatEmailDate(booking.emailDate) : "-"}</span>
                 </div>
                 <p className="mb-2 text-sm font-medium text-foreground">{booking.emailSubject}</p>
                 <p className="text-xs leading-relaxed text-foreground-muted">{booking.emailPreview}</p>
@@ -1472,7 +1472,7 @@ function DayColumn({
           {totalGuests !== 1 ? "s" : ""}
         </p>
         
-        {/* Dietary summary — fixed height so header alignment is consistent across days */}
+        {/* Dietary summary: fixed height so header alignment is consistent across days */}
         <div className="mt-2 flex min-h-[26px] flex-wrap items-center gap-1">
           {hasDietary && (
             <>
@@ -1656,7 +1656,7 @@ function MonthDayCell({
             </span>
           </p>
 
-          {/* Dietary summary — same as weekly view */}
+          {/* Dietary summary: same as weekly view */}
           {hasDietary && (
             <div className="flex flex-wrap items-center gap-1">
               {dietary.vegetarian > 0 && (

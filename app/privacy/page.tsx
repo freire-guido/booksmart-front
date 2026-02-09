@@ -6,7 +6,7 @@ import Navbar from "../components/Navbar";
 export const metadata: Metadata = {
   title: "Privacy Policy",
   description:
-    "BookSmart Privacy Policy. How we collect, use, and protect your information. We do not store full email content—only extracted booking data.",
+    "BookSmart Privacy Policy. How we collect, use, and protect your information. We do not store full email content; we only store extracted booking data.",
   robots: { index: true, follow: true },
 };
 
