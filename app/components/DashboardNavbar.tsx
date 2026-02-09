@@ -37,10 +37,10 @@ export default function DashboardNavbar({ rightContent }: DashboardNavbarProps) 
 
   return (
     <>
-      <nav className="fixed left-0 right-0 top-0 z-50 border-b border-[#E7E5E4] bg-[#FAF8F5]">
+      <nav className="fixed left-0 right-0 top-0 z-50 border-b border-border bg-background">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 sm:py-3.5">
           <Link href="/dashboard" className="flex shrink-0 items-center gap-2">
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#EA580C] sm:h-8 sm:w-8">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-accent sm:h-8 sm:w-8">
               <svg
                 className="h-4 w-4 text-white sm:h-5 sm:w-5"
                 fill="none"
@@ -55,19 +55,19 @@ export default function DashboardNavbar({ rightContent }: DashboardNavbarProps) 
                 />
               </svg>
             </div>
-            <span className="text-base font-semibold text-[#1C1917] sm:text-xl">
+            <span className="text-base font-semibold text-foreground sm:text-xl">
               Dashboard
             </span>
           </Link>
 
           <div className="flex min-w-0 flex-1 items-center justify-end gap-3 sm:gap-4">
             {rightContent ?? null}
-            <span className="truncate text-sm font-medium text-[#1C1917]">
+            <span className="truncate text-sm font-medium text-foreground">
               {displayName}
             </span>
             <button
               onClick={handleLogout}
-              className="shrink-0 text-sm text-[#78716C] transition-colors hover:text-[#1C1917]"
+              className="shrink-0 text-sm text-foreground-muted transition-colors hover:text-foreground"
             >
               Log out
             </button>

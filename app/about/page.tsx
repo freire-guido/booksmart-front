@@ -17,16 +17,16 @@ export const metadata: Metadata = {
 
 export default function About() {
   return (
-    <div className="min-h-screen bg-[#FAF8F5] overflow-x-hidden">
+    <div className="min-h-screen bg-background overflow-x-hidden">
       <Navbar />
 
       {/* Hero */}
       <section className="mx-auto max-w-4xl px-6 py-12 lg:py-16">
         <div className="mb-10 text-center">
-          <p className="mb-2 text-sm font-medium uppercase tracking-wide text-[#EA580C]">
+          <p className="mb-2 text-sm font-medium uppercase tracking-wide text-accent">
             Our Story
           </p>
-          <h1 className="mb-4 text-4xl font-semibold leading-tight tracking-tight text-[#1C1917] lg:text-5xl">
+          <h1 className="mb-4 text-4xl font-semibold leading-tight tracking-tight text-foreground lg:text-5xl">
             Built from the kitchen table
           </h1>
         </div>
@@ -35,7 +35,7 @@ export default function About() {
         <div className="mb-12 grid gap-8 lg:grid-cols-5 lg:gap-10">
           {/* Founder Image */}
           <div className="mx-auto max-w-[280px] lg:col-span-2 lg:mx-0 lg:max-w-none">
-            <div className="aspect-[4/5] overflow-hidden rounded-2xl border border-[#E7E5E4]">
+            <div className="aspect-[4/5] overflow-hidden rounded-2xl border border-border">
               <Image
                 src="/guido.png"
                 alt="Guido Freire, Founder of BookSmart"
@@ -51,11 +51,11 @@ export default function About() {
           <div className="lg:col-span-3">
             <div className="space-y-4">
               <div className="text-center lg:text-left">
-                <h2 className="mb-1 text-2xl font-semibold text-[#1C1917]">
+                <h2 className="mb-1 text-2xl font-semibold text-foreground">
                   Guido Freire
                 </h2>
-                <p className="text-[#EA580C]">Founder & CEO</p>
-                <p className="text-sm text-[#78716C]">
+                <p className="text-accent">Founder & CEO</p>
+                <p className="text-sm text-foreground-muted">
                   AI Researcher · Data Science MSc
                 </p>
               </div>
@@ -65,12 +65,12 @@ export default function About() {
                   My family has always been in hospitality. I got tired of watching them comb through emails for hours every morning. Airbnb, GetYourGuide, Viator, direct bookings.
                 </p>
                 <p className="leading-relaxed">
-                  The thing that frustrated me most? Ask any of these businesses a simple question: <span className="font-medium text-[#1C1917]">&ldquo;How many guests did you serve last month?&rdquo;</span> and they couldn&apos;t tell you. Everything was scattered across inboxes and spreadsheets and sticky notes.
+                  The thing that frustrated me most? Ask any of these businesses a simple question: <span className="font-medium text-foreground">&ldquo;How many guests did you serve last month?&rdquo;</span> and they couldn&apos;t tell you. Everything was scattered across inboxes and spreadsheets and sticky notes.
                 </p>
                 <p className="leading-relaxed">
                   I figured if I could build clinical data infrastructure for pharma companies, I could probably parse a dinner reservation.
                 </p>
-                <p className="leading-relaxed font-medium text-[#1C1917]">
+                <p className="leading-relaxed font-medium text-foreground">
                   Turns out I could. And now I&apos;m helping others do the same, and save 3+ hours every day like we did.
                 </p>
               </div>
@@ -80,12 +80,12 @@ export default function About() {
 
         {/* Timeline */}
         <div className="mb-12">
-          <h2 className="mb-8 text-center text-2xl font-semibold text-[#1C1917]">
+          <h2 className="mb-8 text-center text-2xl font-semibold text-foreground">
             The Journey
           </h2>
           <div className="relative pl-4 lg:pl-0">
             {/* Timeline line - left on mobile, center on desktop */}
-            <div className="absolute left-0 top-0 h-full w-px bg-[#E7E5E4] lg:left-1/2 lg:-translate-x-1/2" />
+            <div className="absolute left-0 top-0 h-full w-px bg-border lg:left-1/2 lg:-translate-x-1/2" />
 
             <div className="space-y-8 lg:space-y-10">
               {[
@@ -183,24 +183,24 @@ export default function About() {
                       {entry.cards.map((card, j) => (
                         <div
                           key={j}
-                          className="rounded-2xl border border-[#E7E5E4] bg-white p-6"
+                          className="rounded-2xl border border-border bg-card p-6"
                         >
                           {j === 0 && (
-                            <p className="mb-1 text-sm font-semibold text-[#EA580C]">
+                            <p className="mb-1 text-sm font-semibold text-accent">
                               {entry.year}
                             </p>
                           )}
-                          <h3 className="mb-2 text-lg font-semibold text-[#1C1917]">
+                          <h3 className="mb-2 text-lg font-semibold text-foreground">
                             {card.title}
                           </h3>
-                          <p className="text-[#78716C]">{card.description}</p>
+                          <p className="text-foreground-muted">{card.description}</p>
                         </div>
                       ))}
                     </div>
                   </div>
 
                   {/* Timeline dot - aligned with line on mobile, center on desktop */}
-                  <div className="absolute -left-4 top-6 h-4 w-4 -translate-x-1/2 rounded-full border-4 border-[#FAF8F5] bg-[#EA580C] lg:left-1/2" />
+                  <div className="absolute -left-4 top-6 h-4 w-4 -translate-x-1/2 rounded-full border-4 border-background bg-accent lg:left-1/2" />
 
                   {/* Empty space for the other side */}
                   <div className="hidden lg:block lg:w-1/2" />
@@ -211,7 +211,7 @@ export default function About() {
         </div>
 
         {/* Mission */}
-        <div className="rounded-2xl bg-gradient-to-br from-[#EA580C] to-[#C2410C] p-6 text-center lg:p-8">
+        <div className="rounded-2xl bg-gradient-to-br from-accent to-accent-hover p-6 text-center lg:p-8">
           <h2 className="mb-3 text-2xl font-semibold text-white lg:text-3xl">
             Our Mission
           </h2>
@@ -222,18 +222,18 @@ export default function About() {
       </section>
 
       {/* CTA */}
-      <section className="border-t border-[#E7E5E4] bg-[#FDF6EC] py-10">
+      <section className="border-t border-border bg-background-secondary py-10">
         <div className="mx-auto max-w-4xl px-6 text-center">
-          <h2 className="mb-3 text-2xl font-semibold text-[#1C1917]">
+          <h2 className="mb-3 text-2xl font-semibold text-foreground">
             Ready to save hours every week?
           </h2>
-          <p className="mb-6 text-[#78716C]">
+          <p className="mb-6 text-foreground-muted">
             Join the agencies already using BookSmart to streamline their bookings.
           </p>
           <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Link
               href="/"
-              className="rounded-full border border-[#E7E5E4] bg-white px-8 py-3 font-medium text-[#1C1917] transition-colors hover:bg-[#FAF8F5]"
+              className="rounded-full border border-border bg-card px-8 py-3 font-medium text-foreground transition-colors hover:bg-background"
             >
               Back to Home
             </Link>
@@ -241,7 +241,7 @@ export default function About() {
               href="https://calendar.app.google/S5EC5XVDQoRn8BX4A"
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded-full bg-[#EA580C] px-8 py-3 font-medium text-white transition-colors hover:bg-[#C2410C]"
+              className="rounded-full bg-accent px-8 py-3 font-medium text-white transition-colors hover:bg-accent-hover"
             >
               Request Demo
             </a>

@@ -4,24 +4,24 @@ import Navbar from "./components/Navbar";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-[#FAF8F5] overflow-x-hidden">
+    <div className="min-h-screen bg-background overflow-x-hidden">
       <Navbar />
 
       {/* Hero Section */}
       <section className="mx-auto max-w-6xl px-6 pt-8 pb-20 lg:pt-10 lg:pb-28">
         <div className="grid gap-12 lg:grid-cols-2 lg:gap-16 items-center">
           <div className="space-y-8">
-            <div className="inline-flex items-center gap-2 rounded-full bg-[#FDF6EC] px-4 py-2 text-sm text-[#78716C]">
+            <div className="inline-flex items-center gap-2 rounded-full bg-background-secondary px-4 py-2 text-sm text-foreground-muted">
               <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#EA580C] opacity-75"></span>
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-[#EA580C]"></span>
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-75"></span>
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-accent"></span>
               </span>
               Trusted by 2,000+ travellers every month
             </div>
-            <h1 className="text-4xl font-semibold leading-tight tracking-tight text-[#1C1917] lg:text-5xl lg:leading-tight">
+            <h1 className="text-4xl font-semibold leading-tight tracking-tight text-foreground lg:text-5xl lg:leading-tight">
               Focus on your guests, not your inbox
             </h1>
-            <p className="text-lg leading-relaxed text-[#78716C] lg:text-xl">
+            <p className="text-lg leading-relaxed text-foreground-muted lg:text-xl">
               BookSmart reads your Gmail confirmations from Airbnb, GetYourGuide,
               Viator and more, keeping your schedule live and accurate,
               automatically.
@@ -31,13 +31,13 @@ export default function Home() {
                 href="https://calendar.app.google/S5EC5XVDQoRn8BX4A"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="rounded-full bg-[#EA580C] px-8 py-3.5 text-base font-medium text-white transition-colors hover:bg-[#C2410C] text-center"
+                className="rounded-full bg-accent px-8 py-3.5 text-base font-medium text-white transition-colors hover:bg-accent-hover text-center"
               >
                 Get Early Access
               </a>
               <a
                 href="#how-it-works"
-                className="rounded-full border border-[#E7E5E4] bg-white px-8 py-3.5 text-base font-medium text-[#1C1917] transition-colors hover:bg-[#FDF6EC] text-center"
+                className="rounded-full border border-border bg-card px-8 py-3.5 text-base font-medium text-foreground transition-colors hover:bg-background-secondary text-center"
               >
                 See How It Works
               </a>
@@ -50,9 +50,9 @@ export default function Home() {
       </section>
 
       {/* Platform Integrations Bar */}
-      <section className="border-y border-[#E7E5E4] bg-white py-8">
+      <section className="border-y border-border bg-card py-8">
         <div className="mx-auto max-w-6xl px-6">
-          <p className="mb-6 text-center text-sm text-[#78716C]">
+          <p className="mb-6 text-center text-sm text-foreground-muted">
             Works with your favorite booking platforms
           </p>
           <div className="flex flex-wrap items-center justify-center gap-8 lg:gap-12">
@@ -66,12 +66,12 @@ export default function Home() {
             ].map((platform) => (
               <span
                 key={platform}
-                className="text-lg font-medium text-[#78716C] transition-colors hover:text-[#1C1917]"
+                className="text-lg font-medium text-foreground-muted transition-colors hover:text-foreground"
               >
                 {platform}
               </span>
             ))}
-            <span className="text-lg font-medium text-[#EA580C]">
+            <span className="text-lg font-medium text-accent">
               +more
             </span>
           </div>
@@ -81,10 +81,10 @@ export default function Home() {
       {/* How It Works */}
       <section id="how-it-works" className="mx-auto max-w-6xl px-6 py-20 lg:py-28">
         <div className="mb-16 text-center">
-          <h2 className="mb-4 text-3xl font-semibold text-[#1C1917] lg:text-4xl">
+          <h2 className="mb-4 text-3xl font-semibold text-foreground lg:text-4xl">
             How it works
           </h2>
-          <p className="mx-auto max-w-2xl text-lg text-[#78716C]">
+          <p className="mx-auto max-w-2xl text-lg text-foreground-muted">
             Three simple steps to transform your booking management
           </p>
         </div>
@@ -153,33 +153,33 @@ export default function Home() {
           ].map((item) => (
             <div
               key={item.step}
-              className="group rounded-2xl border border-[#E7E5E4] bg-white p-8 transition-all hover:border-[#EA580C]/20 hover:shadow-lg hover:shadow-[#EA580C]/5"
+              className="group rounded-2xl border border-border bg-card p-8 transition-all hover:border-accent/20 hover:shadow-lg hover:shadow-accent/5"
             >
               <div className="mb-6 flex items-center justify-between">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#EA580C]/10 text-[#EA580C] transition-colors group-hover:bg-[#EA580C] group-hover:text-white">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-accent/10 text-accent transition-colors group-hover:bg-accent group-hover:text-white">
                   {item.icon}
                 </div>
-                <span className="text-4xl font-bold text-[#E7E5E4]">
+                <span className="text-4xl font-bold text-border">
                   {item.step}
                 </span>
               </div>
-              <h3 className="mb-3 text-xl font-semibold text-[#1C1917]">
+              <h3 className="mb-3 text-xl font-semibold text-foreground">
                 {item.title}
               </h3>
-              <p className="text-[#78716C]">{item.description}</p>
+              <p className="text-foreground-muted">{item.description}</p>
             </div>
           ))}
         </div>
       </section>
 
       {/* Live Sync Features - Now with warm tan/orange gradient instead of black */}
-      <section className="bg-gradient-to-br from-[#EA580C] to-[#C2410C] py-20 lg:py-28">
+      <section className="bg-gradient-to-br from-accent to-accent-hover py-20 lg:py-28">
         <div className="mx-auto max-w-6xl px-6">
           <div className="mb-16 text-center">
-            <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 text-sm text-white">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-card/20 px-4 py-2 text-sm text-white">
               <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white opacity-75"></span>
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-white"></span>
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-card opacity-75"></span>
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-card"></span>
               </span>
               LIVE
             </div>
@@ -275,9 +275,9 @@ export default function Home() {
             ].map((feature) => (
               <div
                 key={feature.title}
-                className="group rounded-2xl border border-white/20 bg-white/10 p-8 backdrop-blur-sm transition-all hover:bg-white/20"
+                className="group rounded-2xl border border-white/20 bg-card/10 p-8 backdrop-blur-sm transition-all hover:bg-card/20"
               >
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 text-white">
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-card/20 text-white">
                   {feature.icon}
                 </div>
                 <h3 className="mb-2 text-xl font-semibold text-white">
@@ -293,23 +293,23 @@ export default function Home() {
       {/* Product Demo */}
       <section className="mx-auto max-w-6xl px-6 py-20 lg:py-28">
         <div className="mb-16 text-center">
-          <h2 className="mb-4 text-3xl font-semibold text-[#1C1917] lg:text-4xl">
+          <h2 className="mb-4 text-3xl font-semibold text-foreground lg:text-4xl">
             Everything in one place
           </h2>
-          <p className="mx-auto max-w-2xl text-lg text-[#78716C]">
+          <p className="mx-auto max-w-2xl text-lg text-foreground-muted">
             A clean dashboard that shows you exactly what you need
           </p>
         </div>
 
         {/* Dashboard Mockup */}
-        <div className="rounded-2xl border border-[#E7E5E4] bg-white p-6 shadow-2xl shadow-[#EA580C]/5 lg:p-8">
+        <div className="rounded-2xl border border-border bg-card p-6 shadow-2xl shadow-accent/5 lg:p-8">
           {/* Dashboard Header */}
           <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h3 className="text-xl font-semibold text-[#1C1917]">
+              <h3 className="text-xl font-semibold text-foreground">
                 Upcoming Reservations
               </h3>
-              <p className="text-sm text-[#78716C]">February 2026</p>
+              <p className="text-sm text-foreground-muted">February 2026</p>
             </div>
             <div className="flex items-center gap-3">
               <span className="inline-flex items-center gap-2 rounded-full bg-green-50 px-3 py-1.5 text-sm font-medium text-green-700">
@@ -325,86 +325,86 @@ export default function Home() {
           {/* Booking Cards - Now showing same date with multiple platforms */}
           <div className="space-y-4">
             {/* Feb 15 - Multiple bookings on same day */}
-            <div className="rounded-xl border border-[#EA580C]/20 bg-[#EA580C]/5 p-4 overflow-hidden">
+            <div className="rounded-xl border border-accent/20 bg-accent/5 p-4 overflow-hidden">
               <div className="mb-3 flex items-center justify-between">
                 <div className="flex items-center gap-3 min-w-0">
                   <div className="text-center shrink-0">
-                    <p className="text-xs uppercase text-[#78716C]">Feb</p>
-                    <p className="text-2xl font-semibold text-[#EA580C]">15</p>
+                    <p className="text-xs uppercase text-foreground-muted">Feb</p>
+                    <p className="text-2xl font-semibold text-accent">15</p>
                   </div>
                   <div className="min-w-0">
-                    <p className="font-medium text-[#1C1917]">Saturday</p>
-                    <p className="text-sm text-[#78716C]">3 bookings · 8 guests total</p>
+                    <p className="font-medium text-foreground">Saturday</p>
+                    <p className="text-sm text-foreground-muted">3 bookings · 8 guests total</p>
                   </div>
                 </div>
               </div>
               <div className="space-y-2 pl-0 sm:pl-12 overflow-hidden">
-                <div className="flex flex-col gap-2 rounded-lg bg-white p-3 sm:flex-row sm:items-center overflow-hidden">
+                <div className="flex flex-col gap-2 rounded-lg bg-card p-3 sm:flex-row sm:items-center overflow-hidden">
                   <div className="flex items-center gap-2 sm:w-32 shrink-0">
                     <span className="rounded bg-[#FF5A5F]/10 px-2 py-0.5 text-xs font-medium text-[#FF5A5F]">Airbnb</span>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-[#1C1917] truncate">Natalia Oreiro</p>
-                    <p className="text-xs text-[#78716C]">2 guests · 3 nights</p>
+                    <p className="font-medium text-foreground truncate">Natalia Oreiro</p>
+                    <p className="text-xs text-foreground-muted">2 guests · 3 nights</p>
                   </div>
                   <div className="flex flex-wrap gap-1.5 shrink-0">
-                    <span className="rounded-full bg-orange-100 px-2.5 py-0.5 text-xs font-medium text-[#EA580C]">Vegetarian</span>
+                    <span className="rounded-full bg-orange-100 px-2.5 py-0.5 text-xs font-medium text-accent">Vegetarian</span>
                     <span className="rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-700">Early check-in</span>
                   </div>
                 </div>
-                <div className="flex flex-col gap-2 rounded-lg bg-white p-3 sm:flex-row sm:items-center overflow-hidden">
+                <div className="flex flex-col gap-2 rounded-lg bg-card p-3 sm:flex-row sm:items-center overflow-hidden">
                   <div className="flex items-center gap-2 sm:w-32 shrink-0">
                     <span className="rounded bg-[#FF5533]/10 px-2 py-0.5 text-xs font-medium text-[#FF5533]">GetYourGuide</span>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-[#1C1917] truncate">Ricardo Darín</p>
-                    <p className="text-xs text-[#78716C]">4 guests · Day tour</p>
+                    <p className="font-medium text-foreground truncate">Ricardo Darín</p>
+                    <p className="text-xs text-foreground-muted">4 guests · Day tour</p>
                   </div>
                   <div className="flex flex-wrap gap-1.5 shrink-0">
-                    <span className="rounded-full bg-orange-100 px-2.5 py-0.5 text-xs font-medium text-[#EA580C]">Gluten-free</span>
+                    <span className="rounded-full bg-orange-100 px-2.5 py-0.5 text-xs font-medium text-accent">Gluten-free</span>
                   </div>
                 </div>
-                <div className="flex flex-col gap-2 rounded-lg bg-white p-3 sm:flex-row sm:items-center overflow-hidden">
+                <div className="flex flex-col gap-2 rounded-lg bg-card p-3 sm:flex-row sm:items-center overflow-hidden">
                   <div className="flex items-center gap-2 sm:w-32 shrink-0">
                     <span className="rounded bg-[#00AA6C]/10 px-2 py-0.5 text-xs font-medium text-[#00AA6C]">Viator</span>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-[#1C1917] truncate">Luisana Lopilato</p>
-                    <p className="text-xs text-[#78716C]">2 guests · Food tour</p>
+                    <p className="font-medium text-foreground truncate">Luisana Lopilato</p>
+                    <p className="text-xs text-foreground-muted">2 guests · Food tour</p>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Feb 16 */}
-            <div className="flex flex-col gap-4 rounded-xl border border-[#E7E5E4] bg-[#FAF8F5] p-4 sm:flex-row sm:items-center overflow-hidden">
+            <div className="flex flex-col gap-4 rounded-xl border border-border bg-background p-4 sm:flex-row sm:items-center overflow-hidden">
               <div className="flex items-center gap-4 sm:w-24 shrink-0">
                 <div className="text-center">
-                  <p className="text-xs uppercase text-[#78716C]">Feb</p>
-                  <p className="text-2xl font-semibold text-[#EA580C]">16</p>
+                  <p className="text-xs uppercase text-foreground-muted">Feb</p>
+                  <p className="text-2xl font-semibold text-accent">16</p>
                 </div>
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-medium text-[#1C1917] truncate">Guillermo Francella</p>
-                <p className="text-sm text-[#78716C] truncate">6 guests · Civitatis · Wine tasting</p>
+                <p className="font-medium text-foreground truncate">Guillermo Francella</p>
+                <p className="text-sm text-foreground-muted truncate">6 guests · Civitatis · Wine tasting</p>
               </div>
               <div className="flex flex-wrap items-center gap-2 shrink-0">
-                <span className="rounded-full bg-orange-100 px-3 py-1 text-xs font-medium text-[#EA580C]">Vegan (2)</span>
+                <span className="rounded-full bg-orange-100 px-3 py-1 text-xs font-medium text-accent">Vegan (2)</span>
                 <span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700">Rescheduled</span>
               </div>
             </div>
 
             {/* Feb 17 */}
-            <div className="flex flex-col gap-4 rounded-xl border border-[#E7E5E4] bg-[#FAF8F5] p-4 sm:flex-row sm:items-center overflow-hidden">
+            <div className="flex flex-col gap-4 rounded-xl border border-border bg-background p-4 sm:flex-row sm:items-center overflow-hidden">
               <div className="flex items-center gap-4 sm:w-24 shrink-0">
                 <div className="text-center">
-                  <p className="text-xs uppercase text-[#78716C]">Feb</p>
-                  <p className="text-2xl font-semibold text-[#EA580C]">17</p>
+                  <p className="text-xs uppercase text-foreground-muted">Feb</p>
+                  <p className="text-2xl font-semibold text-accent">17</p>
                 </div>
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-medium text-[#1C1917] truncate">Mercedes Morán</p>
-                <p className="text-sm text-[#78716C] truncate">3 guests · TripAdvisor · City tour</p>
+                <p className="font-medium text-foreground truncate">Mercedes Morán</p>
+                <p className="text-sm text-foreground-muted truncate">3 guests · TripAdvisor · City tour</p>
               </div>
               <div className="flex flex-wrap items-center gap-2 shrink-0">
                 <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700">Private guide requested</span>
@@ -415,13 +415,13 @@ export default function Home() {
       </section>
 
       {/* Social Proof / Partners */}
-      <section className="border-y border-[#E7E5E4] bg-[#FDF6EC] py-20 lg:py-28">
+      <section className="border-y border-border bg-background-secondary py-20 lg:py-28">
         <div className="mx-auto max-w-6xl px-6">
           <div className="mb-16 text-center">
-            <h2 className="mb-4 text-3xl font-semibold text-[#1C1917] lg:text-4xl">
+            <h2 className="mb-4 text-3xl font-semibold text-foreground lg:text-4xl">
               Already saving hours for leading agencies
             </h2>
-            <p className="mx-auto max-w-2xl text-lg text-[#78716C]">
+            <p className="mx-auto max-w-2xl text-lg text-foreground-muted">
               Trusted by tourism professionals in Buenos Aires
             </p>
           </div>
@@ -439,16 +439,16 @@ export default function Home() {
               const href = "href" in partner ? partner.href : undefined;
               const baseClasses = `flex flex-col items-center justify-center rounded-xl border px-6 py-8 text-center transition-all ${
                 isComingSoon
-                  ? "border-dashed border-[#EA580C]/40 bg-[#EA580C]/5 hover:border-[#EA580C]/60"
-                  : "border-[#E7E5E4] bg-white hover:border-[#EA580C]/20 hover:shadow-lg hover:shadow-[#EA580C]/5"
+                  ? "border-dashed border-accent/40 bg-accent/5 hover:border-accent/60"
+                  : "border-border bg-card hover:border-accent/20 hover:shadow-lg hover:shadow-accent/5"
               }`;
               const content = (
                 <>
-                  <span className={`text-lg font-medium ${isComingSoon ? "text-[#EA580C]" : "text-[#1C1917]"}`}>
+                  <span className={`text-lg font-medium ${isComingSoon ? "text-accent" : "text-foreground"}`}>
                     {displayName}
                   </span>
                   {isComingSoon && (
-                    <span className="mt-1 text-xs font-medium text-[#78716C]">coming soon</span>
+                    <span className="mt-1 text-xs font-medium text-foreground-muted">coming soon</span>
                   )}
                 </>
               );
@@ -476,39 +476,39 @@ export default function Home() {
           {/* Testimonials - Two cards */}
           <div className="mt-16 grid gap-8 lg:grid-cols-2">
             {/* First Testimonial */}
-            <div className="rounded-2xl border border-[#E7E5E4] bg-white p-8">
+            <div className="rounded-2xl border border-border bg-card p-8">
               <svg
-                className="mb-4 h-8 w-8 text-[#EA580C]/30"
+                className="mb-4 h-8 w-8 text-accent/30"
                 fill="currentColor"
                 viewBox="0 0 24 24"
               >
                 <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
               </svg>
-              <blockquote className="mb-6 text-lg text-[#1C1917]">
+              <blockquote className="mb-6 text-lg text-foreground">
                 &ldquo;Before BookSmart, I spent 2 hours every morning checking emails
                 and updating spreadsheets. Now it just happens automatically.&rdquo;
               </blockquote>
               <div>
-                <p className="font-semibold text-[#1C1917]">Vero</p>
-                <p className="text-sm text-[#78716C]">The Mate Experience</p>
+                <p className="font-semibold text-foreground">Vero</p>
+                <p className="text-sm text-foreground-muted">The Mate Experience</p>
               </div>
             </div>
 
             {/* Second Testimonial - Betty */}
-            <div className="rounded-2xl border border-[#E7E5E4] bg-white p-8">
+            <div className="rounded-2xl border border-border bg-card p-8">
               <svg
-                className="mb-4 h-8 w-8 text-[#EA580C]/30"
+                className="mb-4 h-8 w-8 text-accent/30"
                 fill="currentColor"
                 viewBox="0 0 24 24"
               >
                 <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
               </svg>
-              <blockquote className="mb-6 text-lg text-[#1C1917]">
+              <blockquote className="mb-6 text-lg text-foreground">
                 &ldquo;We used to mix up dietary requests and double-book tours all the time. Now everything&apos;s in one place, we make way fewer mistakes, and I can actually focus on giving our guests a great time. Our reviews went up and so did our bookings.&rdquo;
               </blockquote>
               <div>
-                <p className="font-semibold text-[#1C1917]">Betty</p>
-                <p className="text-sm text-[#78716C]">Betty and Marcelo</p>
+                <p className="font-semibold text-foreground">Betty</p>
+                <p className="text-sm text-foreground-muted">Betty and Marcelo</p>
               </div>
             </div>
           </div>
@@ -517,7 +517,7 @@ export default function Home() {
 
       {/* Final CTA - Changed from black to warm gradient */}
       <section className="mx-auto max-w-6xl px-6 py-20 lg:py-28">
-        <div className="rounded-3xl bg-gradient-to-br from-[#EA580C] to-[#C2410C] px-6 py-16 text-center lg:px-16 lg:py-24">
+        <div className="rounded-3xl bg-gradient-to-br from-accent to-accent-hover px-6 py-16 text-center lg:px-16 lg:py-24">
           <h2 className="mb-4 text-3xl font-semibold text-white lg:text-4xl">
             Ready to focus on what matters?
           </h2>
@@ -529,7 +529,7 @@ export default function Home() {
             href="https://calendar.app.google/S5EC5XVDQoRn8BX4A"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-block rounded-full bg-white px-8 py-3.5 font-medium text-[#EA580C] transition-colors hover:bg-[#FDF6EC]"
+            className="inline-block rounded-full bg-card px-8 py-3.5 font-medium text-accent transition-colors hover:bg-background-secondary"
           >
             Request Access
           </a>

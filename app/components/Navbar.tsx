@@ -11,7 +11,7 @@ export default function Navbar() {
       <nav className="fixed left-1/2 top-4 z-50 w-[calc(100%-2rem)] max-w-6xl -translate-x-1/2 rounded-2xl border border-white/20 bg-white/60 shadow-lg shadow-black/5 backdrop-blur-md">
         <div className="mx-auto flex items-center justify-between px-4 py-3 sm:px-6 sm:py-3.5">
           <Link href="/" className="flex items-center gap-2" onClick={() => setOpen(false)}>
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#EA580C] sm:h-8 sm:w-8">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-accent sm:h-8 sm:w-8">
               <svg
                 className="h-4 w-4 text-white sm:h-5 sm:w-5"
                 fill="none"
@@ -26,7 +26,7 @@ export default function Navbar() {
                 />
               </svg>
             </div>
-            <span className="text-base font-semibold text-[#1C1917] sm:text-xl">
+            <span className="text-base font-semibold text-foreground sm:text-xl">
               BookSmart
             </span>
           </Link>
@@ -36,7 +36,7 @@ export default function Navbar() {
               href="https://calendar.app.google/S5EC5XVDQoRn8BX4A"
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded-full bg-[#EA580C] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#C2410C] sm:px-5"
+              className="rounded-full bg-accent px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-accent-hover sm:px-5"
             >
               Request Demo
             </a>
@@ -48,11 +48,11 @@ export default function Navbar() {
               aria-label="Toggle menu"
             >
               {open ? (
-                <svg className="h-5 w-5 text-[#1C1917]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <svg className="h-5 w-5 text-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                 </svg>
               ) : (
-                <svg className="h-5 w-5 text-[#1C1917]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <svg className="h-5 w-5 text-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
               )}
@@ -65,14 +65,14 @@ export default function Navbar() {
             <div className="flex flex-col gap-1">
               <Link
                 href="/about"
-                className="rounded-lg px-3 py-2.5 text-sm font-medium text-[#78716C] hover:bg-[#FDF6EC] hover:text-[#1C1917]"
+                className="rounded-lg px-3 py-2.5 text-sm font-medium text-foreground-muted hover:bg-background-secondary hover:text-foreground"
                 onClick={() => setOpen(false)}
               >
                 About
               </Link>
               <Link
                 href="/dashboard"
-                className="rounded-lg px-3 py-2.5 text-sm font-medium text-[#78716C] hover:bg-[#FDF6EC] hover:text-[#1C1917]"
+                className="rounded-lg px-3 py-2.5 text-sm font-medium text-foreground-muted hover:bg-background-secondary hover:text-foreground"
                 onClick={() => setOpen(false)}
               >
                 Log in

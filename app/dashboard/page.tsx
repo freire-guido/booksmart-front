@@ -252,11 +252,11 @@ function EmailItem({
           ? "border-orange-200 bg-orange-50 hover:border-orange-300 hover:bg-orange-100 cursor-pointer"
           : isClickable
             ? isFirst
-              ? "border-[#E7E5E4] bg-[#FDF6EC] hover:border-[#EA580C]/30 hover:shadow-sm cursor-pointer"
-              : "border-[#E7E5E4] bg-white hover:border-[#EA580C]/30 hover:shadow-sm cursor-pointer"
+              ? "border-border bg-background-secondary hover:border-accent/30 hover:shadow-sm cursor-pointer"
+              : "border-border bg-card hover:border-accent/30 hover:shadow-sm cursor-pointer"
             : isFirst
-              ? "border-[#E7E5E4] bg-[#FDF6EC]"
-              : "border-[#E7E5E4] bg-white"
+              ? "border-border bg-background-secondary"
+              : "border-border bg-card"
       }`}
     >
       <div className="flex items-start gap-2">
@@ -268,7 +268,7 @@ function EmailItem({
                 ? "bg-red-100"
                 : booking.status === "rescheduled"
                   ? "bg-amber-100"
-                  : "bg-[#EA580C]/10"
+                  : "bg-accent/10"
           }`}
         >
           {isReviewItem ? (
@@ -284,21 +284,21 @@ function EmailItem({
               <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
           ) : (
-            <svg className="h-2.5 w-2.5 text-[#EA580C]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <svg className="h-2.5 w-2.5 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
             </svg>
           )}
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-center justify-between gap-2">
-            <p className="truncate text-xs font-medium text-[#1C1917]">
+            <p className="truncate text-xs font-medium text-foreground">
               {platformNames[booking.platform]}
             </p>
-            <span className="shrink-0 text-xs text-[#78716C]">
+            <span className="shrink-0 text-xs text-foreground-muted">
               {booking.emailDate ? formatEmailDate(booking.emailDate) : "—"}
             </span>
           </div>
-          <p className="truncate text-xs text-[#78716C]">
+          <p className="truncate text-xs text-foreground-muted">
             {booking.guestName} ({booking.guestCount} guest{booking.guestCount !== 1 ? "s" : ""})
           </p>
           {isReviewItem && reviewReason && (
@@ -374,7 +374,7 @@ function EmailStack({
 
   if (bookings.length === 0) {
     return (
-      <span className="text-xs text-[#78716C]">No emails yet</span>
+      <span className="text-xs text-foreground-muted">No emails yet</span>
     );
   }
 
@@ -386,7 +386,7 @@ function EmailStack({
         className="flex items-center gap-2"
       >
         <div className="relative">
-          <svg className="h-4 w-4 text-[#EA580C]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <svg className="h-4 w-4 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
           </svg>
           {/* Orange dot indicator for items needing review */}
@@ -397,11 +397,11 @@ function EmailStack({
             </span>
           )}
         </div>
-        <span className="text-xs text-[#78716C]">
+        <span className="text-xs text-foreground-muted">
           {mostRecent?.emailDate ? formatEmailDate(mostRecent.emailDate) : "—"}
         </span>
         <svg
-          className={`h-3.5 w-3.5 text-[#78716C] transition-transform ${expanded ? "rotate-180" : ""}`}
+          className={`h-3.5 w-3.5 text-foreground-muted transition-transform ${expanded ? "rotate-180" : ""}`}
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -413,7 +413,7 @@ function EmailStack({
 
       {/* Expanded dropdown — open right on mobile so it stays in view; open left on sm+ */}
       {expanded && (
-        <div className="absolute left-0 right-auto top-full z-20 mt-2 w-80 rounded-xl border border-[#E7E5E4] bg-white p-3 shadow-lg max-h-[400px] overflow-y-auto sm:left-auto sm:right-0">
+        <div className="absolute left-0 right-auto top-full z-20 mt-2 w-80 rounded-xl border border-border bg-card p-3 shadow-lg max-h-[400px] overflow-y-auto sm:left-auto sm:right-0">
           {/* Review Section (low-confidence + Pending) */}
           {hasReviewItems && (
             <div className="mb-3">
@@ -448,7 +448,7 @@ function EmailStack({
 
           {/* Recent Emails Section - 10 items, show 3 with scroll */}
           <div>
-            <p className="mb-2 text-xs font-medium text-[#78716C]">Recent Emails</p>
+            <p className="mb-2 text-xs font-medium text-foreground-muted">Recent Emails</p>
             <div className="max-h-[7.5rem] space-y-1.5 overflow-y-auto">
               {latestEmails.map((booking, index) => (
                 <EmailItem 
@@ -678,14 +678,14 @@ function BookingModal({
       />
       
       {/* Modal */}
-      <div className="relative max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl border border-[#E7E5E4] bg-white p-6 shadow-xl">
+      <div className="relative max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl border border-border bg-card p-6 shadow-xl">
         {/* Header buttons */}
         <div className="absolute right-4 top-4 flex items-center gap-2">
           {!isEditing && (
             <>
               <button
                 onClick={() => setIsEditing(true)}
-                className="flex h-8 w-8 items-center justify-center rounded-full text-[#78716C] transition-colors hover:bg-[#FDF6EC] hover:text-[#EA580C]"
+                className="flex h-8 w-8 items-center justify-center rounded-full text-foreground-muted transition-colors hover:bg-background-secondary hover:text-accent"
                 title="Edit booking"
               >
                 <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -694,7 +694,7 @@ function BookingModal({
               </button>
               <button
                 onClick={() => setShowDeleteConfirm(true)}
-                className="flex h-8 w-8 items-center justify-center rounded-full text-[#78716C] transition-colors hover:bg-red-50 hover:text-red-500"
+                className="flex h-8 w-8 items-center justify-center rounded-full text-foreground-muted transition-colors hover:bg-red-50 hover:text-red-500"
                 title="Delete booking"
               >
                 <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -705,7 +705,7 @@ function BookingModal({
           )}
           <button
             onClick={isEditing ? handleCancel : onClose}
-            className="flex h-8 w-8 items-center justify-center rounded-full text-[#78716C] transition-colors hover:bg-[#FDF6EC] hover:text-[#1C1917]"
+            className="flex h-8 w-8 items-center justify-center rounded-full text-foreground-muted transition-colors hover:bg-background-secondary hover:text-foreground"
             title={isEditing ? "Cancel (Esc)" : "Close (Esc)"}
           >
             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -717,7 +717,7 @@ function BookingModal({
         {isEditing ? (
           /* Edit Mode */
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-[#1C1917]">Edit Booking</h3>
+            <h3 className="text-lg font-semibold text-foreground">Edit Booking</h3>
             
             {saveError && (
               <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
@@ -727,57 +727,57 @@ function BookingModal({
             
             {/* Guest Name */}
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-[#78716C]">Guest Name</label>
+              <label className="mb-1.5 block text-xs font-medium text-foreground-muted">Guest Name</label>
               <input
                 type="text"
                 value={editGuestName}
                 onChange={(e) => setEditGuestName(e.target.value)}
-                className="w-full rounded-lg border border-[#E7E5E4] px-3 py-2 text-sm text-[#1C1917] focus:border-[#EA580C] focus:outline-none focus:ring-1 focus:ring-[#EA580C]"
+                className="w-full rounded-lg border border-border px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
               />
             </div>
             
             {/* Guest Count */}
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-[#78716C]">Number of Guests</label>
+              <label className="mb-1.5 block text-xs font-medium text-foreground-muted">Number of Guests</label>
               <input
                 type="number"
                 min="1"
                 value={editGuestCount}
                 onChange={(e) => setEditGuestCount(parseInt(e.target.value) || 1)}
-                className="w-full rounded-lg border border-[#E7E5E4] px-3 py-2 text-sm text-[#1C1917] focus:border-[#EA580C] focus:outline-none focus:ring-1 focus:ring-[#EA580C]"
+                className="w-full rounded-lg border border-border px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
               />
             </div>
             
             {/* Date and Time */}
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="mb-1.5 block text-xs font-medium text-[#78716C]">Date</label>
+                <label className="mb-1.5 block text-xs font-medium text-foreground-muted">Date</label>
                 <input
                   type="date"
                   value={editDate}
                   onChange={(e) => setEditDate(e.target.value)}
-                  className="w-full rounded-lg border border-[#E7E5E4] px-3 py-2 text-sm text-[#1C1917] focus:border-[#EA580C] focus:outline-none focus:ring-1 focus:ring-[#EA580C]"
+                  className="w-full rounded-lg border border-border px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
                 />
               </div>
               <div>
-                <label className="mb-1.5 block text-xs font-medium text-[#78716C]">Time</label>
+                <label className="mb-1.5 block text-xs font-medium text-foreground-muted">Time</label>
                 <input
                   type="text"
                   placeholder="e.g. 7:00 PM"
                   value={editTime}
                   onChange={(e) => setEditTime(e.target.value)}
-                  className="w-full rounded-lg border border-[#E7E5E4] px-3 py-2 text-sm text-[#1C1917] focus:border-[#EA580C] focus:outline-none focus:ring-1 focus:ring-[#EA580C]"
+                  className="w-full rounded-lg border border-border px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
                 />
               </div>
             </div>
             
             {/* Platform */}
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-[#78716C]">Platform</label>
+              <label className="mb-1.5 block text-xs font-medium text-foreground-muted">Platform</label>
               <select
                 value={editPlatform}
                 onChange={(e) => setEditPlatform(e.target.value as Platform)}
-                className="w-full rounded-lg border border-[#E7E5E4] px-3 py-2 text-sm text-[#1C1917] focus:border-[#EA580C] focus:outline-none focus:ring-1 focus:ring-[#EA580C]"
+                className="w-full rounded-lg border border-border px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
               >
                 {Object.entries(platformNames).map(([key, name]) => (
                   <option key={key} value={key}>{name}</option>
@@ -787,48 +787,48 @@ function BookingModal({
             
             {/* Activity Name */}
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-[#78716C]">Activity Name</label>
+              <label className="mb-1.5 block text-xs font-medium text-foreground-muted">Activity Name</label>
               <input
                 type="text"
                 value={editActivityName}
                 onChange={(e) => setEditActivityName(e.target.value)}
                 placeholder="e.g. Sunset Wine Tour"
-                className="w-full rounded-lg border border-[#E7E5E4] px-3 py-2 text-sm text-[#1C1917] focus:border-[#EA580C] focus:outline-none focus:ring-1 focus:ring-[#EA580C]"
+                className="w-full rounded-lg border border-border px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
               />
             </div>
             
             {/* Dietary Restrictions */}
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-[#78716C]">Dietary Restrictions</label>
+              <label className="mb-1.5 block text-xs font-medium text-foreground-muted">Dietary Restrictions</label>
               <input
                 type="text"
                 value={editDietaryRestrictions}
                 onChange={(e) => setEditDietaryRestrictions(e.target.value)}
                 placeholder="e.g. 2 vegetarian, 1 gluten-free"
-                className="w-full rounded-lg border border-[#E7E5E4] px-3 py-2 text-sm text-[#1C1917] focus:border-[#EA580C] focus:outline-none focus:ring-1 focus:ring-[#EA580C]"
+                className="w-full rounded-lg border border-border px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
               />
               <p className="mt-1 text-xs text-[#A8A29E]">Comma-separated list</p>
             </div>
             
             {/* Special Requests */}
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-[#78716C]">Special Requests</label>
+              <label className="mb-1.5 block text-xs font-medium text-foreground-muted">Special Requests</label>
               <textarea
                 value={editSpecialRequests}
                 onChange={(e) => setEditSpecialRequests(e.target.value)}
                 placeholder="Any other notes or requests..."
                 rows={2}
-                className="w-full rounded-lg border border-[#E7E5E4] px-3 py-2 text-sm text-[#1C1917] focus:border-[#EA580C] focus:outline-none focus:ring-1 focus:ring-[#EA580C]"
+                className="w-full rounded-lg border border-border px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
               />
             </div>
             
             {/* Status */}
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-[#78716C]">Status</label>
+              <label className="mb-1.5 block text-xs font-medium text-foreground-muted">Status</label>
               <select
                 value={editStatus}
                 onChange={(e) => setEditStatus(e.target.value as BookingStatus)}
-                className="w-full rounded-lg border border-[#E7E5E4] px-3 py-2 text-sm text-[#1C1917] focus:border-[#EA580C] focus:outline-none focus:ring-1 focus:ring-[#EA580C]"
+                className="w-full rounded-lg border border-border px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
               >
                 <option value="confirmed">Confirmed</option>
                 <option value="pending">Pending</option>
@@ -838,7 +838,7 @@ function BookingModal({
             </div>
             
             {/* Delete button */}
-            <div className="border-t border-[#E7E5E4] pt-4">
+            <div className="border-t border-border pt-4">
               <button
                 onClick={() => setShowDeleteConfirm(true)}
                 disabled={isSaving}
@@ -856,7 +856,7 @@ function BookingModal({
               <button
                 onClick={handleCancel}
                 disabled={isSaving}
-                className="flex-1 rounded-full border border-[#E7E5E4] px-4 py-2.5 text-sm font-medium text-[#78716C] transition-colors hover:bg-[#FAF8F5] disabled:opacity-50"
+                className="flex-1 rounded-full border border-border px-4 py-2.5 text-sm font-medium text-foreground-muted transition-colors hover:bg-background disabled:opacity-50"
               >
                 Cancel
               </button>
@@ -864,7 +864,7 @@ function BookingModal({
                 onClick={handleSave}
                 disabled={isSaving}
                 title="Save (Enter)"
-                className="flex flex-1 items-center justify-center gap-2 rounded-full bg-[#EA580C] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#C2410C] disabled:opacity-50"
+                className="flex flex-1 items-center justify-center gap-2 rounded-full bg-accent px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-accent-hover disabled:opacity-50"
               >
                 {isSaving ? (
                   <>
@@ -902,10 +902,10 @@ function BookingModal({
                   <span className="text-xs font-medium text-slate-600">Pending</span>
                 )}
               </div>
-              <h3 className="mt-2 text-lg font-semibold text-[#1C1917]">
+              <h3 className="mt-2 text-lg font-semibold text-foreground">
                 {booking.guestName}
               </h3>
-              <p className="text-sm text-[#78716C]">
+              <p className="text-sm text-foreground-muted">
                 {booking.guestCount} guest{booking.guestCount !== 1 ? "s" : ""}
                 {booking.time && ` · ${booking.time}`}
                 {booking.activityName && ` · ${booking.activityName}`}
@@ -916,12 +916,12 @@ function BookingModal({
             {/* Special requests */}
             {booking.specialRequests && booking.specialRequests.length > 0 && (
               <div className="mb-4">
-                <p className="mb-1.5 text-xs font-medium text-[#78716C]">Special Requests</p>
+                <p className="mb-1.5 text-xs font-medium text-foreground-muted">Special Requests</p>
                 <div className="flex flex-wrap gap-1.5">
                   {booking.specialRequests.map((request, index) => (
                     <span
                       key={index}
-                      className="inline-flex items-center rounded-md bg-[#EA580C]/10 px-2 py-1 text-xs text-[#EA580C]"
+                      className="inline-flex items-center rounded-md bg-accent/10 px-2 py-1 text-xs text-accent"
                     >
                       {request}
                     </span>
@@ -932,13 +932,13 @@ function BookingModal({
 
             {/* Email preview */}
             {booking.emailSubject && (
-              <div className="rounded-xl border border-[#E7E5E4] bg-[#FAF8F5] p-4">
+              <div className="rounded-xl border border-border bg-background p-4">
                 <div className="mb-2 flex items-center justify-between">
-                  <p className="text-xs font-medium text-[#78716C]">Original Email</p>
-                  <span className="text-xs text-[#78716C]">{booking.emailDate ? formatEmailDate(booking.emailDate) : "—"}</span>
+                  <p className="text-xs font-medium text-foreground-muted">Original Email</p>
+                  <span className="text-xs text-foreground-muted">{booking.emailDate ? formatEmailDate(booking.emailDate) : "—"}</span>
                 </div>
-                <p className="mb-2 text-sm font-medium text-[#1C1917]">{booking.emailSubject}</p>
-                <p className="text-xs leading-relaxed text-[#78716C]">{booking.emailPreview}</p>
+                <p className="mb-2 text-sm font-medium text-foreground">{booking.emailSubject}</p>
+                <p className="text-xs leading-relaxed text-foreground-muted">{booking.emailPreview}</p>
               </div>
             )}
 
@@ -947,7 +947,7 @@ function BookingModal({
               href={`https://mail.google.com/mail/u/0/#inbox/${booking.emailId}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-[#EA580C] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#C2410C]"
+              className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-accent px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-accent-hover"
             >
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
@@ -965,15 +965,15 @@ function BookingModal({
             className="absolute inset-0 bg-black/20" 
             onClick={() => !isDeleting && setShowDeleteConfirm(false)} 
           />
-          <div className="relative mx-4 w-full max-w-sm rounded-xl border border-[#E7E5E4] bg-white p-6 shadow-xl">
+          <div className="relative mx-4 w-full max-w-sm rounded-xl border border-border bg-card p-6 shadow-xl">
             <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
               <svg className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
               </svg>
             </div>
-            <h4 className="mb-2 text-lg font-semibold text-[#1C1917]">Delete Booking?</h4>
-            <p className="mb-1 text-sm text-[#78716C]">
-              Are you sure you want to delete the booking for <span className="font-medium text-[#1C1917]">{booking.guestName}</span>?
+            <h4 className="mb-2 text-lg font-semibold text-foreground">Delete Booking?</h4>
+            <p className="mb-1 text-sm text-foreground-muted">
+              Are you sure you want to delete the booking for <span className="font-medium text-foreground">{booking.guestName}</span>?
             </p>
             <p className="mb-4 text-xs text-[#A8A29E]">
               This action cannot be undone. The booking will be permanently removed.
@@ -993,7 +993,7 @@ function BookingModal({
                 }}
                 disabled={isDeleting}
                 title="Cancel (Esc)"
-                className="flex-1 rounded-full border border-[#E7E5E4] px-4 py-2.5 text-sm font-medium text-[#78716C] transition-colors hover:bg-[#FAF8F5] disabled:opacity-50"
+                className="flex-1 rounded-full border border-border px-4 py-2.5 text-sm font-medium text-foreground-muted transition-colors hover:bg-background disabled:opacity-50"
               >
                 Cancel
               </button>
@@ -1127,12 +1127,12 @@ function CreateBookingModal({
       />
       
       {/* Modal */}
-      <div className="relative max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl border border-[#E7E5E4] bg-white p-6 shadow-xl">
+      <div className="relative max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl border border-border bg-card p-6 shadow-xl">
         {/* Header button */}
         <div className="absolute right-4 top-4">
           <button
             onClick={onClose}
-            className="flex h-8 w-8 items-center justify-center rounded-full text-[#78716C] transition-colors hover:bg-[#FDF6EC] hover:text-[#1C1917]"
+            className="flex h-8 w-8 items-center justify-center rounded-full text-foreground-muted transition-colors hover:bg-background-secondary hover:text-foreground"
             title="Close (Esc)"
           >
             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -1142,7 +1142,7 @@ function CreateBookingModal({
         </div>
 
         <div className="space-y-4">
-          <h3 className="text-lg font-semibold text-[#1C1917]">New Booking</h3>
+          <h3 className="text-lg font-semibold text-foreground">New Booking</h3>
           
           {saveError && (
             <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
@@ -1152,58 +1152,58 @@ function CreateBookingModal({
           
           {/* Guest Name */}
           <div>
-            <label className="mb-1.5 block text-xs font-medium text-[#78716C]">Guest Name *</label>
+            <label className="mb-1.5 block text-xs font-medium text-foreground-muted">Guest Name *</label>
             <input
               type="text"
               value={guestName}
               onChange={(e) => setGuestName(e.target.value)}
               placeholder="Enter guest name"
-              className="w-full rounded-lg border border-[#E7E5E4] px-3 py-2 text-sm text-[#1C1917] focus:border-[#EA580C] focus:outline-none focus:ring-1 focus:ring-[#EA580C]"
+              className="w-full rounded-lg border border-border px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
             />
           </div>
           
           {/* Guest Count */}
           <div>
-            <label className="mb-1.5 block text-xs font-medium text-[#78716C]">Number of Guests</label>
+            <label className="mb-1.5 block text-xs font-medium text-foreground-muted">Number of Guests</label>
             <input
               type="number"
               min="1"
               value={guestCount}
               onChange={(e) => setGuestCount(parseInt(e.target.value) || 1)}
-              className="w-full rounded-lg border border-[#E7E5E4] px-3 py-2 text-sm text-[#1C1917] focus:border-[#EA580C] focus:outline-none focus:ring-1 focus:ring-[#EA580C]"
+              className="w-full rounded-lg border border-border px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
             />
           </div>
           
           {/* Date and Time */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-[#78716C]">Date *</label>
+              <label className="mb-1.5 block text-xs font-medium text-foreground-muted">Date *</label>
               <input
                 type="date"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
-                className="w-full rounded-lg border border-[#E7E5E4] px-3 py-2 text-sm text-[#1C1917] focus:border-[#EA580C] focus:outline-none focus:ring-1 focus:ring-[#EA580C]"
+                className="w-full rounded-lg border border-border px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
               />
             </div>
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-[#78716C]">Time</label>
+              <label className="mb-1.5 block text-xs font-medium text-foreground-muted">Time</label>
               <input
                 type="text"
                 placeholder="e.g. 7:00 PM"
                 value={time}
                 onChange={(e) => setTime(e.target.value)}
-                className="w-full rounded-lg border border-[#E7E5E4] px-3 py-2 text-sm text-[#1C1917] focus:border-[#EA580C] focus:outline-none focus:ring-1 focus:ring-[#EA580C]"
+                className="w-full rounded-lg border border-border px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
               />
             </div>
           </div>
           
           {/* Platform */}
           <div>
-            <label className="mb-1.5 block text-xs font-medium text-[#78716C]">Platform</label>
+            <label className="mb-1.5 block text-xs font-medium text-foreground-muted">Platform</label>
             <select
               value={platform}
               onChange={(e) => setPlatform(e.target.value as Platform)}
-              className="w-full rounded-lg border border-[#E7E5E4] px-3 py-2 text-sm text-[#1C1917] focus:border-[#EA580C] focus:outline-none focus:ring-1 focus:ring-[#EA580C]"
+              className="w-full rounded-lg border border-border px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
             >
               {Object.entries(platformNames).map(([key, name]) => (
                 <option key={key} value={key}>{name}</option>
@@ -1213,48 +1213,48 @@ function CreateBookingModal({
           
           {/* Activity Name */}
           <div>
-            <label className="mb-1.5 block text-xs font-medium text-[#78716C]">Activity Name</label>
+            <label className="mb-1.5 block text-xs font-medium text-foreground-muted">Activity Name</label>
             <input
               type="text"
               value={activityName}
               onChange={(e) => setActivityName(e.target.value)}
               placeholder="e.g. Sunset Wine Tour"
-              className="w-full rounded-lg border border-[#E7E5E4] px-3 py-2 text-sm text-[#1C1917] focus:border-[#EA580C] focus:outline-none focus:ring-1 focus:ring-[#EA580C]"
+              className="w-full rounded-lg border border-border px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
             />
           </div>
           
           {/* Dietary Restrictions */}
           <div>
-            <label className="mb-1.5 block text-xs font-medium text-[#78716C]">Dietary Restrictions</label>
+            <label className="mb-1.5 block text-xs font-medium text-foreground-muted">Dietary Restrictions</label>
             <input
               type="text"
               value={dietaryRestrictions}
               onChange={(e) => setDietaryRestrictions(e.target.value)}
               placeholder="e.g. 2 vegetarian, 1 gluten-free"
-              className="w-full rounded-lg border border-[#E7E5E4] px-3 py-2 text-sm text-[#1C1917] focus:border-[#EA580C] focus:outline-none focus:ring-1 focus:ring-[#EA580C]"
+              className="w-full rounded-lg border border-border px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
             />
             <p className="mt-1 text-xs text-[#A8A29E]">Comma-separated list</p>
           </div>
           
           {/* Special Requests */}
           <div>
-            <label className="mb-1.5 block text-xs font-medium text-[#78716C]">Special Requests</label>
+            <label className="mb-1.5 block text-xs font-medium text-foreground-muted">Special Requests</label>
             <textarea
               value={specialRequests}
               onChange={(e) => setSpecialRequests(e.target.value)}
               placeholder="Any other notes or requests..."
               rows={2}
-              className="w-full rounded-lg border border-[#E7E5E4] px-3 py-2 text-sm text-[#1C1917] focus:border-[#EA580C] focus:outline-none focus:ring-1 focus:ring-[#EA580C]"
+              className="w-full rounded-lg border border-border px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
             />
           </div>
           
           {/* Status */}
           <div>
-            <label className="mb-1.5 block text-xs font-medium text-[#78716C]">Status</label>
+            <label className="mb-1.5 block text-xs font-medium text-foreground-muted">Status</label>
             <select
               value={status}
               onChange={(e) => setStatus(e.target.value as BookingStatus)}
-              className="w-full rounded-lg border border-[#E7E5E4] px-3 py-2 text-sm text-[#1C1917] focus:border-[#EA580C] focus:outline-none focus:ring-1 focus:ring-[#EA580C]"
+              className="w-full rounded-lg border border-border px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
             >
               <option value="confirmed">Confirmed</option>
               <option value="pending">Pending</option>
@@ -1269,7 +1269,7 @@ function CreateBookingModal({
               onClick={onClose}
               disabled={isSaving}
               title="Cancel (Esc)"
-              className="flex-1 rounded-full border border-[#E7E5E4] px-4 py-2.5 text-sm font-medium text-[#78716C] transition-colors hover:bg-[#FAF8F5] disabled:opacity-50"
+              className="flex-1 rounded-full border border-border px-4 py-2.5 text-sm font-medium text-foreground-muted transition-colors hover:bg-background disabled:opacity-50"
             >
               Cancel
             </button>
@@ -1277,7 +1277,7 @@ function CreateBookingModal({
               onClick={handleSave}
               disabled={isSaving}
               title="Create booking (Enter)"
-              className="flex flex-1 items-center justify-center gap-2 rounded-full bg-[#EA580C] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#C2410C] disabled:opacity-50"
+              className="flex flex-1 items-center justify-center gap-2 rounded-full bg-accent px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-accent-hover disabled:opacity-50"
             >
               {isSaving ? (
                 <>
@@ -1313,7 +1313,7 @@ function BookingCard({ booking, onClick }: { booking: Booking; onClick: () => vo
           ? "border-amber-200 bg-amber-50/50 hover:border-amber-300"
           : booking.status === "pending"
           ? "border-slate-200 bg-slate-50/50 hover:border-slate-300"
-          : "border-[#E7E5E4] bg-white hover:border-[#EA580C]/30 hover:shadow-sm"
+          : "border-border bg-card hover:border-accent/30 hover:shadow-sm"
       }`}
     >
       {/* Platform badge and status */}
@@ -1337,8 +1337,8 @@ function BookingCard({ booking, onClick }: { booking: Booking; onClick: () => vo
 
       {/* Guest info */}
       <div className={booking.status === "cancelled" || booking.status === "rescheduled" ? "line-through opacity-60" : ""}>
-        <p className="text-sm font-medium text-[#1C1917]">{booking.guestName}</p>
-        <p className="text-xs text-[#78716C]">
+        <p className="text-sm font-medium text-foreground">{booking.guestName}</p>
+        <p className="text-xs text-foreground-muted">
           {booking.guestCount} guest{booking.guestCount !== 1 ? "s" : ""}
           {booking.time && ` · ${booking.time}`}
         </p>
@@ -1346,12 +1346,12 @@ function BookingCard({ booking, onClick }: { booking: Booking; onClick: () => vo
 
       {/* Activity or duration */}
       {booking.activityName && (
-        <p className={`mt-1.5 text-xs text-[#78716C] truncate ${booking.status === "cancelled" || booking.status === "rescheduled" ? "line-through opacity-60" : ""}`} title={booking.activityName}>
+        <p className={`mt-1.5 text-xs text-foreground-muted truncate ${booking.status === "cancelled" || booking.status === "rescheduled" ? "line-through opacity-60" : ""}`} title={booking.activityName}>
           {booking.activityName}
         </p>
       )}
       {booking.duration && (
-        <p className={`mt-1.5 text-xs text-[#78716C] ${booking.status === "cancelled" || booking.status === "rescheduled" ? "line-through opacity-60" : ""}`}>{booking.duration}</p>
+        <p className={`mt-1.5 text-xs text-foreground-muted ${booking.status === "cancelled" || booking.status === "rescheduled" ? "line-through opacity-60" : ""}`}>{booking.duration}</p>
       )}
 
       {/* Special requests */}
@@ -1360,7 +1360,7 @@ function BookingCard({ booking, onClick }: { booking: Booking; onClick: () => vo
           {booking.specialRequests.map((request, index) => (
             <span
               key={index}
-              className="inline-flex items-center rounded-md bg-[#EA580C]/10 px-1.5 py-0.5 text-xs text-[#EA580C]"
+              className="inline-flex items-center rounded-md bg-accent/10 px-1.5 py-0.5 text-xs text-accent"
             >
               {request}
             </span>
@@ -1447,27 +1447,27 @@ function DayColumn({
   return (
     <div
       className={`flex min-w-[160px] flex-1 flex-col rounded-xl border sm:min-w-[220px] ${
-        today ? "border-[#EA580C] bg-[#FDF6EC]" : "border-[#E7E5E4] bg-white"
+        today ? "border-accent bg-background-secondary" : "border-border bg-card"
       }`}
     >
       {/* Day header */}
-      <div className={`shrink-0 border-b p-3 ${today ? "border-[#EA580C]/20" : "border-[#E7E5E4]"}`}>
+      <div className={`shrink-0 border-b p-3 ${today ? "border-accent/20" : "border-border"}`}>
         <div className="flex items-center justify-between">
           <div>
-            <p className={`text-xs font-medium ${today ? "text-[#EA580C]" : "text-[#78716C]"}`}>
+            <p className={`text-xs font-medium ${today ? "text-accent" : "text-foreground-muted"}`}>
               {getDayName(date)}
             </p>
-            <p className={`text-lg font-semibold ${today ? "text-[#EA580C]" : "text-[#1C1917]"}`}>
+            <p className={`text-lg font-semibold ${today ? "text-accent" : "text-foreground"}`}>
               {formatDate(date)}
             </p>
           </div>
           {today && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-[#EA580C] px-2 py-0.5 text-xs font-medium text-white">
+            <span className="inline-flex items-center gap-1 rounded-full bg-accent px-2 py-0.5 text-xs font-medium text-white">
               Today
             </span>
           )}
         </div>
-        <p className="mt-1 text-xs text-[#78716C]">
+        <p className="mt-1 text-xs text-foreground-muted">
           {confirmedBookings.length} booking{confirmedBookings.length !== 1 ? "s" : ""} · {totalGuests} guest
           {totalGuests !== 1 ? "s" : ""}
         </p>
@@ -1505,7 +1505,7 @@ function DayColumn({
           {bookings.length === 0 ? (
             <button
               onClick={() => onAddBooking(date)}
-              className="flex h-full w-full flex-col items-center justify-center gap-2 py-8 text-[#78716C] transition-colors hover:text-[#EA580C]"
+              className="flex h-full w-full flex-col items-center justify-center gap-2 py-8 text-foreground-muted transition-colors hover:text-accent"
             >
               <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
@@ -1524,7 +1524,7 @@ function DayColumn({
               {/* Add booking button */}
               <button
                 onClick={() => onAddBooking(date)}
-                className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-[#E7E5E4] py-2 text-xs text-[#78716C] transition-colors hover:border-[#EA580C] hover:text-[#EA580C]"
+                className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-border py-2 text-xs text-foreground-muted transition-colors hover:border-accent hover:text-accent"
               >
                 <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
@@ -1540,7 +1540,7 @@ function DayColumn({
           <div
             className={`pointer-events-none absolute bottom-0 left-0 right-0 h-8 rounded-b-xl ${
               today
-                ? "bg-gradient-to-t from-[#FDF6EC] to-transparent"
+                ? "bg-gradient-to-t from-background-secondary to-transparent"
                 : "bg-gradient-to-t from-white to-transparent"
             }`}
           />
@@ -1624,22 +1624,22 @@ function MonthDayCell({
       onClick={onClick}
       className={`relative flex min-h-[80px] flex-col items-start rounded-lg border p-2 text-left transition-all ${
         today
-          ? "border-[#EA580C] bg-[#FDF6EC]"
+          ? "border-accent bg-background-secondary"
           : inCurrentMonth
           ? hasBookings
-            ? "border-[#E7E5E4] bg-white hover:border-[#EA580C]/30 hover:shadow-sm"
-            : "border-[#E7E5E4] bg-white"
-          : "border-transparent bg-[#FAF8F5] opacity-40"
+            ? "border-border bg-card hover:border-accent/30 hover:shadow-sm"
+            : "border-border bg-card"
+          : "border-transparent bg-background opacity-40"
       }`}
     >
       {/* Day number */}
       <span
         className={`text-sm font-medium ${
           today
-            ? "text-[#EA580C]"
+            ? "text-accent"
             : inCurrentMonth
-            ? "text-[#1C1917]"
-            : "text-[#78716C]"
+            ? "text-foreground"
+            : "text-foreground-muted"
         }`}
       >
         {date.getDate()}
@@ -1648,7 +1648,7 @@ function MonthDayCell({
       {/* Booking info - same format as weekly view; abbreviate to b/g on narrow for month tiles */}
       {hasBookings && inCurrentMonth && (
         <div className="mt-1 flex flex-col gap-1">
-          <p className="text-xs text-[#78716C]">
+          <p className="text-xs text-foreground-muted">
             <span className="sm:hidden">{confirmedBookings.length} b · {totalGuests} g</span>
             <span className="hidden sm:inline">
               {confirmedBookings.length} booking{confirmedBookings.length !== 1 ? "s" : ""} · {totalGuests} guest
@@ -1681,7 +1681,7 @@ function MonthDayCell({
 
       {/* Today indicator */}
       {today && (
-        <span className="absolute right-1 top-1 h-1.5 w-1.5 rounded-full bg-[#EA580C]" />
+        <span className="absolute right-1 top-1 h-1.5 w-1.5 rounded-full bg-accent" />
       )}
     </button>
   );
@@ -1701,13 +1701,13 @@ function MonthGrid({
   const dayNames = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
   return (
-    <div className="flex flex-1 flex-col rounded-xl border border-[#E7E5E4] bg-white p-3">
+    <div className="flex flex-1 flex-col rounded-xl border border-border bg-card p-3">
       {/* Day headers */}
       <div className="mb-2 grid grid-cols-7 gap-1">
         {dayNames.map((day) => (
           <div
             key={day}
-            className="py-1 text-center text-xs font-medium text-[#78716C]"
+            className="py-1 text-center text-xs font-medium text-foreground-muted"
           >
             {day}
           </div>
@@ -1743,13 +1743,13 @@ function ViewToggle({
   onViewChange: (mode: ViewMode) => void;
 }) {
   return (
-    <div className="flex w-fit rounded-lg border border-[#E7E5E4] bg-white p-0.5">
+    <div className="flex w-fit rounded-lg border border-border bg-card p-0.5">
       <button
         onClick={() => onViewChange("week")}
         className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
           viewMode === "week"
-            ? "bg-[#EA580C] text-white"
-            : "text-[#78716C] hover:text-[#1C1917]"
+            ? "bg-accent text-white"
+            : "text-foreground-muted hover:text-foreground"
         }`}
       >
         <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -1761,8 +1761,8 @@ function ViewToggle({
         onClick={() => onViewChange("month")}
         className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
           viewMode === "month"
-            ? "bg-[#EA580C] text-white"
-            : "text-[#78716C] hover:text-[#1C1917]"
+            ? "bg-accent text-white"
+            : "text-foreground-muted hover:text-foreground"
         }`}
       >
         <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -1777,16 +1777,16 @@ function ViewToggle({
 // Loading skeleton for day columns
 function DayColumnSkeleton() {
   return (
-    <div className="flex min-w-[160px] flex-1 flex-col rounded-xl border border-[#E7E5E4] bg-white sm:min-w-[220px]">
-      <div className="shrink-0 border-b border-[#E7E5E4] p-3">
-        <div className="h-4 w-12 animate-pulse rounded bg-[#E7E5E4]" />
-        <div className="mt-1 h-6 w-16 animate-pulse rounded bg-[#E7E5E4]" />
-        <div className="mt-2 h-4 w-24 animate-pulse rounded bg-[#E7E5E4]" />
+    <div className="flex min-w-[160px] flex-1 flex-col rounded-xl border border-border bg-card sm:min-w-[220px]">
+      <div className="shrink-0 border-b border-border p-3">
+        <div className="h-4 w-12 animate-pulse rounded bg-border" />
+        <div className="mt-1 h-6 w-16 animate-pulse rounded bg-border" />
+        <div className="mt-2 h-4 w-24 animate-pulse rounded bg-border" />
         <div className="mt-2 h-[26px]" />
       </div>
       <div className="flex-1 space-y-2 p-2">
-        <div className="h-24 animate-pulse rounded-lg bg-[#E7E5E4]" />
-        <div className="h-24 animate-pulse rounded-lg bg-[#E7E5E4]" />
+        <div className="h-24 animate-pulse rounded-lg bg-border" />
+        <div className="h-24 animate-pulse rounded-lg bg-border" />
       </div>
     </div>
   );
@@ -1938,10 +1938,10 @@ export default function DashboardPage() {
   // Show loading state while checking auth
   if (isAuthenticated === null || (isAuthenticated === false)) {
     return (
-      <div className="flex h-screen flex-col bg-[#FAF8F5]">
+      <div className="flex h-screen flex-col bg-background">
         <DashboardNavbar />
         <div className="flex flex-1 items-center justify-center">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#EA580C] border-t-transparent" />
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-accent border-t-transparent" />
         </div>
       </div>
     );
@@ -1982,7 +1982,7 @@ export default function DashboardPage() {
   );
 
   return (
-    <div className="flex h-screen flex-col bg-[#FAF8F5]">
+    <div className="flex h-screen flex-col bg-background">
       <DashboardNavbar rightContent={liveSyncInNavbar} />
 
       <main className="mx-auto flex min-h-0 w-full max-w-7xl flex-1 flex-col px-4 py-4 sm:px-6 sm:py-6">
@@ -2007,7 +2007,7 @@ export default function DashboardPage() {
             <div className="flex min-w-0 flex-1 basis-0 items-center gap-2 sm:basis-auto sm:flex-initial">
               <button
                 onClick={() => viewMode === "week" ? navigateWeek("prev") : navigateMonth("prev")}
-                className="flex h-8 shrink-0 items-center justify-center rounded-lg border border-[#E7E5E4] bg-white text-[#78716C] transition-colors hover:bg-[#FDF6EC] hover:text-[#1C1917]"
+                className="flex h-8 shrink-0 items-center justify-center rounded-lg border border-border bg-card text-foreground-muted transition-colors hover:bg-background-secondary hover:text-foreground"
                 aria-label={viewMode === "week" ? "Previous week" : "Previous month"}
               >
                 <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -2017,20 +2017,20 @@ export default function DashboardPage() {
               <div className="min-w-0 flex-1 text-center sm:min-w-[100px]">
                 {viewMode === "week" ? (
                   <>
-                    <p className="truncate text-xs font-medium text-[#1C1917] sm:text-sm" title={`${formatDate(weekDates[0])} – ${formatDate(weekDates[6])}`}>
+                    <p className="truncate text-xs font-medium text-foreground sm:text-sm" title={`${formatDate(weekDates[0])} – ${formatDate(weekDates[6])}`}>
                       <span className="sm:hidden">{formatWeekRangeShort(weekDates[0], weekDates[6])}</span>
                       <span className="hidden sm:inline">{formatDate(weekDates[0])} – {formatDate(weekDates[6])}</span>
                     </p>
-                    <p className="text-xs text-[#78716C]">
+                    <p className="text-xs text-foreground-muted">
                       {weekDates[0].getFullYear()}
                     </p>
                   </>
                 ) : (
                   <>
-                    <p className="truncate text-xs font-medium text-[#1C1917] sm:text-sm">
+                    <p className="truncate text-xs font-medium text-foreground sm:text-sm">
                       {getMonthName(currentMonth)}
                     </p>
-                    <p className="text-xs text-[#78716C]">
+                    <p className="text-xs text-foreground-muted">
                       {currentMonth.getFullYear()}
                     </p>
                   </>
@@ -2038,7 +2038,7 @@ export default function DashboardPage() {
               </div>
               <button
                 onClick={() => viewMode === "week" ? navigateWeek("next") : navigateMonth("next")}
-                className="flex h-8 shrink-0 items-center justify-center rounded-lg border border-[#E7E5E4] bg-white text-[#78716C] transition-colors hover:bg-[#FDF6EC] hover:text-[#1C1917]"
+                className="flex h-8 shrink-0 items-center justify-center rounded-lg border border-border bg-card text-foreground-muted transition-colors hover:bg-background-secondary hover:text-foreground"
                 aria-label={viewMode === "week" ? "Next week" : "Next month"}
               >
                 <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -2050,27 +2050,27 @@ export default function DashboardPage() {
 
           {/* Summary stats + Email stack */}
           <div className="flex flex-wrap items-center gap-2 text-sm">
-            <div className="rounded-lg bg-white px-2.5 py-1.5 border border-[#E7E5E4]">
-              <span className="text-[#78716C]">Bookings:</span>{" "}
-              <span className="font-medium text-[#1C1917]">
+            <div className="rounded-lg bg-card px-2.5 py-1.5 border border-border">
+              <span className="text-foreground-muted">Bookings:</span>{" "}
+              <span className="font-medium text-foreground">
                 {viewMode === "week" ? confirmedWeekBookings.length : confirmedMonthBookings.length}
               </span>
             </div>
-            <div className="rounded-lg bg-white px-2.5 py-1.5 border border-[#E7E5E4]">
-              <span className="text-[#78716C]">Guests:</span>{" "}
-              <span className="font-medium text-[#1C1917]">
+            <div className="rounded-lg bg-card px-2.5 py-1.5 border border-border">
+              <span className="text-foreground-muted">Guests:</span>{" "}
+              <span className="font-medium text-foreground">
                 {viewMode === "week" ? totalWeekGuests : totalMonthGuests}
               </span>
             </div>
             {(viewMode === "week" ? specialRequestCount : monthSpecialRequestCount) > 0 && (
-              <div className="rounded-lg bg-[#EA580C]/10 px-2.5 py-1.5 border border-[#EA580C]/20">
-                <span className="text-[#EA580C]">Requests:</span>{" "}
-                <span className="font-medium text-[#EA580C]">
+              <div className="rounded-lg bg-accent/10 px-2.5 py-1.5 border border-accent/20">
+                <span className="text-accent">Requests:</span>{" "}
+                <span className="font-medium text-accent">
                   {viewMode === "week" ? specialRequestCount : monthSpecialRequestCount}
                 </span>
               </div>
             )}
-            <div className="rounded-lg border border-[#E7E5E4] bg-white px-3 py-1.5">
+            <div className="rounded-lg border border-border bg-card px-3 py-1.5">
               <EmailStack 
                 bookings={bookings} 
                 onBookingClick={setSelectedBooking}

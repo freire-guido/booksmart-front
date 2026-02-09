@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 
 export default function Privacy() {
   return (
-    <div className="min-h-screen bg-[#FAF8F5] overflow-x-hidden">
+    <div className="min-h-screen bg-background overflow-x-hidden">
       <Navbar />
 
       <section className="mx-auto max-w-3xl px-6 py-12 lg:py-16">
@@ -20,15 +20,15 @@ export default function Privacy() {
           <p className="mb-2 text-sm font-medium uppercase tracking-wide text-[#EA580C]">
             Legal
           </p>
-          <h1 className="mb-4 text-4xl font-semibold leading-tight tracking-tight text-[#1C1917] lg:text-5xl">
+          <h1 className="mb-4 text-4xl font-semibold leading-tight tracking-tight text-foreground lg:text-5xl">
             Privacy Policy
           </h1>
-          <p className="text-sm text-[#78716C]">Last updated: February 7, 2026</p>
+          <p className="text-sm text-foreground-muted">Last updated: February 7, 2026</p>
         </div>
 
         <div className="space-y-10 text-[#57534E]">
           <section>
-            <h2 className="mb-3 text-xl font-semibold text-[#1C1917]">
+            <h2 className="mb-3 text-xl font-semibold text-foreground">
               1. Overview
             </h2>
             <p className="leading-relaxed">
@@ -37,11 +37,11 @@ export default function Privacy() {
           </section>
 
           <section>
-            <h2 className="mb-3 text-xl font-semibold text-[#1C1917]">
+            <h2 className="mb-3 text-xl font-semibold text-foreground">
               2. Email Processing
             </h2>
             <p className="mb-3 leading-relaxed">
-              When you connect your email account (e.g., Gmail) to BookSmart, we process your emails to extract booking-related information. <strong className="text-[#1C1917]">We do not store the full text or content of your emails.</strong> We read emails solely for the purpose of extraction, and we retain only the structured data that we extract, such as guest names, dates, party sizes, booking references, and similar details.
+              When you connect your email account (e.g., Gmail) to BookSmart, we process your emails to extract booking-related information. <strong className="text-foreground">We do not store the full text or content of your emails.</strong> We read emails solely for the purpose of extraction, and we retain only the structured data that we extract, such as guest names, dates, party sizes, booking references, and similar details.
             </p>
             <p className="leading-relaxed">
               The raw email text is processed in real time and is not persisted on our systems. Only the extracted booking information is stored for use within the Service.
@@ -49,7 +49,7 @@ export default function Privacy() {
           </section>
 
           <section>
-            <h2 className="mb-3 text-xl font-semibold text-[#1C1917]">
+            <h2 className="mb-3 text-xl font-semibold text-foreground">
               3. AI Processing (OpenAI)
             </h2>
             <p className="mb-3 leading-relaxed">
@@ -61,7 +61,7 @@ export default function Privacy() {
                 href="https://openai.com/policies/privacy-policy"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-medium text-[#EA580C] underline hover:text-[#C2410C]"
+                className="font-medium text-[#EA580C] underline hover:text-accent-hover"
               >
                 OpenAI&apos;s Privacy Policy
               </a>
@@ -70,7 +70,7 @@ export default function Privacy() {
           </section>
 
           <section>
-            <h2 className="mb-3 text-xl font-semibold text-[#1C1917]">
+            <h2 className="mb-3 text-xl font-semibold text-foreground">
               4. What We Store
             </h2>
             <p className="mb-3 leading-relaxed">
@@ -82,25 +82,25 @@ export default function Privacy() {
               <li>Metadata necessary to operate the Service</li>
             </ul>
             <p className="leading-relaxed">
-              We do <strong className="text-[#1C1917]">not</strong> store the full text or body of your emails.
+              We do <strong className="text-foreground">not</strong> store the full text or body of your emails.
             </p>
           </section>
 
           <section>
-            <h2 className="mb-3 text-xl font-semibold text-[#1C1917]">
+            <h2 className="mb-3 text-xl font-semibold text-foreground">
               5. Sale of Information
             </h2>
             <p className="leading-relaxed">
-              <strong className="text-[#1C1917]">We do not sell your personal information or any extracted data.</strong> Your information is used solely to provide and improve the BookSmart Service. We do not share your data with third parties for their marketing purposes.
+              <strong className="text-foreground">We do not sell your personal information or any extracted data.</strong> Your information is used solely to provide and improve the BookSmart Service. We do not share your data with third parties for their marketing purposes.
             </p>
           </section>
 
           <section>
-            <h2 className="mb-3 text-xl font-semibold text-[#1C1917]">
+            <h2 className="mb-3 text-xl font-semibold text-foreground">
               6. Accuracy of Extracted Information: Important Disclaimer
             </h2>
             <p className="mb-3 leading-relaxed">
-              BookSmart uses artificial intelligence to automatically extract information from your emails. <strong className="text-[#1C1917]">Extraction is not guaranteed to be complete or accurate.</strong> You are solely responsible for verifying the accuracy of any extracted data before relying on it.
+              BookSmart uses artificial intelligence to automatically extract information from your emails. <strong className="text-foreground">Extraction is not guaranteed to be complete or accurate.</strong> You are solely responsible for verifying the accuracy of any extracted data before relying on it.
             </p>
             <p className="mb-3 leading-relaxed">
               Without limiting the generality of the above, we expressly disclaim responsibility for:
@@ -117,7 +117,7 @@ export default function Privacy() {
           </section>
 
           <section>
-            <h2 className="mb-3 text-xl font-semibold text-[#1C1917]">
+            <h2 className="mb-3 text-xl font-semibold text-foreground">
               7. Limitation of Liability
             </h2>
             <p className="leading-relaxed">
@@ -126,7 +126,7 @@ export default function Privacy() {
           </section>
 
           <section>
-            <h2 className="mb-3 text-xl font-semibold text-[#1C1917]">
+            <h2 className="mb-3 text-xl font-semibold text-foreground">
               8. Data Security
             </h2>
             <p className="leading-relaxed">
@@ -135,7 +135,7 @@ export default function Privacy() {
           </section>
 
           <section>
-            <h2 className="mb-3 text-xl font-semibold text-[#1C1917]">
+            <h2 className="mb-3 text-xl font-semibold text-foreground">
               9. Your Rights
             </h2>
             <p className="leading-relaxed">
@@ -144,7 +144,7 @@ export default function Privacy() {
           </section>
 
           <section>
-            <h2 className="mb-3 text-xl font-semibold text-[#1C1917]">
+            <h2 className="mb-3 text-xl font-semibold text-foreground">
               10. Changes to This Policy
             </h2>
             <p className="leading-relaxed">
@@ -153,7 +153,7 @@ export default function Privacy() {
           </section>
 
           <section>
-            <h2 className="mb-3 text-xl font-semibold text-[#1C1917]">
+            <h2 className="mb-3 text-xl font-semibold text-foreground">
               11. Contact
             </h2>
             <p className="leading-relaxed">

@@ -22,12 +22,12 @@ export default async function LoginPage({
   const googleAuthUrl = getGoogleAuthUrl(needsReauth);
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#FAF8F5]">
+    <div className="flex min-h-screen flex-col bg-background">
       {/* Simple header */}
-      <header className="border-b border-[#E7E5E4] bg-[#FAF8F5]/95 backdrop-blur-sm">
+      <header className="border-b border-border bg-background/95 backdrop-blur-sm">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <Link href="/" className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#EA580C]">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent">
               <svg
                 className="h-5 w-5 text-white"
                 fill="none"
@@ -42,7 +42,7 @@ export default async function LoginPage({
                 />
               </svg>
             </div>
-            <span className="text-xl font-semibold text-[#1C1917]">
+            <span className="text-xl font-semibold text-foreground">
               BookSmart
             </span>
           </Link>
@@ -53,12 +53,12 @@ export default async function LoginPage({
       <main className="flex flex-1 items-center justify-center px-6 py-12">
         <div className="w-full max-w-md">
           {/* Card */}
-          <div className="rounded-2xl border border-[#E7E5E4] bg-white p-8 shadow-lg shadow-[#EA580C]/5">
+          <div className="rounded-2xl border border-border bg-card p-8 shadow-lg shadow-accent/5">
             {/* Header */}
             <div className="mb-8 text-center">
-              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-[#EA580C]/10">
+              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-accent/10">
                 <svg
-                  className="h-7 w-7 text-[#EA580C]"
+                  className="h-7 w-7 text-accent"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -71,10 +71,10 @@ export default async function LoginPage({
                   />
                 </svg>
               </div>
-              <h1 className="text-2xl font-semibold text-[#1C1917]">
+              <h1 className="text-2xl font-semibold text-foreground">
                 Connect Your Gmail
               </h1>
-              <p className="mt-2 text-[#78716C]">
+              <p className="mt-2 text-foreground-muted">
                 Let BookSmart read your booking confirmations and keep your schedule
                 up to date automatically.
               </p>
@@ -115,14 +115,14 @@ export default async function LoginPage({
             )}
 
             {/* Permissions info */}
-            <div className="mb-6 rounded-xl bg-[#FDF6EC] p-4">
-              <p className="mb-3 text-sm font-medium text-[#1C1917]">
+            <div className="mb-6 rounded-xl bg-background-secondary p-4">
+              <p className="mb-3 text-sm font-medium text-foreground">
                 We&apos;ll request access to:
               </p>
-              <ul className="space-y-2 text-sm text-[#78716C]">
+              <ul className="space-y-2 text-sm text-foreground-muted">
                 <li className="flex items-start gap-2">
                   <svg
-                    className="mt-0.5 h-4 w-4 shrink-0 text-[#EA580C]"
+                    className="mt-0.5 h-4 w-4 shrink-0 text-accent"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -135,13 +135,13 @@ export default async function LoginPage({
                     />
                   </svg>
                   <span>
-                    <strong className="text-[#1C1917]">Read emails</strong> – to
+                    <strong className="text-foreground">Read emails</strong> – to
                     find booking confirmations
                   </span>
                 </li>
                 <li className="flex items-start gap-2">
                   <svg
-                    className="mt-0.5 h-4 w-4 shrink-0 text-[#EA580C]"
+                    className="mt-0.5 h-4 w-4 shrink-0 text-accent"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -154,13 +154,13 @@ export default async function LoginPage({
                     />
                   </svg>
                   <span>
-                    <strong className="text-[#1C1917]">Create labels</strong> – to
+                    <strong className="text-foreground">Create labels</strong> – to
                     organize processed emails
                   </span>
                 </li>
                 <li className="flex items-start gap-2">
                   <svg
-                    className="mt-0.5 h-4 w-4 shrink-0 text-[#EA580C]"
+                    className="mt-0.5 h-4 w-4 shrink-0 text-accent"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -173,7 +173,7 @@ export default async function LoginPage({
                     />
                   </svg>
                   <span>
-                    <strong className="text-[#1C1917]">Apply labels</strong> – to
+                    <strong className="text-foreground">Apply labels</strong> – to
                     mark emails as processed
                   </span>
                 </li>
@@ -183,7 +183,7 @@ export default async function LoginPage({
             {/* Connect button — when reauth, URL includes prompt=consent so Google returns refresh_token */}
             <a
               href={googleAuthUrl}
-              className="flex w-full items-center justify-center gap-3 rounded-full border border-[#E7E5E4] bg-white px-6 py-3.5 font-medium text-[#1C1917] transition-all hover:bg-[#FDF6EC] hover:shadow-md"
+              className="flex w-full items-center justify-center gap-3 rounded-full border border-border bg-card px-6 py-3.5 font-medium text-foreground transition-all hover:bg-background-secondary hover:shadow-md"
             >
               {/* Google logo */}
               <svg className="h-5 w-5" viewBox="0 0 24 24">
@@ -208,10 +208,10 @@ export default async function LoginPage({
             </a>
 
             {/* Privacy note */}
-            <p className="mt-4 text-center text-xs text-[#A8A29E]">
+            <p className="mt-4 text-center text-xs text-foreground-muted/80">
               We never send emails on your behalf or share your data.
               <br />
-              <Link href="/about" className="underline hover:text-[#78716C]">
+              <Link href="/about" className="underline hover:text-foreground-muted">
                 Learn more about our privacy practices
               </Link>
             </p>
@@ -221,7 +221,7 @@ export default async function LoginPage({
           <div className="mt-6 text-center">
             <Link
               href="/"
-              className="text-sm text-[#78716C] hover:text-[#1C1917]"
+              className="text-sm text-foreground-muted hover:text-foreground"
             >
               &larr; Back to home
             </Link>
