@@ -28,9 +28,6 @@ export default function Footer() {
           <Link href="/about" className="text-sm text-foreground-muted hover:text-foreground">
             About Us
           </Link>
-          <Link href="/pricing" className="text-sm text-foreground-muted hover:text-foreground">
-            Pricing
-          </Link>
           <Link href="/privacy" className="text-sm text-foreground-muted hover:text-foreground">
             Privacy Policy
           </Link>

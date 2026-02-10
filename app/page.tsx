@@ -529,14 +529,22 @@ export default function Home() {
             Let BookSmart handle the admin so you can focus on your guests&apos;
             experience.
           </p>
-          <a
-            href="https://calendar.app.google/S5EC5XVDQoRn8BX4A"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-block rounded-full bg-card px-8 py-3.5 font-medium text-accent transition-colors hover:bg-background-secondary"
-          >
-            Request Access
-          </a>
+          <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
+            <Link
+              href="/dashboard"
+              className="rounded-full bg-white px-8 py-3.5 font-medium text-accent transition-colors hover:bg-white/90"
+            >
+              Get Early Access
+            </Link>
+            <a
+              href="https://calendar.app.google/S5EC5XVDQoRn8BX4A"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-full border-2 border-white px-8 py-3.5 font-medium text-white transition-colors hover:bg-white/10"
+            >
+              Request Demo
+            </a>
+          </div>
           <p className="mt-6 text-sm text-white/60">
             Join leading agencies already using BookSmart
           </p>
