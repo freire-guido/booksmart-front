@@ -70,13 +70,14 @@ export default function About() {
                 <p className="leading-relaxed">
                   I figured if I could build clinical trial data infrastructure for large pharmaceutical companies, I could probably parse a dinner reservation.
                 </p>
-                <p className="leading-relaxed font-medium text-foreground">
-                  Turns out I could. Now I&apos;m helping operators get their time back, 3+ hours every day, so they can focus on guests, not admin.
-                </p>
               </div>
             </div>
           </div>
         </div>
+
+        <p className="mb-12 text-center text-lg font-medium italic leading-relaxed text-foreground">
+          Turns out I could. Now I&apos;m helping operators get their time back, 3+ hours every day, so they can focus on guests, not admin.
+        </p>
 
         {/* Timeline */}
         <div className="mb-12">
