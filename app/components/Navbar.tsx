@@ -76,6 +76,13 @@ export default function Navbar() {
                 About
               </Link>
               <Link
+                href="/pricing"
+                className="w-full rounded-lg px-3 py-2.5 text-center text-sm font-medium text-foreground-muted hover:bg-white/20 hover:text-foreground"
+                onClick={() => setOpen(false)}
+              >
+                Pricing
+              </Link>
+              <Link
                 href="/dashboard"
                 className="w-full rounded-lg px-3 py-2.5 text-center text-sm font-medium text-foreground-muted hover:bg-white/20 hover:text-foreground"
                 onClick={() => setOpen(false)}
