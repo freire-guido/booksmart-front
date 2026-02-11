@@ -70,13 +70,14 @@ export default function About() {
                 <p className="leading-relaxed">
                   I figured if I could build clinical trial data infrastructure for large pharmaceutical companies, I could probably parse a dinner reservation.
                 </p>
-                <p className="leading-relaxed font-medium text-foreground">
-                  Turns out I could. Now I&apos;m helping operators get their time back, 3+ hours every day, so they can focus on guests, not admin.
-                </p>
               </div>
             </div>
           </div>
         </div>
+
+        <p className="mb-12 text-center text-lg font-medium italic leading-relaxed text-foreground">
+          Turns out I could. Now I&apos;m helping operators get their time back, 3+ hours every day, so they can focus on guests, not admin.
+        </p>
 
         {/* Timeline */}
         <div className="mb-12">
@@ -232,16 +233,16 @@ export default function About() {
           </p>
           <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Link
-              href="/"
-              className="rounded-full border border-border bg-card px-8 py-3 font-medium text-foreground transition-colors hover:bg-background"
+              href="/dashboard"
+              className="rounded-full bg-accent px-8 py-3 font-medium text-white transition-colors hover:bg-accent-hover"
             >
-              Back to Home
+              Get Early Access
             </Link>
             <a
               href="https://calendar.app.google/S5EC5XVDQoRn8BX4A"
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded-full bg-accent px-8 py-3 font-medium text-white transition-colors hover:bg-accent-hover"
+              className="rounded-full border border-border bg-card px-8 py-3 font-medium text-foreground transition-colors hover:bg-background"
             >
               Request Demo
             </a>

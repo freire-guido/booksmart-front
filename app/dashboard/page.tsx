@@ -173,13 +173,13 @@ function formatDate(date: Date): string {
   return `${months[date.getMonth()]} ${date.getDate()}`;
 }
 
-// Compact week range for narrow viewports (e.g. "Jan 6–12" when same month)
+// Compact week range for narrow viewports (e.g. "Jan 6-12" when same month)
 function formatWeekRangeShort(start: Date, end: Date): string {
   const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   if (start.getMonth() === end.getMonth() && start.getFullYear() === end.getFullYear()) {
-    return `${months[start.getMonth()]} ${start.getDate()}–${end.getDate()}`;
+    return `${months[start.getMonth()]} ${start.getDate()}-${end.getDate()}`;
   }
-  return `${months[start.getMonth()]} ${start.getDate()} – ${months[end.getMonth()]} ${end.getDate()}`;
+  return `${months[start.getMonth()]} ${start.getDate()} - ${months[end.getMonth()]} ${end.getDate()}`;
 }
 
 function getDayName(date: Date): string {
@@ -1502,37 +1502,22 @@ function DayColumn({
           ref={scrollRef}
           className="absolute inset-0 space-y-2 overflow-y-auto p-2"
         >
-          {bookings.length === 0 ? (
-            <button
-              onClick={() => onAddBooking(date)}
-              className="flex h-full w-full flex-col items-center justify-center gap-2 py-8 text-foreground-muted transition-colors hover:text-accent"
-            >
-              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-              </svg>
-              <span className="text-xs">Add booking</span>
-            </button>
-          ) : (
-            <>
-              {bookings.map((booking) => (
-                <BookingCard
-                  key={booking.id}
-                  booking={booking}
-                  onClick={() => onBookingClick(booking)}
-                />
-              ))}
-              {/* Add booking button */}
-              <button
-                onClick={() => onAddBooking(date)}
-                className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-border py-2 text-xs text-foreground-muted transition-colors hover:border-accent hover:text-accent"
-              >
-                <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                </svg>
-                Add
-              </button>
-            </>
-          )}
+          {bookings.map((booking) => (
+            <BookingCard
+              key={booking.id}
+              booking={booking}
+              onClick={() => onBookingClick(booking)}
+            />
+          ))}
+          <button
+            onClick={() => onAddBooking(date)}
+            className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-border py-2 text-xs text-foreground-muted transition-colors hover:border-accent hover:text-accent"
+          >
+            <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+            Add
+          </button>
         </div>
         
         {/* Fade indicator */}
@@ -2017,9 +2002,9 @@ export default function DashboardPage() {
               <div className="min-w-0 flex-1 text-center sm:min-w-[100px]">
                 {viewMode === "week" ? (
                   <>
-                    <p className="truncate text-xs font-medium text-foreground sm:text-sm" title={`${formatDate(weekDates[0])} – ${formatDate(weekDates[6])}`}>
+                    <p className="truncate text-xs font-medium text-foreground sm:text-sm" title={`${formatDate(weekDates[0])} - ${formatDate(weekDates[6])}`}>
                       <span className="sm:hidden">{formatWeekRangeShort(weekDates[0], weekDates[6])}</span>
-                      <span className="hidden sm:inline">{formatDate(weekDates[0])} – {formatDate(weekDates[6])}</span>
+                      <span className="hidden sm:inline">{formatDate(weekDates[0])} - {formatDate(weekDates[6])}</span>
                     </p>
                     <p className="text-xs text-foreground-muted">
                       {weekDates[0].getFullYear()}
@@ -2049,7 +2034,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Summary stats + Email stack */}
-          <div className="flex flex-wrap items-center gap-2 text-sm">
+          <div className="flex flex-wrap items-center justify-end gap-2 text-sm">
             <div className="rounded-lg bg-card px-2.5 py-1.5 border border-border">
               <span className="text-foreground-muted">Bookings:</span>{" "}
               <span className="font-medium text-foreground">

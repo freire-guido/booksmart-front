@@ -135,7 +135,7 @@ export default async function LoginPage({
                     />
                   </svg>
                   <span>
-                    <strong className="text-foreground">Read emails</strong> – to
+                    <strong className="text-foreground">Read emails</strong> - to
                     find booking confirmations
                   </span>
                 </li>
@@ -154,7 +154,7 @@ export default async function LoginPage({
                     />
                   </svg>
                   <span>
-                    <strong className="text-foreground">Create labels</strong> – to
+                    <strong className="text-foreground">Create labels</strong> - to
                     organize processed emails
                   </span>
                 </li>
@@ -173,7 +173,7 @@ export default async function LoginPage({
                     />
                   </svg>
                   <span>
-                    <strong className="text-foreground">Apply labels</strong> – to
+                    <strong className="text-foreground">Apply labels</strong> - to
                     mark emails as processed
                   </span>
                 </li>
