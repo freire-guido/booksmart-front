@@ -173,13 +173,13 @@ function formatDate(date: Date): string {
   return `${months[date.getMonth()]} ${date.getDate()}`;
 }
 
-// Compact week range for narrow viewports (e.g. "Jan 6–12" when same month)
+// Compact week range for narrow viewports (e.g. "Jan 6-12" when same month)
 function formatWeekRangeShort(start: Date, end: Date): string {
   const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   if (start.getMonth() === end.getMonth() && start.getFullYear() === end.getFullYear()) {
-    return `${months[start.getMonth()]} ${start.getDate()}–${end.getDate()}`;
+    return `${months[start.getMonth()]} ${start.getDate()}-${end.getDate()}`;
   }
-  return `${months[start.getMonth()]} ${start.getDate()} – ${months[end.getMonth()]} ${end.getDate()}`;
+  return `${months[start.getMonth()]} ${start.getDate()} - ${months[end.getMonth()]} ${end.getDate()}`;
 }
 
 function getDayName(date: Date): string {
@@ -2002,9 +2002,9 @@ export default function DashboardPage() {
               <div className="min-w-0 flex-1 text-center sm:min-w-[100px]">
                 {viewMode === "week" ? (
                   <>
-                    <p className="truncate text-xs font-medium text-foreground sm:text-sm" title={`${formatDate(weekDates[0])} – ${formatDate(weekDates[6])}`}>
+                    <p className="truncate text-xs font-medium text-foreground sm:text-sm" title={`${formatDate(weekDates[0])} - ${formatDate(weekDates[6])}`}>
                       <span className="sm:hidden">{formatWeekRangeShort(weekDates[0], weekDates[6])}</span>
-                      <span className="hidden sm:inline">{formatDate(weekDates[0])} – {formatDate(weekDates[6])}</span>
+                      <span className="hidden sm:inline">{formatDate(weekDates[0])} - {formatDate(weekDates[6])}</span>
                     </p>
                     <p className="text-xs text-foreground-muted">
                       {weekDates[0].getFullYear()}

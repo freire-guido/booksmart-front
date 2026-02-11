@@ -1,3 +1,4 @@
+import Link from "next/link";
 import Footer from "./components/Footer";
 import HeroAnimation from "./components/HeroAnimation";
 import Navbar from "./components/Navbar";
@@ -26,21 +27,24 @@ export default function Home() {
               Viator and more, keeping your schedule live and accurate,
               automatically.
             </p>
-            <div className="flex flex-col gap-4 sm:flex-row">
-              <a
-                href="https://calendar.app.google/S5EC5XVDQoRn8BX4A"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="rounded-full bg-accent px-8 py-3.5 text-base font-medium text-white transition-colors hover:bg-accent-hover text-center"
-              >
-                Get Early Access
-              </a>
-              <a
-                href="#how-it-works"
-                className="rounded-full border border-border bg-card px-8 py-3.5 text-base font-medium text-foreground transition-colors hover:bg-background-secondary text-center"
-              >
-                See How It Works
-              </a>
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-4 sm:flex-row">
+                <Link
+                  href="/dashboard"
+                  className="rounded-full bg-accent px-8 py-3.5 text-base font-medium text-white transition-colors hover:bg-accent-hover text-center"
+                >
+                  Get Early Access
+                </Link>
+                <a
+                  href="#how-it-works"
+                  className="rounded-full border border-border bg-card px-8 py-3.5 text-base font-medium text-foreground transition-colors hover:bg-background-secondary text-center"
+                >
+                  See How It Works
+                </a>
+              </div>
+              <p className="text-xs text-foreground-muted/80">
+                *No credit card required. Free plan.
+              </p>
             </div>
           </div>
 
@@ -525,14 +529,22 @@ export default function Home() {
             Let BookSmart handle the admin so you can focus on your guests&apos;
             experience.
           </p>
-          <a
-            href="https://calendar.app.google/S5EC5XVDQoRn8BX4A"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-block rounded-full bg-card px-8 py-3.5 font-medium text-accent transition-colors hover:bg-background-secondary"
-          >
-            Request Access
-          </a>
+          <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
+            <Link
+              href="/dashboard"
+              className="rounded-full bg-white px-8 py-3.5 font-medium text-accent transition-colors hover:bg-white/90"
+            >
+              Get Early Access
+            </Link>
+            <a
+              href="https://calendar.app.google/S5EC5XVDQoRn8BX4A"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-full border-2 border-white px-8 py-3.5 font-medium text-white transition-colors hover:bg-white/10"
+            >
+              Request Demo
+            </a>
+          </div>
           <p className="mt-6 text-sm text-white/60">
             Join leading agencies already using BookSmart
           </p>

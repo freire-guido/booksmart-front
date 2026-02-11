@@ -28,8 +28,14 @@ export default function Footer() {
           <Link href="/about" className="text-sm text-foreground-muted hover:text-foreground">
             About Us
           </Link>
+          <Link href="/pricing" className="text-sm text-foreground-muted hover:text-foreground">
+            Pricing
+          </Link>
           <Link href="/privacy" className="text-sm text-foreground-muted hover:text-foreground">
             Privacy Policy
+          </Link>
+          <Link href="/refund" className="text-sm text-foreground-muted hover:text-foreground">
+            Refund Policy
           </Link>
           <Link href="/terms" className="text-sm text-foreground-muted hover:text-foreground">
             Terms of Service
