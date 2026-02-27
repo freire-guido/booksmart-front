@@ -6,6 +6,7 @@ import Link from "next/link";
 
 type Step =
   | "gmail-connected"
+  | "org-details"
   | "choose-method"
   | "email-sources"
   | "csv-upload"
@@ -47,6 +48,7 @@ const DEFAULT_EMAIL_SOURCES = [
 // Step indicator labels for progress
 const STEP_LABELS: Record<Step, string> = {
   "gmail-connected": "Connected",
+  "org-details": "Your Activity",
   "choose-method": "Import Method",
   "email-sources": "Email Sources",
   "csv-upload": "Upload CSV",
@@ -57,12 +59,12 @@ const STEP_LABELS: Record<Step, string> = {
 
 function getStepSequence(method: "gmail" | "csv" | null): Step[] {
   if (method === "gmail") {
-    return ["gmail-connected", "choose-method", "email-sources", "scanning", "complete"];
+    return ["gmail-connected", "org-details", "choose-method", "email-sources", "scanning", "complete"];
   }
   if (method === "csv") {
-    return ["gmail-connected", "choose-method", "csv-upload", "csv-mapping", "complete"];
+    return ["gmail-connected", "org-details", "choose-method", "csv-upload", "csv-mapping", "complete"];
   }
-  return ["gmail-connected", "choose-method"];
+  return ["gmail-connected", "org-details", "choose-method"];
 }
 
 export default function OnboardingPage() {
@@ -100,6 +102,11 @@ export default function OnboardingPage() {
   const [csvError, setCsvError] = useState<string | null>(null);
   const [skipLoading, setSkipLoading] = useState(false);
 
+  // Org details state
+  const [orgName, setOrgName] = useState("");
+  const [orgDescription, setOrgDescription] = useState("");
+  const [orgDetailsLoading, setOrgDetailsLoading] = useState(false);
+
   // Complete state
   const [importedCount, setImportedCount] = useState(0);
 
@@ -133,6 +140,7 @@ export default function OnboardingPage() {
           return;
         }
         setUser(data.user);
+        setOrgName(data.user.name || "");
 
         const pendingRes = await fetch("/api/onboarding/pending-job");
         if (pendingRes.ok) {
@@ -556,7 +564,7 @@ export default function OnboardingPage() {
               </div>
 
               <button
-                onClick={() => setStep("choose-method")}
+                onClick={() => setStep("org-details")}
                 className="w-full rounded-full bg-[#EA580C] px-6 py-3 font-medium text-white transition-colors hover:bg-[#C2410C]"
               >
                 Continue
@@ -564,7 +572,78 @@ export default function OnboardingPage() {
             </div>
           )}
 
-          {/* Step 2: Choose Method */}
+          {/* Step 2: Org Details */}
+          {step === "org-details" && (
+            <div className="rounded-2xl border border-[#E7E5E4] bg-white p-8 shadow-lg shadow-[#EA580C]/5">
+              <div className="mb-6 text-center">
+                <h1 className="text-2xl font-semibold text-[#1C1917]">Tell us about your activity</h1>
+                <p className="mt-2 text-[#78716C]">
+                  This helps us extract the right information from your booking emails
+                </p>
+              </div>
+
+              <div className="mb-4">
+                <label className="mb-1.5 block text-sm font-medium text-[#1C1917]">
+                  Organisation name
+                </label>
+                <input
+                  type="text"
+                  value={orgName}
+                  onChange={(e) => setOrgName(e.target.value)}
+                  placeholder="Your organisation name"
+                  className="w-full rounded-lg border border-[#E7E5E4] px-3 py-2.5 text-sm text-[#1C1917] placeholder:text-[#A8A29E] focus:border-[#EA580C] focus:outline-none focus:ring-1 focus:ring-[#EA580C]"
+                />
+              </div>
+
+              <div className="mb-6">
+                <label className="mb-1.5 block text-sm font-medium text-[#1C1917]">
+                  Describe your activity
+                </label>
+                <textarea
+                  value={orgDescription}
+                  onChange={(e) => setOrgDescription(e.target.value)}
+                  placeholder="e.g. We run walking tours and bar crawls in Barcelona..."
+                  rows={3}
+                  className="w-full rounded-lg border border-[#E7E5E4] px-3 py-2.5 text-sm text-[#1C1917] placeholder:text-[#A8A29E] focus:border-[#EA580C] focus:outline-none focus:ring-1 focus:ring-[#EA580C]"
+                />
+              </div>
+
+              <button
+                onClick={async () => {
+                  setOrgDetailsLoading(true);
+                  try {
+                    const res = await fetch("/api/onboarding/org-details", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ name: orgName, description: orgDescription }),
+                    });
+                    if (!res.ok) {
+                      const data = await res.json();
+                      throw new Error(data.error || "Failed to save details");
+                    }
+                    setStep("choose-method");
+                  } catch (err) {
+                    console.error("Failed to save org details:", err);
+                  } finally {
+                    setOrgDetailsLoading(false);
+                  }
+                }}
+                disabled={!orgName.trim() || orgDetailsLoading}
+                className="w-full rounded-full bg-[#EA580C] px-6 py-3 font-medium text-white transition-colors hover:bg-[#C2410C] disabled:opacity-50"
+              >
+                {orgDetailsLoading ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                    Saving…
+                  </span>
+                ) : (
+                  "Continue"
+                )}
+              </button>
+            </div>
+          )}
+
+          {/* Step 3: Choose Method */}
           {step === "choose-method" && (
             <div className="space-y-4">
               <div className="mb-2 text-center">
